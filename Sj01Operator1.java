@@ -7,17 +7,17 @@ public class Sj01Operator1
     a = 100;
     b = 100;
     c = (int)45.67;
-    System.out.println(" Casting ÈÄ c = " + c);
+    System.out.println(" Casting í›„ c = " + c);
     c = a + b;
     //av = (float)c / 3.0;
     av = (float)c / 3.0f;
     
-    System.out.println("ÇÕÀº " + c + "ÀÔ´Ï´Ù.");
-    System.out.println("Æò±ÕÀº " + av + "ÀÔ´Ï´Ù.");
+    System.out.println("í•©ì€ " + c + "ì…ë‹ˆë‹¤.");
+    System.out.println("í‰ê· ì€ " + av + "ì…ë‹ˆë‹¤.");
     
     d = -a;
     na = 11 % 3;
-    System.out.println("ºÎÈ£ ¿¬»êÀÚ : -a = " + d);
-    System.out.println("³ª¸ÓÁö ¿¬»êÀÚ : 11 % 3 = " + na);
+    System.out.println("ë¶€í˜¸ ì—°ì‚°ì : -a = " + d);
+    System.out.println("ë‚˜ë¨¸ì§€ ì—°ì‚°ì : 11 % 3 = " + na);
   }
 }

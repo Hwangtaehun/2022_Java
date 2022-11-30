@@ -6,20 +6,18 @@ public class Sj01Operator2
     a = b= 10;
     c = ++a;
     d = b++;
-    System.out.println("ì¦ê°€ ì—°ì‚°ì ì „ìœ„í˜• : a = " + a + "\t c = " + c);
-    System.out.println("ì¦ê°€ ì—°ì‚°ì í›„ìœ„í˜• : b = " + b + "\t d = " + d);
+    System.out.println("Áõ°¡ ¿¬»êÀÚ ÀüÀ§Çü : a = " + a + "\t c = " + c);
+    System.out.println("Áõ°¡ ¿¬»êÀÚ ÈÄÀ§Çü : b = " + b + "\t d = " + d);
     a = 3;
     c = ++a + ++a;
-    System.out.println("c = ++a + ++a ì—°ì‚° :\t a = " + a + "\t c = " + c);
+    System.out.println("c = ++a + ++a ¿¬»ê :\t a = " + a + "\t c = " + c);
     c = ++a + ++a + ++a;
-    System.out.println("c = ++a + ++a + ++a ì—°ì‚° :\t a = " + a + "\t c = " + c);
+    System.out.println("c = ++a + ++a + ++a ¿¬»ê :\t a = " + a + "\t c = " + c);
     
     a = b = c = d = 10;
     a += 3;
     b -= 3;
     c *= 3;
     d %= 3;
-    System.out.println("ë³µí•©ì—°ì‚°ì : a = " + a + "\t b = " + b);
-    System.out.println("ë³µí•©ì—°ì‚°ì : c = " + c + "\t d = " + d);
-  }
-}   
+    System.out.print
+    
