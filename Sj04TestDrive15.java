@@ -8,9 +8,9 @@ public class Sj04TestDrive15
     ref1.voidMethod(0);
     ref1.voidMethod(1);
     val1 = ref1.intMethod(5, 3);
-    System.out.println("intMethodì‹¤í–‰ í›„ val1 = " + val1);
-    strName = ref1.stringMethod("ì„¸ì¢…");
-    System.out.println("stringMethodì‹¤í–‰ í›„ strName = \n" + strName);
+    System.out.println("intMethod½ÇÇà ÈÄ val1 = " + val1);
+    strName = ref1.stringMethod("¼¼Á¾");
+    System.out.println("stringMethod½ÇÇà ÈÄ strName = \n" + strName);
   }
 }
 
@@ -18,25 +18,25 @@ class Sj04Class15
 {
     String name;
     void voidMethod(int n){
-        System.out.println(n + " ì´ ì „ë‹¬ ëœ voidí˜• Method ì‹¤í–‰ ");
+        System.out.println(n + " ÀÌ Àü´Ş µÈ voidÇü Method ½ÇÇà ");
         if(n == 0){
-            System.out.println("n == 0ìœ¼ë¡œ voidí˜• Method ì¢…ë£Œë¨");
+            System.out.println("n == 0À¸·Î voidÇü Method Á¾·áµÊ");
             return;
         }
-        System.out.println("n != 0 ì¼ë•Œ voidí˜• Method ì‹¤í–‰ë¨");
+        System.out.println("n != 0 ÀÏ¶§ voidÇü Method ½ÇÇàµÊ");
         return;
     }
 
     int intMethod(int n1, int n2){
         int n3;
-        System.out.println("intë¥¼ Returní•˜ëŠ” Method ì‹¤í–‰");
+        System.out.println("int¸¦ ReturnÇÏ´Â Method ½ÇÇà");
         n3 = n1 + n2;
         return n3;
     }
 
     String stringMethod(String name){
-        this.name = "ì „ë‹¬ ëœ ì´ë¦„ì€ " + name + "ì…ë‹ˆë‹¤.";
-        System.out.println("ë¬¸ìì—´ì„ Return í•˜ëŠ” Method ì‹¤í–‰ ");
+        this.name = "Àü´Ş µÈ ÀÌ¸§Àº " + name + "ÀÔ´Ï´Ù.";
+        System.out.println("¹®ÀÚ¿­À» Return ÇÏ´Â Method ½ÇÇà ");
         return this.name;
     }
 }
