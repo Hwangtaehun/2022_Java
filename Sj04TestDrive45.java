@@ -3,7 +3,7 @@ final class Sj04Class44{
     }
 
     void print() {
-        System.out.println("Sj04Class44 print ì‹¤í–‰ë¨ ");
+        System.out.println("Sj04Class44 print ½ÇÇàµÊ ");
     }
 }
 
