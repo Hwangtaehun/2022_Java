@@ -32,11 +32,11 @@ class ChattingForm extends JFrame{
 	public void initForm() {
 		pan1 = new JPanel();
 		pan1.setPreferredSize(new Dimension(550, 10));
-		pan1.setLayout(new FlowLayout());
+		//pan1.setLayout(new FlowLayout());
 		add(pan1, BorderLayout.NORTH);
 		
 		pan2 =new JPanel();
-		pan2.setLayout(new FlowLayout());
+		pan2.setLayout(new BorderLayout());
 		
 		txtArea = new JTextArea(5, 60);
 		pan2.add(txtArea);
@@ -47,10 +47,10 @@ class ChattingForm extends JFrame{
 		pan3.setLayout(new BorderLayout());
 		
 		pan31 =new JPanel();
-		pan31.setLayout(new FlowLayout());
+		//pan31.setLayout(new FlowLayout());
 		
 		pan32 =new JPanel();
-		pan32.setLayout(new FlowLayout());
+		//pan32.setLayout(new FlowLayout());
 		
 		
 		label1 = new Label("Server Ip"); 
