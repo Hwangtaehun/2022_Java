@@ -35,6 +35,10 @@ class DrawTest extends JFrame{
 			x -= 10;
 			y -= 10;
 			size += 20;
+			try {
+				Thread.sleep(500);
+			}
+			catch(InterruptedException e) {}
 		}
 		size = 30;
 		System.out.println("paint");
