@@ -42,8 +42,8 @@ class SjThread6 extends JFrame implements Runnable{
 	}
 	
 	@Override
-	public synchronized void run() {
-	//public void run() {
+	//public synchronized void run() {
+	public void run() {
 		// TODO Auto-generated method stub
 		Rectangle rec;
 		for(int i = 0; i < 30; i++) {
