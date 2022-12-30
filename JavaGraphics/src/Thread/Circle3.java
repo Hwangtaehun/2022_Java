@@ -10,20 +10,10 @@ public class Circle3 {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(640, 480);
 		frame.setVisible(true);
-		Thread trd1 = new Thread(frame, "tName1");
-		trd1.start();
-		Thread trd2 = new Thread(frame, "tName2");
-		trd2.start();
-		Thread trd3 = new Thread(frame, "tName3");
-		trd3.start();
 	}
 }
 
-class DrawTest extends JFrame implements Runnable{
-	private int x;
-	private int y;
-	private int size = 30;
-	
+class DrawTest extends JFrame{
 	public DrawTest() {}
 	public DrawTest(String str) {
 		super(str);
@@ -32,50 +22,43 @@ class DrawTest extends JFrame implements Runnable{
 	
 	class MouseClick extends MouseAdapter{
 		public void mousePressed(MouseEvent e) {
-			x = e.getX();
-			y = e.getY();
+			int x = e.getX();
+			int y = e.getY();
+			Graphics gra = getGraphics();
+			
+			Thread1 td1 = new Thread1(x, y, gra);
+			td1.start();
 		}
 	}
+}
 
-	@Override
+class Thread1 extends Thread{
+	private int x;
+	private int y;
+	private Graphics gra;
+	
+	Thread1(){}
+	Thread1(int x1, int y2, Graphics gra1){
+		this.x = x1;
+		this.y = y2;
+		this.gra = gra1;
+	}
+	
 	public void run() {
 		// TODO Auto-generated method stub
-		String tName = Thread.currentThread().getName();
-		Graphics gra = getGraphics();
-		if(tName.equals("tName2")) {
-			synchronized(this) {
-				for(int i = 0; i < 9; i++)
-				{
-					gra.drawOval(x, y, size, size);
-					x -= 10;
-					y -= 10;
-					size += 20;
-					try {
-						Thread.sleep(500);
-					}
-					catch(InterruptedException e) {}
-				}
-				size = 30;
-				System.out.println("paint");
+		int size = 30;
+		for(int i = 0; i < 9; i++)
+		{
+			gra.drawOval(x, y, size, size);
+			x -= 10;
+			y -= 10;
+			size += 20;
+			try {
+				Thread.sleep(500);
 			}
+			catch(InterruptedException e) {}
 		}
-		else {
-			synchronized(this) {
-				for(int i = 0; i < 5; i++)
-				{
-					gra.drawOval(x, y, size, size);
-					x -= 10;
-					y -= 10;
-					size += 20;
-					try {
-						Thread.sleep(500);
-					}
-					catch(InterruptedException e) {}
-				}
-				size = 30;
-				System.out.println("paint");
-			}
-		}
-		//DrawCircle();
+		size = 30;
+		System.out.println("paint");
 	}
 }
