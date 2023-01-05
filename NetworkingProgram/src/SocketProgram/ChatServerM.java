@@ -1,4 +1,5 @@
 package SocketProgram;
+import java.util.*;
 import java.net.*;
 import java.io.*;
 
@@ -8,6 +9,10 @@ public class ChatServerM {
 		Socket clientSocketet;
 		CServerThread trd;
 		boolean listening = true;
+		
+		LinkedList<Socket> list = new LinkedList<Socket>();
+		int clientN = 1;
+		
 		try {
 			serverSocket = new ServerSocket(1234);
 		}
@@ -19,7 +24,9 @@ public class ChatServerM {
 		try {
 			while(listening) {
 				clientSocketet = serverSocket.accept();
-				trd = new CServerThread(clientSocketet);
+				list.addLast(clientSocketet);
+				trd = new CServerThread(clientSocketet, clientN, list);
+				clientN++;
 				trd.start();
 			}
 			serverSocket.close();
@@ -37,9 +44,20 @@ class CServerThread extends Thread{
 	BufferedReader socketIn;
 	String strInput;
 	
+	LinkedList<Socket> list;
+	int clientN;
+	int indexNo;
+	
 	public CServerThread(){}
-	public CServerThread(Socket socket) {
+	public CServerThread(Socket socket, int num, LinkedList<Socket> numlist) {
 		clientSocket = socket;
+		clientN = num;
+		list = numlist;
+		for (int i = 0; i < list.size(); i++) {
+			Socket inf = list.get(i);
+			if(inf == clientSocket)
+				indexNo = i;
+		}
 	}
 	public void run() {
 		try {
@@ -49,13 +67,21 @@ class CServerThread extends Thread{
 			socketOut.println("Multi Echo Server와 연결되었습니다.");
 			
 			while((strInput = socketIn.readLine()) != null) {
-				socketOut.println("Multi Echo Server : " + strInput);
+				for (int i = 0; i < list.size(); i++) {
+					Socket sendSocket = list.get(i);
+					socketOut = new PrintWriter(sendSocket.getOutputStream(), true);
+					if(indexNo != i)
+					{
+						socketOut.println(clientN + " : " + strInput);
+					}
+				}
 			}
 			socketOut.close();
 			socketIn.close();
 			clientSocket.close();
 		}
 		catch(IOException e) {
+			list.remove(indexNo);
 			System.out.println("Client\n" + clientSocket + "\n이 접속이 끊겼습니다.");
 		}
 	}
