@@ -6,7 +6,7 @@ public class ChatServerM {
 	public static void main(String[] args) {
 		ServerSocket serverSocket = null;
 		Socket clientSocketet;
-		ServerThread trd;
+		CServerThread trd;
 		boolean listening = true;
 		try {
 			serverSocket = new ServerSocket(1234);
@@ -19,7 +19,7 @@ public class ChatServerM {
 		try {
 			while(listening) {
 				clientSocketet = serverSocket.accept();
-				trd = new ServerThread(clientSocketet);
+				trd = new CServerThread(clientSocketet);
 				trd.start();
 			}
 			serverSocket.close();
@@ -31,14 +31,14 @@ public class ChatServerM {
 	}
 }
 
-class ServerThread extends Thread{
+class CServerThread extends Thread{
 	Socket clientSocket = null;
 	PrintWriter socketOut;
 	BufferedReader socketIn;
 	String strInput;
 	
-	public ServerThread(){}
-	public ServerThread(Socket socket) {
+	public CServerThread(){}
+	public CServerThread(Socket socket) {
 		clientSocket = socket;
 	}
 	public void run() {
