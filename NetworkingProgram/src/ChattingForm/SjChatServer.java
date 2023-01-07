@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.net.*;
 import java.util.Vector;
 import java.io.*;
+import javax.swing.*;
+import java.awt.event.*;
 
 public class SjChatServer {
 	public static void main(String[] args) {
@@ -62,9 +64,12 @@ class ChatFrameServer extends JFrame{
 		portNo = new JTextField("1234", 4);
 		talkName = new JTextField("Server", 4);
 		connectButton = new JButton("Server Start");
+		connectButton.addActionListener(new SStartBHandler());
 		disConnectButton = new JButton("Server Stop");
+		disConnectButton.addActionListener(new SStopBHandler());
 		messageBox = new JTextField(38);
 		sendButton = new JButton("Send");
+		sendButton.addActionListener(new SSendBHandler());
 		
 		pan1 = new JPanel();
 		pan2 = new JPanel();
@@ -124,6 +129,34 @@ class ChatFrameServer extends JFrame{
 		catch(IOException e) {
 			System.out.println("접속 실패입니다.");
 			System.exit(1);
+		}
+	}
+	
+	public class SStartBHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			// TODO Auto-generated method stub
+			connectButton.setEnabled(false);
+			disConnectButton.setEnabled(true);
+			sendButton.setEnabled(true);
+		}
+	}
+	
+	public class SStopBHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			connectButton.setEnabled(true);
+			disConnectButton.setEnabled(false);
+			sendButton.setEnabled(false);
+		}
+	}
+	
+	public class SSendBHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 }
