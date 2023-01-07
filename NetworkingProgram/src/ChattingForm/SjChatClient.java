@@ -3,13 +3,17 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import javax.swing.*;
+
+import ChattingForm.ChatServerFrame.SStartBHandler;
 
 public class SjChatClient {
 	public static void main(String[] args) {
 		//모양
-		ChatClientFrame cf = new ChatClientFrame("Sejong Chatting Client");
-		cf.addWindowListener(new WindowExit());
-		cf.setVisible(true);
+		ChatClientFrame chatForm = new ChatClientFrame("Sejong Chatting Client");
+		chatForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		chatForm.setSize(600, 260);
+		chatForm.setVisible(true);
 		
 		//클라이언트 대화
 		/*Socket echoSocket = null;
@@ -57,11 +61,11 @@ public class SjChatClient {
 	}
 }
 
-class ChatClientFrame extends Frame{
-	Panel pan1, pan2, pan3, pan11, pan12, pan21, pan22;
-	TextArea showText;
-	TextField severAddr, portNo, talkName, messageBox;
-	Button connectButton, disconnectButton, sendButton;
+class ChatClientFrame extends JFrame{
+	JTextArea showText;
+	JTextField severIp, portNo, talkName, messageBox;
+	JButton connectButton, disConnectButton, sendButton;
+	JPanel pan1, pan2, pan3, pan31, pan32;
 	
 	Socket echoSocket = null;
 	PrintStream socketOut = null;
@@ -70,65 +74,57 @@ class ChatClientFrame extends Frame{
 	String strUser, strMsg;
 	Sj10ReceiveThread1 rec;
 	
-	ChatClientFrame(){}
-	ChatClientFrame(final String str){
+	public ChatClientFrame() {}
+	public ChatClientFrame(String str) {
 		super(str);
-		pan1 = new Panel();
-		pan2 = new Panel();
-		pan3 = new Panel();
-		pan11 = new Panel();
-		pan12 = new Panel();
-		pan21 = new Panel();
-		pan22 = new Panel();
+		showText = new JTextArea(8,78);
+		severIp = new JTextField("localhost", 7);
+		portNo = new JTextField("1234", 4);
+		talkName = new JTextField("손님1", 4);
+		connectButton = new JButton("Connect");
+		connectButton.addActionListener(new CCBHandler());
+		disConnectButton = new JButton("DisConnect");
+		disConnectButton.addActionListener(new CDCBHandler());
+		messageBox = new JTextField(38);
+		sendButton = new JButton("Send");
+		sendButton.addActionListener(new SendHandler());
 		
-		showText = new TextArea(10, 50);
-		severAddr = new TextField("localhost", 10);
-		portNo = new TextField("1234", 10);
-		talkName = new TextField("손님", 10);
-		messageBox = new TextField(30);
-		connectButton = new Button("Connect");
-		disconnectButton = new Button("DisConnect");
-		sendButton = new Button("Send");
-		setSize(570,240);
-		//addWindowListener(new Sj6WindowHandler());
+		pan1 = new JPanel();
+		pan2 = new JPanel();
+		pan3 = new JPanel();
+		pan31 = new JPanel();
+		pan32 = new JPanel();
+		
 		pan1.setBackground(Color.GREEN);
 		pan2.setBackground(Color.YELLOW);
-		pan11.setBackground(Color.LIGHT_GRAY);
-		pan12.setBackground(Color.ORANGE);
-		pan21.setBackground(Color.CYAN);
-		pan22.setBackground(Color.BLUE);
+		pan3.setBackground(Color.CYAN);
 		
-		pan1.setLayout(new BorderLayout());
-		pan12.setLayout(new BorderLayout());
+		add("North", pan1);
+		add("Center", pan2);
+		add("South", pan3);
+		
 		pan2.setLayout(new BorderLayout());
-		pan21.setLayout(new BorderLayout());
-		pan22.setLayout(new BorderLayout());
-		
-		pan21.add(showText);
-		pan22.add(messageBox);
-		
-		pan2.add("North", pan21);
-		pan2.add("Center", pan22);
-		
-		pan11.setLayout(new GridLayout(4, 2, 0, 10));
-		pan11.add(new Label(" Server Ip"));
-		pan11.add(severAddr);
-		pan11.add(new Label(" Port No"));
-		pan11.add(portNo);
-		pan11.add(new Label(" Name"));
-		pan11.add(talkName);
-		pan11.add(connectButton);
-		pan11.add(disconnectButton);
-		pan12.add(sendButton);
+		pan2.add(showText);
 		showText.setEditable(false);
 		
-		disconnectButton.setEnabled(false);
+		pan31.add(new Label("Server IP"));
+		pan31.add(severIp);
+		pan31.add(new Label(" port No"));
+		pan31.add(portNo);
+		pan31.add(new Label(" 대  화  명"));
+		pan31.add(talkName);
+		pan31.add(connectButton);
+		pan31.add(disConnectButton);
+		disConnectButton.setEnabled(false);
+		pan32.add(new Label("Message"));
+		pan32.add(messageBox);
+		messageBox.setEditable(false);
+		pan32.add(sendButton);
 		sendButton.setEnabled(false);
-		pan1.add("North", pan11);
-		pan1.add("Center", pan12);
 		
-		add("East", pan1);
-		add("Center", pan2);
+		pan3.setLayout(new BorderLayout());
+		pan3.add("Center", pan31);
+		pan3.add("South", pan32);
 	}
 	
 	public void ClientChatting() {
@@ -136,11 +132,10 @@ class ChatClientFrame extends Frame{
 			echoSocket = new Socket("localhost", 1234);
 			socketOut = new PrintStream(echoSocket.getOutputStream(), true);
 			socketIn = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
-			
 			strMsg = socketIn.readLine();
-			if(strMsg.equals("Sj10ChatServer")) {
-				socketOut.println("Sj10EchoClient3");
-				rec = new Sj10ReceiveThread1(socketIn);
+			if(strMsg.equals("SjChatServer")) {
+				socketOut.println("SjChatClient");
+				rec = new Sj10ReceiveThread1(socketIn, showText);
 				rec.start();
 				
 				stdIn = new BufferedReader(new InputStreamReader(System.in));
@@ -169,6 +164,55 @@ class ChatClientFrame extends Frame{
 			System.exit(1);
 		}
 	}
+	
+	public class CCBHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			// TODO Auto-generated method stub
+			connectButton.setEnabled(false);
+			disConnectButton.setEnabled(true);
+			sendButton.setEnabled(true);
+			messageBox.setEditable(true);
+			ClientChatting();
+		}
+	}
+	
+	public class CDCBHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			// TODO Auto-generated method stub
+			connectButton.setEnabled(true);
+			disConnectButton.setEnabled(false);
+			sendButton.setEnabled(false);
+			messageBox.setEditable(false);
+			try {
+				socketOut.close();
+				socketIn.close();
+				echoSocket.close();
+			}
+			catch(UnknownHostException e) {
+				System.err.println("Server가 없습니다. 'Stop'");
+				System.exit(1);
+			}
+			catch(IOException e) {
+				System.err.println("입출력  Error. 'Stop'");
+				System.exit(1);
+			}
+			catch(Exception e) {
+				System.out.println("연결이 끊겼습니다. 'Stop'");
+				System.exit(1);
+			}
+		}
+	}
+	
+	public class SendHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			// TODO Auto-generated method stub
+			strUser = messageBox.getText();
+			socketOut.println(strUser);
+		}
+	}
 }
 
 class WindowExit extends WindowAdapter{
@@ -182,19 +226,22 @@ class WindowExit extends WindowAdapter{
 class Sj10ReceiveThread1 extends Thread{
 	BufferedReader socketIn = null;
 	String strSocket;
+	JTextArea showText;
+	
 	Sj10ReceiveThread1(){}
-	Sj10ReceiveThread1(BufferedReader socketIn){
+	Sj10ReceiveThread1(BufferedReader socketIn, JTextArea showText){
 		this.socketIn = socketIn;
+		this.showText = showText;
 	}
 	public void run() {
-		System.out.println("Server에 접속됨");
+		showText.append("Server에 접속됨");
 		try {
 			while((strSocket = socketIn.readLine()) != null) {
-				System.out.println(strSocket);
+				showText.append(strSocket);
 			}
 		}
 		catch(Exception e) {
-			System.out.println("연결이 끊겼습니다.");
+			showText.append("연결이 끊겼습니다.");
 		}
 	}
 }

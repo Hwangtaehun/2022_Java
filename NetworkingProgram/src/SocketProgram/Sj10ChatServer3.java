@@ -13,10 +13,10 @@ public class Sj10ChatServer3 {
 		try {
 			serverSocket = new ServerSocket(1234);
 		}catch(IOException e) {
-			System.out.println("Server Socket »ı¼º ¿À·ù ¹ß»ı !");
+			System.out.println("Server Socket ìƒì„± ì˜¤ë¥˜ ë°œìƒ !");
 			System.exit(1);
 		}
-		System.out.println("Chatting Server3±â 1234¹ø Port¿¡¼­ Á¢¼ÓÀ» ±â´Ù¸³´Ï´Ù.");
+		System.out.println("Chatting Server3ê¸° 1234ë²ˆ Portì—ì„œ ì ‘ì†ì„ ê¸°ë‹¤ë¦½ë‹ˆë‹¤.");
 		try {
 			while(bool) {
 				clientSocketet = serverSocket.accept();
@@ -27,7 +27,7 @@ public class Sj10ChatServer3 {
 			serverSocket.close();
 		}
 		catch(IOException e) {
-			System.out.println("Á¢¼Ó ½ÇÆĞÀÔ´Ï´Ù.");
+			System.out.println("ì ‘ì† ì‹¤íŒ¨ì…ë‹ˆë‹¤.");
 			System.exit(1);
 		}
 	}
@@ -48,11 +48,11 @@ class ChatThread3 extends Thread{
 	
 	public void removeClient() throws IOException{
 		vClient.removeElement(this);
-		broadcast("[" + strName + "] ´ÔÀÌ ÅğÀåÇÏ¼Ì½À´Ï´Ù.");
+		broadcast("[" + strName + "] ë‹˜ì´ í‡´ì¥í•˜ì…¨ìŠµë‹ˆë‹¤.");
 	}
 	
 	public void sendUserList() throws IOException{
-		socketOut.println("< ÇöÀç Á¢¼ÓÀÚ " + vClient.size() + "¸í ¸í´Ü >");
+		socketOut.println("< í˜„ì¬ ì ‘ì†ì " + vClient.size() + "ëª… ëª…ë‹¨ >");
 		for(int i = 0; i < vClient.size(); i++) {
 			ChatThread3 trd = ((ChatThread3)vClient.elementAt(i));
 			socketOut.println(trd.strName);
@@ -61,27 +61,27 @@ class ChatThread3 extends Thread{
 	
 	public void run() {
 		try {
-			System.out.println("Client:" + clientSocket.toString() + "\n¿¡¼­ Á¢¼ÓÇÏ¿´½À´Ï´Ù.");
+			System.out.println("Client:" + clientSocket.toString() + "\nì—ì„œ ì ‘ì†í•˜ì˜€ìŠµë‹ˆë‹¤.");
 			socketOut = new PrintWriter(clientSocket.getOutputStream(), true);
 			socketIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			
 			socketOut.println("Sj10ChatServer");
 			strInput = socketIn.readLine();
 			if(strInput.equals("Sj10EchoClient3")) {
-				socketOut.println("<´ÜÃàÅ°> : /h(µµ¿ò¸»), /u(Á¢¼ÓÀÚ¸ñ·Ï), /r ´ëÈ­¸í (´ëÈ­¸í º¯°æ)");
-				socketOut.println("´ëÈ­¸íÀ» ÀÔ·ÂÇÏ¼¼¿ä !");
+				socketOut.println("<ë‹¨ì¶•í‚¤> : /h(ë„ì›€ë§), /u(ì ‘ì†ìëª©ë¡), /r ëŒ€í™”ëª… (ëŒ€í™”ëª… ë³€ê²½)");
+				socketOut.println("ëŒ€í™”ëª…ì„ ì…ë ¥í•˜ì„¸ìš” !");
 				strName = socketIn.readLine();
-				broadcast("[" + strName + "] ´ÔÀÌ ÀÔÀåÇÏ¼Ì½À´Ï´Ù.");
+				broadcast("[" + strName + "] ë‹˜ì´ ì…ì¥í•˜ì…¨ìŠµë‹ˆë‹¤.");
 				
 				while((strInput = socketIn.readLine()) != null) {
 					if(strInput.equals("/h")) {
-						socketOut.println("<´ÜÃàÅ°> : /h(µµ¿ò¸»), /u(Á¢¼ÓÀÚ¸ñ·Ï), /r ´ëÈ­¸í (´ëÈ­¸í º¯°æ)");
+						socketOut.println("<ë‹¨ì¶•í‚¤> : /h(ë„ì›€ë§), /u(ì ‘ì†ìëª©ë¡), /r ëŒ€í™”ëª… (ëŒ€í™”ëª… ë³€ê²½)");
 					}else if(strInput.equals("/u")) {
 						sendUserList();
 					}
 					else if(strInput.regionMatches(0, "/r", 0, 2)) {
 						String new_name = strInput.substring(2).trim();
-						broadcast("Á¢¼ÓÀÚ " + strName + " ´ÔÀÇ ´ëÈ­¸íÀÌ [" + new_name + "](À¸)·Î ¹Ù²î¾ú½À´Ï´Ù.");
+						broadcast("ì ‘ì†ì " + strName + " ë‹˜ì˜ ëŒ€í™”ëª…ì´ [" + new_name + "](ìœ¼)ë¡œ ë°”ë€Œì—ˆìŠµë‹ˆë‹¤.");
 						strName = new_name;
 					}
 					else {
@@ -89,7 +89,7 @@ class ChatThread3 extends Thread{
 					}
 				}
 			}else {
-				socketOut.println("Àß¸øµÈ ClientÀÔ´Ï´Ù.");
+				socketOut.println("ì˜ëª»ëœ Clientì…ë‹ˆë‹¤.");
 			}
 			socketOut.close();
 			socketIn.close();
@@ -99,7 +99,7 @@ class ChatThread3 extends Thread{
 			try {
 				removeClient();
 			}catch(IOException e1) {}
-			System.out.println(" " + strName + "ÀÇ Á¢¼ÓÀÌ ²÷°å½À´Ï´Ù.");
+			System.out.println(" " + strName + "ì˜ ì ‘ì†ì´ ëŠê²¼ìŠµë‹ˆë‹¤.");
 		}
 	}
 	

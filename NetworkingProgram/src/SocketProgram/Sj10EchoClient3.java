@@ -28,22 +28,22 @@ public class Sj10EchoClient3 {
 				stdIn.close();
 			}
 			else {
-				System.out.println("Àß¸øµÈ ServerÀÔ´Ï´Ù.");
+				System.out.println("ì˜ëª»ëœ Serverì…ë‹ˆë‹¤.");
 			}
 			socketOut.close();
 			socketIn.close();
 			echoSocket.close();
 		}
 		catch(UnknownHostException e) {
-			System.err.println("Server°¡ ¾ø½À´Ï´Ù.");
+			System.err.println("Serverê°€ ì—†ìŠµë‹ˆë‹¤.");
 			System.exit(1);
 		}
 		catch(IOException e) {
-			System.err.println("ÀÔÃâ·Â  Error.");
+			System.err.println("ì…ì¶œë ¥  Error.");
 			System.exit(1);
 		}
 		catch(Exception e) {
-			System.out.println("¿¬°áÀÌ ²÷°å½À´Ï´Ù.");
+			System.out.println("ì—°ê²°ì´ ëŠê²¼ìŠµë‹ˆë‹¤.");
 			System.exit(1);
 		}
 	}
@@ -57,14 +57,14 @@ public class Sj10EchoClient3 {
 		this.socketIn = socketIn;
 	}
 	public void run() {
-		System.out.println("Server¿¡ Á¢¼ÓµÊ");
+		System.out.println("Serverì— ì ‘ì†ë¨");
 		try {
 			while((strSocket = socketIn.readLine()) != null) {
 				System.out.println(strSocket);
 			}
 		}
 		catch(Exception e) {
-			System.out.println("¿¬°áÀÌ ²÷°å½À´Ï´Ù.");
+			System.out.println("ì—°ê²°ì´ ëŠê²¼ìŠµë‹ˆë‹¤.");
 		}
 	}
 }*/
