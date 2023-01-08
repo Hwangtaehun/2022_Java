@@ -48,12 +48,6 @@ class ChatServerFrame extends Frame{
 	TextField severAddr, portNo, talkName, messageBox;
 	Button connectButton, disconnectButton, sendButton;
 	
-	ServerSocket serverSocket = null;
-	Socket clientSocketet = null;
-	ChatThread3 chatTrd;
-	boolean bool = true;
-	Vector<ChatThread3> vClient = new Vector<>();
-	
 	ChatServerFrame(){}
 	ChatServerFrame(String str){
 		super(str);
@@ -117,55 +111,12 @@ class ChatServerFrame extends Frame{
 		add("Center", pan2);
 	}
 	
-	public void ChattingServer() {
-		try {
-			serverSocket = new ServerSocket(1234);
-		}catch(IOException e) {
-			showText.append("Server Socket 생성 오류 발생 !");
-			System.exit(1);
-		}
-		showText.append("Chatting Server3이 1234번 Port에서 접속을 기다립니다.\n");
-		try {
-			while(bool) {
-				clientSocketet = serverSocket.accept();
-				chatTrd = new ChatThread3(clientSocketet, vClient, showText);
-				chatTrd.start();
-				vClient.addElement(chatTrd);
-			}
-			serverSocket.close();
-		}
-		catch(IOException e) {
-			showText.append("접속 실패입니다.");
-			System.exit(1);
-		}
-	}
-	
 	public class SStartBHandler implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			// TODO Auto-generated method stub
 			connectButton.setEnabled(false);
 			disconnectButton.setEnabled(true);
-			ChattingServer();
-//			try {
-//				while(bool) {
-//					clientSocketet = serverSocket.accept();
-//					chatTrd = new ChatThread3(clientSocketet, vClient, showText);
-//					chatTrd.start();
-//					vClient.addElement(chatTrd);
-//				}
-//				serverSocket.close();
-//				if(bool == false)
-//				{
-//					connectButton.setEnabled(true);
-//					disconnectButton.setEnabled(false);
-//				}
-//			}
-//			catch(IOException e) {
-//				System.out.println("접속 실패입니다.");
-//				System.exit(1);
-//			}
-		}
 	}
 	
 	public class SStopBHandler implements ActionListener{
@@ -174,13 +125,6 @@ class ChatServerFrame extends Frame{
 			// TODO Auto-generated method stub
 			connectButton.setEnabled(true);
 			disconnectButton.setEnabled(false);
-			try {
-				serverSocket.close();
-			}
-			catch(IOException e) {
-				System.out.println("stop 접속 실패입니다.");
-				System.exit(1);
-			}
 		}
 	}
 }
