@@ -1,6 +1,5 @@
 package ChattingForm;
 import java.awt.*;
-import javax.swing.*;
 import java.net.*;
 import java.util.Vector;
 import java.io.*;
@@ -47,12 +46,7 @@ class ChatServerFrame extends Frame{
 	TextArea showText;
 	TextField severAddr, portNo, talkName, messageBox;
 	Button connectButton, disconnectButton, sendButton;
-	
-	ServerSocket serverSocket = null;
-	Socket clientSocketet = null;
-	ChatThread3 chatTrd;
-	boolean bool = true;
-	Vector<ChatThread3> vClient = new Vector<>();
+	ChatServer cs;
 	
 	ChatServerFrame(){}
 	ChatServerFrame(String str){
@@ -115,9 +109,47 @@ class ChatServerFrame extends Frame{
 		
 		add("East", pan1);
 		add("Center", pan2);
+		cs = new ChatServer(showText);
 	}
 	
-	public void ChattingServer() {
+	public class SStartBHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			// TODO Auto-generated method stub
+			connectButton.setEnabled(false);
+			disconnectButton.setEnabled(true);
+			cs.start();
+		}
+	}
+	
+	public class SStopBHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			// TODO Auto-generated method stub
+			connectButton.setEnabled(true);
+			disconnectButton.setEnabled(false);
+			cs.ServerStop();
+		}
+	}
+}
+
+class ChatServer extends Thread{
+	ServerSocket serverSocket = null;
+	Socket clientSocketet = null;
+	ChatThread3 chatTrd;
+	boolean bool = true;
+	Vector<ChatThread3> vClient = new Vector<>();
+	
+	TextArea showText;
+	
+	ChatServer(){}
+	ChatServer(TextArea showText){
+		this.showText = showText;
+	}
+	
+	public void run()
+	{
+		bool = true;
 		try {
 			serverSocket = new ServerSocket(1234);
 		}catch(IOException e) {
@@ -135,53 +167,14 @@ class ChatServerFrame extends Frame{
 			serverSocket.close();
 		}
 		catch(IOException e) {
-			showText.append("접속 실패입니다.");
+			System.out.println("접속 실패입니다.");
 			System.exit(1);
 		}
 	}
 	
-	public class SStartBHandler implements ActionListener{
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			// TODO Auto-generated method stub
-			connectButton.setEnabled(false);
-			disconnectButton.setEnabled(true);
-			ChattingServer();
-//			try {
-//				while(bool) {
-//					clientSocketet = serverSocket.accept();
-//					chatTrd = new ChatThread3(clientSocketet, vClient, showText);
-//					chatTrd.start();
-//					vClient.addElement(chatTrd);
-//				}
-//				serverSocket.close();
-//				if(bool == false)
-//				{
-//					connectButton.setEnabled(true);
-//					disconnectButton.setEnabled(false);
-//				}
-//			}
-//			catch(IOException e) {
-//				System.out.println("접속 실패입니다.");
-//				System.exit(1);
-//			}
-		}
-	}
-	
-	public class SStopBHandler implements ActionListener{
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			// TODO Auto-generated method stub
-			connectButton.setEnabled(true);
-			disconnectButton.setEnabled(false);
-			try {
-				serverSocket.close();
-			}
-			catch(IOException e) {
-				System.out.println("stop 접속 실패입니다.");
-				System.exit(1);
-			}
-		}
+	public void ServerStop()
+	{
+		bool = false;
 	}
 }
 

@@ -64,13 +64,7 @@ class ChatClientFrame extends JFrame{
 	JTextField severIp, portNo, talkName, messageBox;
 	JButton connectButton, disConnectButton, sendButton;
 	JPanel pan1, pan2, pan3, pan31, pan32;
-	
-	Socket echoSocket = null;
-	PrintStream socketOut = null;
-	BufferedReader socketIn = null;
-	//BufferedReader stdIn;
-	String strUser, strMsg;
-	Sj10ReceiveThread1 rec;
+	ClientChatting cc;
 	
 	public ChatClientFrame() {}
 	public ChatClientFrame(String str) {
@@ -123,9 +117,60 @@ class ChatClientFrame extends JFrame{
 		pan3.setLayout(new BorderLayout());
 		pan3.add("Center", pan31);
 		pan3.add("South", pan32);
+		
+		cc = new ClientChatting(showText, messageBox);
 	}
 	
-	public void ClientChatting() {
+	public class CCBHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			// TODO Auto-generated method stub
+			connectButton.setEnabled(false);
+			disConnectButton.setEnabled(true);
+			sendButton.setEnabled(true);
+			messageBox.setEditable(true);
+			cc.connect();
+		}
+	}
+	
+	public class CDCBHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			// TODO Auto-generated method stub
+			connectButton.setEnabled(true);
+			disConnectButton.setEnabled(false);
+			sendButton.setEnabled(false);
+			messageBox.setEditable(false);
+			cc.disconnect();
+		}
+	}
+	
+	public class SendHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			// TODO Auto-generated method stub
+			cc.send();
+		}
+	}
+}
+
+class ClientChatting{
+	Socket echoSocket = null;
+	PrintStream socketOut = null;
+	BufferedReader socketIn = null;
+	BufferedReader stdIn;
+	String strUser, strMsg;
+	Sj10ReceiveThread1 rec;
+	JTextArea showText;
+	JTextField messageBox;
+	
+	ClientChatting(){}
+	ClientChatting(JTextArea ST, JTextField MB){
+		showText = ST;
+		messageBox = MB;
+	}
+	
+	public void connect() {
 		try {
 			echoSocket = new Socket("localhost", 1234);
 			socketOut = new PrintStream(echoSocket.getOutputStream(), true);
@@ -136,16 +181,31 @@ class ChatClientFrame extends JFrame{
 				socketOut.println("SjChatClient");
 				rec = new Sj10ReceiveThread1(socketIn, showText);
 				rec.start();
-				
-//				stdIn = new BufferedReader(new InputStreamReader(System.in));
-//				while((strUser = stdIn.readLine()) != null) {
-//					socketOut.println(strUser);
-//				}
-//				stdIn.close();
 			}
 			else {
 				System.out.println("잘못된 Server입니다.");
+				socketOut.close();
+				socketIn.close();
+				echoSocket.close();
 			}
+		}
+		catch(UnknownHostException e) {
+			System.err.println("Server가 없습니다.");
+			System.exit(1);
+		}
+		catch(IOException e) {
+			System.err.println("입출력  Error.");
+			System.exit(1);
+		}
+		catch(Exception e) {
+			System.out.println("연결이 끊겼습니다.");
+			System.exit(1);
+		}
+	}
+	
+	public void disconnect()
+	{
+		try {
 			socketOut.close();
 			socketIn.close();
 			echoSocket.close();
@@ -164,53 +224,9 @@ class ChatClientFrame extends JFrame{
 		}
 	}
 	
-	public class CCBHandler implements ActionListener{
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			// TODO Auto-generated method stub
-			connectButton.setEnabled(false);
-			disConnectButton.setEnabled(true);
-			sendButton.setEnabled(true);
-			messageBox.setEditable(true);
-			ClientChatting();
-		}
-	}
-	
-	public class CDCBHandler implements ActionListener{
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			// TODO Auto-generated method stub
-			connectButton.setEnabled(true);
-			disConnectButton.setEnabled(false);
-			sendButton.setEnabled(false);
-			messageBox.setEditable(false);
-			try {
-				socketOut.close();
-				socketIn.close();
-				echoSocket.close();
-			}
-			catch(UnknownHostException e) {
-				System.err.println("Server가 없습니다. 'Stop'");
-				System.exit(1);
-			}
-			catch(IOException e) {
-				System.err.println("입출력  Error. 'Stop'");
-				System.exit(1);
-			}
-			catch(Exception e) {
-				System.out.println("연결이 끊겼습니다. 'Stop'");
-				System.exit(1);
-			}
-		}
-	}
-	
-	public class SendHandler implements ActionListener{
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			// TODO Auto-generated method stub
-			strUser = messageBox.getText();
-			socketOut.println(strUser);
-		}
+	public void send() {
+		strUser = messageBox.getText();
+		socketOut.println(strUser);
 	}
 }
 
