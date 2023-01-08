@@ -5,8 +5,6 @@ import java.io.*;
 import java.net.*;
 import javax.swing.*;
 
-import ChattingForm.ChatServerFrame.SStartBHandler;
-
 public class SjChatClient {
 	public static void main(String[] args) {
 		//모양
@@ -70,7 +68,7 @@ class ChatClientFrame extends JFrame{
 	Socket echoSocket = null;
 	PrintStream socketOut = null;
 	BufferedReader socketIn = null;
-	BufferedReader stdIn;
+	//BufferedReader stdIn;
 	String strUser, strMsg;
 	Sj10ReceiveThread1 rec;
 	
@@ -133,16 +131,17 @@ class ChatClientFrame extends JFrame{
 			socketOut = new PrintStream(echoSocket.getOutputStream(), true);
 			socketIn = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
 			strMsg = socketIn.readLine();
+			//if(strMsg.equals("Sj10ChatServer")) {
 			if(strMsg.equals("SjChatServer")) {
 				socketOut.println("SjChatClient");
 				rec = new Sj10ReceiveThread1(socketIn, showText);
 				rec.start();
 				
-				stdIn = new BufferedReader(new InputStreamReader(System.in));
-				while((strUser = stdIn.readLine()) != null) {
-					socketOut.println(strUser);
-				}
-				stdIn.close();
+//				stdIn = new BufferedReader(new InputStreamReader(System.in));
+//				while((strUser = stdIn.readLine()) != null) {
+//					socketOut.println(strUser);
+//				}
+//				stdIn.close();
 			}
 			else {
 				System.out.println("잘못된 Server입니다.");

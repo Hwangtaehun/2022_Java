@@ -67,7 +67,8 @@ class ChatThread3 extends Thread{
 			
 			socketOut.println("Sj10ChatServer");
 			strInput = socketIn.readLine();
-			if(strInput.equals("Sj10EchoClient3")) {
+			if(strInput.equals("SjChatClient")) {
+			//if(strInput.equals("Sj10EchoClient3")) {
 				socketOut.println("<단축키> : /h(도움말), /u(접속자목록), /r 대화명 (대화명 변경)");
 				socketOut.println("대화명을 입력하세요 !");
 				strName = socketIn.readLine();
