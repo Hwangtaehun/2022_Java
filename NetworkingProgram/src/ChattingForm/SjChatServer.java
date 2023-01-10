@@ -4,6 +4,7 @@ import java.net.*;
 import java.util.Vector;
 import java.io.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 public class SjChatServer {
 	public static void main(String[] args) {
@@ -41,12 +42,15 @@ public class SjChatServer {
 	}
 }
 
-class ChatServerFrame extends Frame{
-	Panel pan1, pan2, pan3, pan11, pan12, pan21, pan22;
+class ChatServerFrame extends JFrame{
+	Panel pan1, pan2, pan3, pan11, pan12, pan13, pan21, pan22;
 	TextArea showText;
 	TextField severAddr, portNo, talkName, messageBox;
-	Button connectButton, disconnectButton, sendButton;
+	Button connectButton, disconnectButton, sendButton, forceexitButton;
+	JList<String> list;
+	DefaultListModel<String> model;
 	ChatServer cs;
+	int iSA, iPN, cnt = 0;
 	
 	ChatServerFrame(){}
 	ChatServerFrame(String str){
@@ -56,6 +60,7 @@ class ChatServerFrame extends Frame{
 		pan3 = new Panel();
 		pan11 = new Panel();
 		pan12 = new Panel();
+		pan13 = new Panel();
 		pan21 = new Panel();
 		pan22 = new Panel();
 		
@@ -69,7 +74,13 @@ class ChatServerFrame extends Frame{
 		disconnectButton = new Button("Server Stop");
 		disconnectButton.addActionListener(new SStopBHandler());
 		sendButton = new Button("Send");
+		forceexitButton = new Button("강퇴");
 		setSize(570,240);
+		
+		model=new DefaultListModel<>();
+		list=new JList<>(model);
+		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
 		//addWindowListener(new Sj6WindowHandler());
 		pan1.setBackground(Color.GREEN);
 		pan2.setBackground(Color.YELLOW);
@@ -80,6 +91,7 @@ class ChatServerFrame extends Frame{
 		
 		pan1.setLayout(new BorderLayout());
 		pan12.setLayout(new BorderLayout());
+		pan13.setLayout(new BorderLayout());
 		pan2.setLayout(new BorderLayout());
 		pan21.setLayout(new BorderLayout());
 		pan22.setLayout(new BorderLayout());
@@ -99,17 +111,19 @@ class ChatServerFrame extends Frame{
 		pan11.add(talkName);
 		pan11.add(connectButton);
 		pan11.add(disconnectButton);
-		pan12.add(sendButton);
+		pan12.add("Center", list);
+		pan13.add("North",forceexitButton);
+		pan13.add("South",sendButton);
 		showText.setEditable(false);
 		
 		disconnectButton.setEnabled(false);
 		sendButton.setEnabled(false);
 		pan1.add("North", pan11);
 		pan1.add("Center", pan12);
+		pan1.add("South", pan13);
 		
 		add("East", pan1);
 		add("Center", pan2);
-		cs = new ChatServer(showText);
 	}
 	
 	public class SStartBHandler implements ActionListener{
@@ -118,7 +132,26 @@ class ChatServerFrame extends Frame{
 			// TODO Auto-generated method stub
 			connectButton.setEnabled(false);
 			disconnectButton.setEnabled(true);
-			cs.start();
+			portNo.setEnabled(false);
+			severAddr.setEnabled(false);
+			talkName.setEnabled(false);
+			
+			int iportNo = 0;
+			String sportNo = portNo.getText();
+			try{
+				iportNo = Integer.parseInt(sportNo);
+	        }
+	        catch (NumberFormatException ex){
+	            ex.printStackTrace();
+	        }
+			cs = new ChatServer(showText, iportNo, list, model);
+			
+			if(cnt == 0)
+			{
+				cs.start();
+				cnt++;
+			}
+			cs.ServerStart();
 		}
 	}
 	
@@ -128,7 +161,18 @@ class ChatServerFrame extends Frame{
 			// TODO Auto-generated method stub
 			connectButton.setEnabled(true);
 			disconnectButton.setEnabled(false);
+			portNo.setEnabled(true);
+			severAddr.setEnabled(true);
+			talkName.setEnabled(true);
 			cs.ServerStop();
+		}
+	}
+	
+	public class ListClick implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 }
@@ -140,29 +184,37 @@ class ChatServer extends Thread{
 	boolean bool = true;
 	Vector<ChatThread3> vClient = new Vector<>();
 	
+	int iportNo;
 	TextArea showText;
+	JList<String> list;
+	DefaultListModel<String> model;
 	
 	ChatServer(){}
-	ChatServer(TextArea showText){
+	ChatServer(TextArea showText, int iportNo, JList<String> l, DefaultListModel<String> m){
 		this.showText = showText;
+		this.iportNo = iportNo;
+		this.list = l;
+		this.model = m;
 	}
 	
 	public void run()
 	{
-		bool = true;
 		try {
 			serverSocket = new ServerSocket(1234);
 		}catch(IOException e) {
-			showText.append("Server Socket 생성 오류 발생 !");
+			System.out.append("Server Socket 생성 오류 발생 !");
 			System.exit(1);
 		}
 		showText.append("Chatting Server3이 1234번 Port에서 접속을 기다립니다.\n");
 		try {
 			while(bool) {
+				ListSort();
 				clientSocketet = serverSocket.accept();
 				chatTrd = new ChatThread3(clientSocketet, vClient, showText);
 				chatTrd.start();
 				vClient.addElement(chatTrd);
+				model = new DefaultListModel<>();
+				ListSort();
 			}
 			serverSocket.close();
 		}
@@ -172,9 +224,24 @@ class ChatServer extends Thread{
 		}
 	}
 	
-	public void ServerStop()
+	public void ServerStop() 
 	{
 		bool = false;
+	}
+	
+	public void ServerStart()
+	{
+		bool = true;
+	}
+	
+	public void ListSort()
+	{
+		
+		for(int i = 0; i < vClient.size(); i++)
+		{
+			model.addElement(vClient.get(i).strName);
+		}
+		list = new JList<>(model);
 	}
 }
 
@@ -218,7 +285,7 @@ class ChatThread3 extends Thread{
 				socketOut.println("<단축키> : /h(도움말), /u(접속자목록), /r 대화명 (대화명 변경)");
 				socketOut.println("대화명을 입력하세요 !");
 				strName = socketIn.readLine();
-				broadcast("[" + strName + "] 님이 입장하셨습니다.\n");
+				broadcast("[" + strName + "] 님이 입장하셨습니다.");
 				
 				while((strInput = socketIn.readLine()) != null) {
 					if(strInput.equals("/h")) {
@@ -228,7 +295,7 @@ class ChatThread3 extends Thread{
 					}
 					else if(strInput.regionMatches(0, "/r", 0, 2)) {
 						String new_name = strInput.substring(2).trim();
-						broadcast("접속자 " + strName + " 님의 대화명이 [" + new_name + "](으)로 바뀌었습니다.\n");
+						broadcast("접속자 " + strName + " 님의 대화명이 [" + new_name + "](으)로 바뀌었습니다.");
 						strName = new_name;
 					}
 					else {
@@ -246,7 +313,7 @@ class ChatThread3 extends Thread{
 			try {
 				removeClient();
 			}catch(IOException e1) {}
-			System.out.println(" " + strName + "의 접속이 끊겼습니다.");
+			showText.append(" " + strName + "의 접속이 끊겼습니다.\n");
 		}
 	}
 	
@@ -255,6 +322,6 @@ class ChatThread3 extends Thread{
 			ChatThread3 trd = ((ChatThread3)vClient.elementAt(i));
 			trd.socketOut.println(msg);
 		}
-		showText.append(msg);
+		showText.append(msg + "\n");
 	}
 }

@@ -64,6 +64,8 @@ class ChatClientFrame extends JFrame{
 	JTextField severIp, portNo, talkName, messageBox;
 	JButton connectButton, disConnectButton, sendButton;
 	JPanel pan1, pan2, pan3, pan31, pan32;
+	
+	String stalkName;
 	ClientChatting cc;
 	
 	public ChatClientFrame() {}
@@ -129,7 +131,21 @@ class ChatClientFrame extends JFrame{
 			disConnectButton.setEnabled(true);
 			sendButton.setEnabled(true);
 			messageBox.setEditable(true);
-			cc.connect();
+			portNo.setEnabled(false);
+			severIp.setEnabled(false);
+			
+			int iportNo = 0;
+			String sportNo = portNo.getText();
+			stalkName = talkName.getText();
+			try{
+				iportNo = Integer.parseInt(sportNo);
+	        }
+	        catch (NumberFormatException ex){
+	            ex.printStackTrace();
+	        }
+			String sseverIp = severIp.getText();
+			
+			cc.connect(iportNo, sseverIp, stalkName);
 		}
 	}
 	
@@ -141,6 +157,9 @@ class ChatClientFrame extends JFrame{
 			disConnectButton.setEnabled(false);
 			sendButton.setEnabled(false);
 			messageBox.setEditable(false);
+			portNo.setEnabled(true);
+			severIp.setEnabled(true);
+			
 			cc.disconnect();
 		}
 	}
@@ -149,7 +168,9 @@ class ChatClientFrame extends JFrame{
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			// TODO Auto-generated method stub
-			cc.send();
+			//stalkName = talkName.getText();
+			stalkName = talkName.getText();
+			cc.send(stalkName);
 		}
 	}
 }
@@ -164,21 +185,26 @@ class ClientChatting{
 	JTextArea showText;
 	JTextField messageBox;
 	
+	String stalkName;
+	
 	ClientChatting(){}
 	ClientChatting(JTextArea ST, JTextField MB){
 		showText = ST;
 		messageBox = MB;
 	}
 	
-	public void connect() {
+	public void connect(int iportNo, String sseverIp, String stalkName) {
+		this.stalkName = stalkName; //이걸 어떻게 서버에 알릴까?
+		
 		try {
-			echoSocket = new Socket("localhost", 1234);
+			echoSocket = new Socket(sseverIp, iportNo);//new Socket("localhost", 1234);
 			socketOut = new PrintStream(echoSocket.getOutputStream(), true);
 			socketIn = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
 			strMsg = socketIn.readLine();
 			//if(strMsg.equals("Sj10ChatServer")) {
 			if(strMsg.equals("SjChatServer")) {
 				socketOut.println("SjChatClient");
+				socketOut.println(stalkName);
 				rec = new Sj10ReceiveThread1(socketIn, showText);
 				rec.start();
 			}
@@ -224,7 +250,12 @@ class ClientChatting{
 		}
 	}
 	
-	public void send() {
+	public void send(String stalkName) {
+//		if(this.stalkName != stalkName)
+//		{
+//			strUser = "\r" + stalkName;
+//			socketOut.println(strUser);
+//		}
 		strUser = messageBox.getText();
 		socketOut.println(strUser);
 	}
@@ -252,7 +283,7 @@ class Sj10ReceiveThread1 extends Thread{
 		showText.append("Server에 접속됨");
 		try {
 			while((strSocket = socketIn.readLine()) != null) {
-				showText.append(strSocket);
+				showText.append(strSocket + "\n");
 			}
 		}
 		catch(Exception e) {
