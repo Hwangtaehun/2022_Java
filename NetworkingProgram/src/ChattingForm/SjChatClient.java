@@ -185,7 +185,7 @@ class ClientChatting{
 	JTextArea showText;
 	JTextField messageBox;
 	
-	String stalkName;
+	String talkName;
 	
 	ClientChatting(){}
 	ClientChatting(JTextArea ST, JTextField MB){
@@ -194,17 +194,16 @@ class ClientChatting{
 	}
 	
 	public void connect(int iportNo, String sseverIp, String stalkName) {
-		this.stalkName = stalkName; //이걸 어떻게 서버에 알릴까?
-		
 		try {
 			echoSocket = new Socket(sseverIp, iportNo);//new Socket("localhost", 1234);
 			socketOut = new PrintStream(echoSocket.getOutputStream(), true);
 			socketIn = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
 			strMsg = socketIn.readLine();
+			talkName = stalkName; //이걸 어떻게 서버에 알릴까?
 			//if(strMsg.equals("Sj10ChatServer")) {
 			if(strMsg.equals("SjChatServer")) {
 				socketOut.println("SjChatClient");
-				socketOut.println(stalkName);
+				socketOut.println(talkName);
 				rec = new Sj10ReceiveThread1(socketIn, showText);
 				rec.start();
 			}
@@ -251,11 +250,14 @@ class ClientChatting{
 	}
 	
 	public void send(String stalkName) {
-//		if(this.stalkName != stalkName)
-//		{
-//			strUser = "\r" + stalkName;
-//			socketOut.println(strUser);
-//		}
+		if(!talkName.equals(stalkName))
+		{
+			//System.out.println("프레임 talkName :" + stalkName);
+			//System.out.println("서버 talkName :" + talkName);
+			strUser = "/r" + stalkName;
+			socketOut.println(strUser);
+			talkName = stalkName;
+		}
 		strUser = messageBox.getText();
 		socketOut.println(strUser);
 	}

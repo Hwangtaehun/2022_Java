@@ -168,11 +168,12 @@ class ChatServerFrame extends JFrame{
 		}
 	}
 	
-	public class ListClick implements ActionListener{
+	public class ListClick implements ActionListener{ //강퇴 -> 강퇴버튼 구현해놓기
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(ActionEvent event) {
 			// TODO Auto-generated method stub
-			
+			String data = list.getSelectedValue();
+			cs.ReceiveThreadClose(data);
 		}
 	}
 }
@@ -242,6 +243,22 @@ class ChatServer extends Thread{
 			model.addElement(vClient.get(i).strName);
 		}
 		list = new JList<>(model);
+	}
+	
+	public void ReceiveThreadClose(String data)
+	{
+		for(int i = 0; i < vClient.size(); i++)
+		{
+			if(data == vClient.get(i).strName)
+			{
+				try {
+					vClient.get(i).clientSocket.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					System.out.println("연결해제 실패");
+				}
+			}
+		}
 	}
 }
 
