@@ -75,6 +75,7 @@ class ChatServerFrame extends JFrame{
 		disconnectButton.addActionListener(new SStopBHandler());
 		sendButton = new Button("Send");
 		forceexitButton = new Button("강퇴");
+		forceexitButton.addActionListener(new ListClick());
 		setSize(570,240);
 		
 		model=new DefaultListModel<>();
@@ -144,10 +145,9 @@ class ChatServerFrame extends JFrame{
 	        catch (NumberFormatException ex){
 	            ex.printStackTrace();
 	        }
-			cs = new ChatServer(showText, iportNo, list, model);
-			
 			if(cnt == 0)
 			{
+				cs = new ChatServer(showText, iportNo, list, model);
 				cs.start();
 				cnt++;
 			}
@@ -175,6 +175,14 @@ class ChatServerFrame extends JFrame{
 			String data = list.getSelectedValue();
 			cs.ReceiveThreadClose(data);
 		}
+	}
+}
+
+class WindowExit extends WindowAdapter{//대화상자 닫기
+	public void windowClosing(WindowEvent e) {
+		e.getWindow().setVisible(false);
+		e.getWindow().dispose();
+		System.exit(0);
 	}
 }
 
@@ -209,13 +217,10 @@ class ChatServer extends Thread{
 		showText.append("Chatting Server3이 1234번 Port에서 접속을 기다립니다.\n");
 		try {
 			while(bool) {
-				ListSort();
 				clientSocketet = serverSocket.accept();
-				chatTrd = new ChatThread3(clientSocketet, vClient, showText);
+				chatTrd = new ChatThread3(clientSocketet, vClient, showText, list, model);
 				chatTrd.start();
 				vClient.addElement(chatTrd);
-				model = new DefaultListModel<>();
-				ListSort();
 			}
 			serverSocket.close();
 		}
@@ -228,21 +233,22 @@ class ChatServer extends Thread{
 	public void ServerStop() 
 	{
 		bool = false;
+		try {
+			for(int i = 0; i < vClient.size(); i++)
+			{
+				vClient.get(i).serverdisconnectMessage();
+				vClient.get(i).clientSocket.close();
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void ServerStart()
 	{
 		bool = true;
-	}
-	
-	public void ListSort()
-	{
-		
-		for(int i = 0; i < vClient.size(); i++)
-		{
-			model.addElement(vClient.get(i).strName);
-		}
-		list = new JList<>(model);
 	}
 	
 	public void ReceiveThreadClose(String data)
@@ -252,6 +258,7 @@ class ChatServer extends Thread{
 			if(data == vClient.get(i).strName)
 			{
 				try {
+					vClient.get(i).disconnectMessage();
 					vClient.get(i).clientSocket.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -260,6 +267,7 @@ class ChatServer extends Thread{
 			}
 		}
 	}
+	
 }
 
 class ChatThread3 extends Thread{
@@ -269,17 +277,21 @@ class ChatThread3 extends Thread{
 	String strInput, strName = "NoName";
 	Vector<ChatThread3> vClient;
 	TextArea showText;
+	JList<String> list;
+	DefaultListModel<String> model;
 	
 	public ChatThread3() {}
-	public ChatThread3(Socket socket, Vector<ChatThread3> v, TextArea showText) {
+	public ChatThread3(Socket socket, Vector<ChatThread3> v, TextArea showText, JList<String> l, DefaultListModel<String> m) {
 		clientSocket = socket;
 		this.vClient = v;
 		this.showText = showText;
+		this.list = l;
+		this.model = m;
 	}
 	
 	public void removeClient() throws IOException{
 		vClient.removeElement(this);
-		broadcast("[" + strName + "] 님이 퇴장하셨습니다.\n");
+		broadcast("[" + strName + "] 님이 퇴장하셨습니다.");
 	}
 	
 	public void sendUserList() throws IOException{
@@ -300,9 +312,10 @@ class ChatThread3 extends Thread{
 			strInput = socketIn.readLine();
 			if(strInput.equals("SjChatClient")) {
 				socketOut.println("<단축키> : /h(도움말), /u(접속자목록), /r 대화명 (대화명 변경)");
-				socketOut.println("대화명을 입력하세요 !");
+				//socketOut.println("대화명을 입력하세요 !");
 				strName = socketIn.readLine();
 				broadcast("[" + strName + "] 님이 입장하셨습니다.");
+				ListSort();
 				
 				while((strInput = socketIn.readLine()) != null) {
 					if(strInput.equals("/h")) {
@@ -331,6 +344,7 @@ class ChatThread3 extends Thread{
 				removeClient();
 			}catch(IOException e1) {}
 			showText.append(" " + strName + "의 접속이 끊겼습니다.\n");
+			ListSort();
 		}
 	}
 	
@@ -340,5 +354,27 @@ class ChatThread3 extends Thread{
 			trd.socketOut.println(msg);
 		}
 		showText.append(msg + "\n");
+	}
+	
+	public void ListSort()
+	{
+		for(int i = 0; i < model.size(); i++)
+		{
+			model.remove(i);
+		}
+		for(int i = 0; i < vClient.size(); i++)
+		{
+			model.addElement(vClient.get(i).strName);
+		}
+		list = new JList<>(model);
+	}
+	
+	public void disconnectMessage() {
+		socketOut.println("강퇴되었습니다.");
+	}
+	
+	public void serverdisconnectMessage() {
+		socketOut.println("서버 연결이 끊겼습니다.");
+		ListSort();
 	}
 }

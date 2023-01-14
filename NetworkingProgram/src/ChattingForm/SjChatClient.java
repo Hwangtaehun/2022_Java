@@ -199,7 +199,7 @@ class ClientChatting{
 			socketOut = new PrintStream(echoSocket.getOutputStream(), true);
 			socketIn = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
 			strMsg = socketIn.readLine();
-			talkName = stalkName; //이걸 어떻게 서버에 알릴까?
+			talkName = stalkName;
 			//if(strMsg.equals("Sj10ChatServer")) {
 			if(strMsg.equals("SjChatServer")) {
 				socketOut.println("SjChatClient");
@@ -252,22 +252,12 @@ class ClientChatting{
 	public void send(String stalkName) {
 		if(!talkName.equals(stalkName))
 		{
-			//System.out.println("프레임 talkName :" + stalkName);
-			//System.out.println("서버 talkName :" + talkName);
 			strUser = "/r" + stalkName;
 			socketOut.println(strUser);
 			talkName = stalkName;
 		}
 		strUser = messageBox.getText();
 		socketOut.println(strUser);
-	}
-}
-
-class WindowExit extends WindowAdapter{
-	public void windowClosing(WindowEvent e) {
-		e.getWindow().setVisible(false);
-		e.getWindow().dispose();
-		System.exit(0);
 	}
 }
 
