@@ -1,5 +1,8 @@
 package ChattingForm;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.*;
 import javax.swing.*;
 
 public class SjTetris {
@@ -16,42 +19,46 @@ public class SjTetris {
 class TetrisFrame extends JFrame{
 	JPanel pan1, pan2;
 	JButton gameStart, gameStop;
+	TetrisPlay play;
+	Thread PlayCT;
 	
-	int COL_CNT = 10;
-	int ROW_CNT = 20;
-	int START_X = 10;
-	int START_Y = 30;
-	int BLOCK_SIZE = 32;
-	char[][] m_Table;
+	final int COL_CNT = 10;
+	final int ROW_CNT = 20;
+	final int START_X = 10;
+	final int START_Y = 30;
+	final int BLOCK_SIZE = 32;
+	int[][] m_Table;
 	Rectangle m_nextRect;
 	Rectangle m_mainRect;
 	boolean m_bStart;
-	int m_nPattern;
-	int m_nBitType;
-	int m_nRot;
-	int m_nX;
-	int m_nY;
-	Point [][] pattern; //테트릭스 패턴
-	Point [][] nextpattern; // 다음 패턴
+	Random rand;
 	
 	public TetrisFrame() {}
 	public TetrisFrame(String str) {
 		super(str);
 		gameStart = new JButton("Game Start");
+		gameStart.addActionListener(new StartHandler());
 		gameStop = new JButton("Game Stop");
+		gameStop.addActionListener(new StopHandler());
 		
 		pan1 = new JPanel();
 		pan2 = new JPanel();
 		
-		blackPattern();
-		m_nX = COL_CNT/2;
-		m_nY = 0;
-		m_nPattern = 0;
-		m_nRot = 0;
 		m_bStart = false;
-		m_nBitType = 1;
 		m_mainRect = new Rectangle(START_X, START_Y, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
 		m_nextRect = new Rectangle(START_X+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
+		gameStop.setEnabled(false);
+		
+		rand = new Random();
+		rand.setSeed(System.currentTimeMillis());
+		m_Table = new int[ROW_CNT][COL_CNT];
+		for(int i = 0; i < ROW_CNT; i++)
+		{
+			for(int j = 0 ; j < COL_CNT; j++)
+			{
+				m_Table[i][j] = -1;
+			}
+		}
 		
 		pan2.add(gameStart);
 		pan2.add(gameStop);
@@ -62,11 +69,106 @@ class TetrisFrame extends JFrame{
 	
 	public void paint(Graphics g) {
 		super.paint(g);
-		g.drawRect(m_mainRect.x, m_mainRect.y, m_mainRect.width, m_mainRect.height);
-		g.drawRect(m_nextRect.x, m_nextRect.y, m_nextRect.width, m_nextRect.height);
+		g.setColor(Color.white);
+		g.fillRect(m_mainRect.x, m_mainRect.y, m_mainRect.width, m_mainRect.height);
+		g.setColor(Color.white);
+		g.fillRect(m_nextRect.x, m_nextRect.y, m_nextRect.width, m_nextRect.height);
 	}
 	
-	private void blackPattern() {
+	public class StartHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			gameStart.setEnabled(false);
+			gameStop.setEnabled(true);
+			Graphics gra = getGraphics();
+			m_bStart = true;
+			play = new TetrisPlay(COL_CNT, ROW_CNT, START_X, START_Y, BLOCK_SIZE, m_Table, 
+					m_nextRect, m_mainRect, m_bStart, rand, gameStart, gameStop, gra);
+			PlayCT = new Thread(play);
+			PlayCT.start();
+		}
+	}
+	
+	public class StopHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			gameStart.setEnabled(true);
+			gameStop.setEnabled(false);
+		}
+	}
+}
+
+class TetrisPlay implements Runnable{
+	Point [][] pattern; //테트릭스 패턴
+	Point [][] nextpattern; // 다음 패턴
+	int m_nPattern;
+	int m_nBitType;
+	int m_nRot;
+	int m_nX;
+	int m_nY;
+	
+	JButton gameStart, gameStop;
+	int COL_CNT;
+	int ROW_CNT;
+	int START_X;
+	int START_Y;
+	int BLOCK_SIZE;
+	int[][] m_Table;
+	Rectangle m_nextRect;
+	Rectangle m_mainRect;
+	boolean m_bStart;
+	Random rand;
+	Graphics gra;
+	
+	TetrisPlay(){}
+	TetrisPlay(int COL_CNT, int ROW_CNT, int START_X, int START_Y, int BLOCK_SIZE, int[][] m_Table, Rectangle m_nextRect,
+			Rectangle m_mainRect, boolean m_bStart, Random rand, JButton gameStart, JButton gameStop, Graphics gra)
+	{
+		blockPattern();
+		this.COL_CNT = COL_CNT;
+		this.ROW_CNT = ROW_CNT;
+		this.START_X = START_X;
+		this.START_Y = START_Y;
+		this.BLOCK_SIZE = BLOCK_SIZE;
+		this.m_Table = m_Table;
+		this.m_nextRect = m_nextRect;
+		this.m_mainRect = m_mainRect;
+		this.m_bStart = m_bStart;
+		this.rand = rand;
+		this.gameStart = gameStart;
+		this.gameStop = gameStop;
+		this.gra = gra;
+		
+		m_nX = COL_CNT/2;
+		m_nY = 0;
+		m_nPattern = 0;
+		m_nRot = 0;
+		m_nBitType = 1;
+	}
+	
+	@Override
+	public void run() {
+		while(m_bStart) {
+			
+		}
+		menset();
+	}
+	
+	private void menset() {
+		for(int i = 0; i < ROW_CNT; i++)
+		{
+			for(int j = 0 ; j < COL_CNT; j++)
+			{
+				m_Table[i][j] = -1;
+			}
+		}
+	}
+	
+	private void blockPattern() {
+		Point [][] pattern; //테트릭스 패턴
+		Point [][] nextpattern; // 다음 패턴
 		pattern = new Point[7][16];
 		pattern[0][0] = new Point(0, 0);
 		pattern[0][1] = new Point(0, -1);
@@ -211,17 +313,4 @@ class TetrisFrame extends JFrame{
 		nextpattern[6][2] = new Point(1, 1);
 		nextpattern[6][3] = new Point(0, 0);
 	}
-}
-
-class TetrisPlay implements Runnable{
-	boolean play = true;
-	
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		while(play) {
-			
-		}
-	}
-	
 }
