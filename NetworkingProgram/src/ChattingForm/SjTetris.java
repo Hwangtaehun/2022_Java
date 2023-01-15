@@ -7,7 +7,8 @@ public class SjTetris {
 		// TODO Auto-generated method stub
 		TetrisFrame tetrisForm = new TetrisFrame("Sejong Tetris1");
 		tetrisForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		tetrisForm.setSize(350, 600);
+		//tetrisForm.setSize(350, 600);
+		tetrisForm.setSize(514, 729);
 		tetrisForm.setVisible(true);
 	}
 }
@@ -15,8 +16,23 @@ public class SjTetris {
 class TetrisFrame extends JFrame{
 	JPanel pan1, pan2;
 	JButton gameStart, gameStop;
-	Point [][] pattern; 
-	Point [][] nextpattern;
+	
+	int COL_CNT = 10;
+	int ROW_CNT = 20;
+	int START_X = 10;
+	int START_Y = 30;
+	int BLOCK_SIZE = 32;
+	char[][] m_Table;
+	Rectangle m_nextRect;
+	Rectangle m_mainRect;
+	boolean m_bStart;
+	int m_nPattern;
+	int m_nBitType;
+	int m_nRot;
+	int m_nX;
+	int m_nY;
+	Point [][] pattern; //테트릭스 패턴
+	Point [][] nextpattern; // 다음 패턴
 	
 	public TetrisFrame() {}
 	public TetrisFrame(String str) {
@@ -25,14 +41,29 @@ class TetrisFrame extends JFrame{
 		gameStop = new JButton("Game Stop");
 		
 		pan1 = new JPanel();
-		pan1.setLayout(new BorderLayout());
 		pan2 = new JPanel();
+		
+		blackPattern();
+		m_nX = COL_CNT/2;
+		m_nY = 0;
+		m_nPattern = 0;
+		m_nRot = 0;
+		m_bStart = false;
+		m_nBitType = 1;
+		m_mainRect = new Rectangle(START_X, START_Y, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
+		m_nextRect = new Rectangle(START_X+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
+		
 		pan2.add(gameStart);
 		pan2.add(gameStop);
 		
 		add("North", pan1);
 		add("South", pan2);
-		blackPattern();
+	}
+	
+	public void paint(Graphics g) {
+		super.paint(g);
+		g.drawRect(m_mainRect.x, m_mainRect.y, m_mainRect.width, m_mainRect.height);
+		g.drawRect(m_nextRect.x, m_nextRect.y, m_nextRect.width, m_nextRect.height);
 	}
 	
 	private void blackPattern() {
