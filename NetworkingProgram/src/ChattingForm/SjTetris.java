@@ -1,7 +1,6 @@
 package ChattingForm;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 
@@ -69,10 +68,10 @@ class TetrisFrame extends JFrame{
 	
 	public void paint(Graphics g) {
 		super.paint(g);
-		g.setColor(Color.white);
-		g.fillRect(m_mainRect.x, m_mainRect.y, m_mainRect.width, m_mainRect.height);
-		g.setColor(Color.white);
-		g.fillRect(m_nextRect.x, m_nextRect.y, m_nextRect.width, m_nextRect.height);
+		g.setColor(Color.black);
+		g.drawRect(m_mainRect.x, m_mainRect.y, m_mainRect.width, m_mainRect.height);
+		g.setColor(Color.black);
+		g.drawRect(m_nextRect.x, m_nextRect.y, m_nextRect.width, m_nextRect.height);
 	}
 	
 	public class StartHandler implements ActionListener{
@@ -84,7 +83,7 @@ class TetrisFrame extends JFrame{
 			Graphics gra = getGraphics();
 			m_bStart = true;
 			play = new TetrisPlay(COL_CNT, ROW_CNT, START_X, START_Y, BLOCK_SIZE, m_Table, 
-					m_nextRect, m_mainRect, m_bStart, rand, gameStart, gameStop, gra);
+					m_nextRect, m_mainRect, m_bStart, rand, gameStart, gameStop, gra, pan1);
 			PlayCT = new Thread(play);
 			PlayCT.start();
 		}
@@ -96,6 +95,7 @@ class TetrisFrame extends JFrame{
 			// TODO Auto-generated method stub
 			gameStart.setEnabled(true);
 			gameStop.setEnabled(false);
+			play.PlayStop();
 		}
 	}
 }
@@ -103,6 +103,7 @@ class TetrisFrame extends JFrame{
 class TetrisPlay implements Runnable{
 	Point [][] pattern; //테트릭스 패턴
 	Point [][] nextpattern; // 다음 패턴
+	int m_nNextPattern;
 	int m_nPattern;
 	int m_nBitType;
 	int m_nRot;
@@ -110,6 +111,7 @@ class TetrisPlay implements Runnable{
 	int m_nY;
 	
 	JButton gameStart, gameStop;
+	JPanel pan1;
 	int COL_CNT;
 	int ROW_CNT;
 	int START_X;
@@ -124,7 +126,7 @@ class TetrisPlay implements Runnable{
 	
 	TetrisPlay(){}
 	TetrisPlay(int COL_CNT, int ROW_CNT, int START_X, int START_Y, int BLOCK_SIZE, int[][] m_Table, Rectangle m_nextRect,
-			Rectangle m_mainRect, boolean m_bStart, Random rand, JButton gameStart, JButton gameStop, Graphics gra)
+			Rectangle m_mainRect, boolean m_bStart, Random rand, JButton gameStart, JButton gameStop, Graphics g, JPanel pan1)
 	{
 		blockPattern();
 		this.COL_CNT = COL_CNT;
@@ -139,21 +141,28 @@ class TetrisPlay implements Runnable{
 		this.rand = rand;
 		this.gameStart = gameStart;
 		this.gameStop = gameStop;
-		this.gra = gra;
+		this.gra = g;
+		this.pan1 = pan1;
 		
+		pan1.addKeyListener(new KeyListener());
 		m_nX = COL_CNT/2;
 		m_nY = 0;
 		m_nPattern = 0;
 		m_nRot = 0;
 		m_nBitType = 1;
+		m_nNextPattern = 0;
+		InitialGame();
 	}
 	
 	@Override
 	public void run() {
 		while(m_bStart) {
-			
+			DrawScr();
+			BlockDown();
 		}
 		menset();
+		if(!m_bStart)
+			System.out.println("종료\n");
 	}
 	
 	private void menset() {
@@ -166,9 +175,226 @@ class TetrisPlay implements Runnable{
 		}
 	}
 	
+	private void DrawScr() {
+		int row, col;
+		for(row = 0; row < ROW_CNT; row++) {
+			for(col = 0; col < COL_CNT; col++) {
+				if(m_Table[row][col] == -1) {
+					gra.setColor(Color.white);
+					gra.fillRect(START_X + 2 + col*BLOCK_SIZE, START_Y + 2 + row*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+				}
+				else {
+					gra.setColor(Color.blue);
+					gra.fillRect(START_X + 2 + col*BLOCK_SIZE, START_Y + 2 + row*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+				}
+				NextBlock(m_bStart);
+			}
+		}
+	}
+	
+	private void InitialGame() {
+		menset();
+		DrawScr();
+		m_nPattern = rand.nextInt(6);
+		m_nRot = 0;
+		m_nY = 1;
+		m_nX = COL_CNT/2;
+		DrawBlock(true);
+	}
+	
+	public void DrawBlock(boolean bFlag) {
+		for(int i = 0; i < 4; i++) {
+			if(bFlag) {
+				gra.setColor(Color.blue);
+				gra.fillRect(START_X + 2 + (m_nX + pattern[m_nPattern][i + m_nRot * 4].x)*BLOCK_SIZE,
+						START_Y + 2 + (m_nY + pattern[m_nPattern][i+m_nRot*4].y)*BLOCK_SIZE, 
+						BLOCK_SIZE, BLOCK_SIZE);
+			}
+			else {
+				gra.setColor(Color.white);
+				gra.fillRect(START_X + 2 + (m_nX + pattern[m_nPattern][i + m_nRot * 4].x)*BLOCK_SIZE,
+						START_Y + 2 + (m_nY + pattern[m_nPattern][i+m_nRot*4].y)*BLOCK_SIZE, 
+						BLOCK_SIZE, BLOCK_SIZE);
+			}
+		}
+	}
+	
+	private boolean BlockDown() {
+		if(!IsAround(m_nX, m_nY + 1)) {
+			SetTable();
+			return false;
+		}
+		DrawBlock(false);
+		m_nY++;
+		DrawBlock(true);
+		return true;
+	}
+	
+	public boolean IsAround(int nX, int nY) {
+		int i, row, col;
+		for(i = 0; i < 4; i++) {
+			col = nX + pattern[m_nPattern][i + m_nRot * 4].x;
+			row = nY + pattern[m_nPattern][i + m_nRot * 4].y;
+			if(col < 0 || col > COL_CNT - 1 || row < 1|| row > ROW_CNT - 1) {
+				return false;
+			}
+			if(m_Table[row][col] != -1) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private void SetTable() {
+		int i, row, col, sw;
+		for(i = 0; i < 4; i++) {
+			m_Table[m_nY + pattern[m_nPattern][i + m_nRot * 4].y][m_nX + pattern[m_nPattern][i + m_nRot * 4].x] = m_nPattern;
+		}
+		for(row = ROW_CNT-1; row >= 0; row--) {
+			sw = 0;
+			for (col = 0; col < COL_CNT; col++)
+			{
+				if (m_Table[row][col] == -1)
+					sw = -1;
+			}
+			if (sw == 0)
+			{
+				for (i = row; i > 0; i--)
+				{
+					for (col = 0; col < COL_CNT; col++)
+					{
+						m_Table[i][col] = m_Table[i - 1][col];
+					}
+				}
+				for (col = 0; col < COL_CNT; col++)
+				{
+					gra.setColor(Color.white);
+					gra.fillRect(START_X + 2 + col*BLOCK_SIZE, START_Y + 2 + row*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+					try {
+						Thread.sleep(20);
+					} catch (InterruptedException e) {
+						System.out.println("오류가 발생했습니다.\n");
+						System.exit(1);
+					}
+				}
+				DrawScr();
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					System.out.println("오류가 발생했습니다.\n");
+					System.exit(1);
+				}
+				row++;
+			}
+		}
+		m_nX = COL_CNT / 2;
+		m_nY = 1;
+		m_nPattern = m_nNextPattern;
+		NextBlock(false);
+		m_nNextPattern = rand.nextInt(6);
+		NextBlock(true);
+		m_nRot = 1;
+		if(!IsAround(m_nX, m_nY + 1)) {
+			gameStart.setEnabled(true);
+			gameStop.setEnabled(false);
+			m_bStart = false;
+			return;
+		}
+	}
+	
+	private void NextBlock(boolean bFlag) {
+		int i, x = 50, y = 10;
+		if (m_nNextPattern == 0)
+			x = 65;
+		else if (m_nNextPattern == 1)
+		{
+			x = 65; 
+			y = 0;
+		}
+			
+		if (bFlag)
+		{
+			for (i = 0; i < 4; i++)
+			{
+				gra.setColor(Color.blue);
+				gra.fillRect(m_nextRect.x + x + (nextpattern[m_nNextPattern][i].x) * BLOCK_SIZE,
+						m_nextRect.y + y + (nextpattern[m_nNextPattern][i].y) * BLOCK_SIZE,
+						BLOCK_SIZE, BLOCK_SIZE);
+			}
+		}
+		else
+		{
+			gra.setColor(Color.white);
+			gra.fillRect(m_nextRect.x, m_nextRect.y, m_nextRect.width, m_nextRect.height);
+		}
+	}
+	
+	class KeyListener extends KeyAdapter{
+		public void keyPressed(KeyEvent e) {
+			int keyCode = e.getKeyCode();
+			switch (keyCode) {
+            case KeyEvent.VK_UP:
+            	RolateBlock(false);
+                break;
+            case KeyEvent.VK_DOWN:
+            	MoveDown();
+                break;
+            case KeyEvent.VK_LEFT:
+            	MoveLeft();
+                break;
+            case KeyEvent.VK_RIGHT:
+            	MoveRight();
+                break;
+            }
+		}
+		
+		public void RolateBlock(boolean bFlag) {
+			int nRot = m_nRot;
+			DrawBlock(false);
+			if (++m_nRot > 3)
+				m_nRot = 0;
+			if (!IsAround(m_nX, m_nY))
+				m_nRot = nRot;
+			DrawBlock(true);
+		}
+		
+		private void MoveDown() {
+			while(BlockDown()) {
+				try {
+					Thread.sleep(30);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					System.out.println("방향키 오류 발생");
+					System.exit(1);
+				}
+			}
+		}
+		
+		void MoveRight()
+		{
+			if (!IsAround(m_nX + 1, m_nY))
+				return;
+			DrawBlock(false);
+			m_nX++;
+			DrawBlock(true);
+		}
+
+
+		void MoveLeft()
+		{
+			if (!IsAround(m_nX - 1, m_nY))
+				return;
+			DrawBlock(false);
+			m_nX--;
+			DrawBlock(true);
+		}
+	}
+	
+	public void PlayStop() {
+		m_bStart = false;
+	}
+	
 	private void blockPattern() {
-		Point [][] pattern; //테트릭스 패턴
-		Point [][] nextpattern; // 다음 패턴
 		pattern = new Point[7][16];
 		pattern[0][0] = new Point(0, 0);
 		pattern[0][1] = new Point(0, -1);
