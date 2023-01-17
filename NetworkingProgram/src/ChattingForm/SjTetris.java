@@ -15,11 +15,12 @@ public class SjTetris {
 	}
 }
 
-class TetrisFrame extends JFrame{
+class TetrisFrame extends JFrame {
 	JPanel pan1, pan2;
 	JButton gameStart, gameStop;
 	TetrisPlay play;
 	Thread PlayCT;
+	//Container c;
 	
 	final int COL_CNT = 10;
 	final int ROW_CNT = 20;
@@ -35,12 +36,17 @@ class TetrisFrame extends JFrame{
 	public TetrisFrame() {}
 	public TetrisFrame(String str) {
 		super(str);
+		
+		//c = getContentPane();
+		//c.addKeyListener(new KeyHandler());
+		
 		gameStart = new JButton("Game Start");
 		gameStart.addActionListener(new StartHandler());
 		gameStop = new JButton("Game Stop");
 		gameStop.addActionListener(new StopHandler());
 		
 		pan1 = new JPanel();
+		pan1.addKeyListener(new KeyHandler());
 		pan2 = new JPanel();
 		
 		m_bStart = false;
@@ -64,6 +70,9 @@ class TetrisFrame extends JFrame{
 		
 		add("North", pan1);
 		add("South", pan2);
+		
+		//c.setFocusable(true);
+		pan1.setFocusable(true);
 	}
 	
 	public void paint(Graphics g) {
@@ -83,7 +92,8 @@ class TetrisFrame extends JFrame{
 			Graphics gra = getGraphics();
 			m_bStart = true;
 			play = new TetrisPlay(COL_CNT, ROW_CNT, START_X, START_Y, BLOCK_SIZE, m_Table, 
-					m_nextRect, m_mainRect, m_bStart, rand, gameStart, gameStop, gra, pan1);
+					m_nextRect, m_mainRect, m_bStart, rand, gameStart, gameStop, gra);
+			play.PlayStart();
 			PlayCT = new Thread(play);
 			PlayCT.start();
 		}
@@ -96,6 +106,43 @@ class TetrisFrame extends JFrame{
 			gameStart.setEnabled(true);
 			gameStop.setEnabled(false);
 			play.PlayStop();
+		}
+	}
+	
+	public class KeyHandler implements KeyListener{
+		@Override
+		public void keyPressed(KeyEvent e) {
+			// TODO Auto-generated method stub
+			if (e.getKeyCode() == 37)
+			{
+				//System.out.println("왼쪽 누름");
+				play.MoveLeft();
+			}
+	        if (e.getKeyCode() == 38)
+	        {
+	        	//System.out.println("위 누름");
+	        	play.RolateBlock(false);
+			}    
+	        if (e.getKeyCode() == 39)
+	        {
+	        	//System.out.println("오른쪽 누름");
+	        	play.MoveRight();
+	        }   
+	        if (e.getKeyCode() == 40)
+	        {
+	        	//System.out.println("아래 누름");
+	        	play.MoveDown();
+	        }
+		}
+		@Override
+		public void keyReleased(KeyEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public void keyTyped(KeyEvent e) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 }
@@ -111,7 +158,6 @@ class TetrisPlay implements Runnable{
 	int m_nY;
 	
 	JButton gameStart, gameStop;
-	JPanel pan1;
 	int COL_CNT;
 	int ROW_CNT;
 	int START_X;
@@ -126,7 +172,7 @@ class TetrisPlay implements Runnable{
 	
 	TetrisPlay(){}
 	TetrisPlay(int COL_CNT, int ROW_CNT, int START_X, int START_Y, int BLOCK_SIZE, int[][] m_Table, Rectangle m_nextRect,
-			Rectangle m_mainRect, boolean m_bStart, Random rand, JButton gameStart, JButton gameStop, Graphics g, JPanel pan1)
+			Rectangle m_mainRect, boolean m_bStart, Random rand, JButton gameStart, JButton gameStop, Graphics g)
 	{
 		blockPattern();
 		this.COL_CNT = COL_CNT;
@@ -142,9 +188,7 @@ class TetrisPlay implements Runnable{
 		this.gameStart = gameStart;
 		this.gameStop = gameStop;
 		this.gra = g;
-		this.pan1 = pan1;
 		
-		pan1.addKeyListener(new KeyListener());
 		m_nX = COL_CNT/2;
 		m_nY = 0;
 		m_nPattern = 0;
@@ -159,6 +203,12 @@ class TetrisPlay implements Runnable{
 		while(m_bStart) {
 			DrawScr();
 			BlockDown();
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		menset();
 		if(!m_bStart)
@@ -329,69 +379,53 @@ class TetrisPlay implements Runnable{
 		}
 	}
 	
-	class KeyListener extends KeyAdapter{
-		public void keyPressed(KeyEvent e) {
-			int keyCode = e.getKeyCode();
-			switch (keyCode) {
-            case KeyEvent.VK_UP:
-            	RolateBlock(false);
-                break;
-            case KeyEvent.VK_DOWN:
-            	MoveDown();
-                break;
-            case KeyEvent.VK_LEFT:
-            	MoveLeft();
-                break;
-            case KeyEvent.VK_RIGHT:
-            	MoveRight();
-                break;
-            }
-		}
-		
-		public void RolateBlock(boolean bFlag) {
-			int nRot = m_nRot;
-			DrawBlock(false);
-			if (++m_nRot > 3)
-				m_nRot = 0;
-			if (!IsAround(m_nX, m_nY))
-				m_nRot = nRot;
-			DrawBlock(true);
-		}
-		
-		private void MoveDown() {
-			while(BlockDown()) {
-				try {
-					Thread.sleep(30);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					System.out.println("방향키 오류 발생");
-					System.exit(1);
-				}
+	public void RolateBlock(boolean bFlag) {
+		int nRot = m_nRot;
+		DrawBlock(false);
+		if (++m_nRot > 3)
+			m_nRot = 0;
+		if (!IsAround(m_nX, m_nY))
+			m_nRot = nRot;
+		DrawBlock(true);
+	}
+	
+	public void MoveDown() {
+		while(BlockDown()) {
+			try {
+				Thread.sleep(30);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				System.out.println("방향키 오류 발생");
+				System.exit(1);
 			}
 		}
-		
-		void MoveRight()
-		{
-			if (!IsAround(m_nX + 1, m_nY))
-				return;
-			DrawBlock(false);
-			m_nX++;
-			DrawBlock(true);
-		}
+	}
+	
+	public void MoveRight()
+	{
+		if (!IsAround(m_nX + 1, m_nY))
+			return;
+		DrawBlock(false);
+		m_nX++;
+		DrawBlock(true);
+	}
 
 
-		void MoveLeft()
-		{
-			if (!IsAround(m_nX - 1, m_nY))
-				return;
-			DrawBlock(false);
-			m_nX--;
-			DrawBlock(true);
-		}
+	public void MoveLeft()
+	{
+		if (!IsAround(m_nX - 1, m_nY))
+			return;
+		DrawBlock(false);
+		m_nX--;
+		DrawBlock(true);
 	}
 	
 	public void PlayStop() {
 		m_bStart = false;
+	}
+	
+	public void PlayStart() {
+		NextBlock(false);
 	}
 	
 	private void blockPattern() {
