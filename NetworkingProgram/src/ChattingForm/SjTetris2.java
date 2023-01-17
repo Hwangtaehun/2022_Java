@@ -21,7 +21,6 @@ class TetrisFrame2 extends JFrame {
 	JButton gameStart, gameStop;
 	TetrisPlay2 play, play2;
 	Thread PlayCT, PlayCT2;
-	//Container c;
 	
 	final int COL_CNT = 10;
 	final int ROW_CNT = 20;
@@ -35,6 +34,7 @@ class TetrisFrame2 extends JFrame {
 	Rectangle m_nextRect2;
 	Rectangle m_mainRect2;
 	boolean m_bStart;
+	boolean m_bStart2;
 	Random rand;
 	
 	public TetrisFrame2() {}
@@ -49,25 +49,14 @@ class TetrisFrame2 extends JFrame {
 		pan1 = new JPanel();
 		pan2 = new JPanel();
 		pan1.addKeyListener(new KeyHandler());
-		pan2.addKeyListener(new KeyHandler2());
 		
 		m_bStart = false;
+		m_bStart2 = false;
 		m_mainRect = new Rectangle(START_X, START_Y, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
 		m_nextRect = new Rectangle(START_X+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
 		m_mainRect2 = new Rectangle(START_X2, START_Y, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
 		m_nextRect2 = new Rectangle(START_X2+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
 		gameStop.setEnabled(false);
-		
-		rand = new Random();
-		rand.setSeed(System.currentTimeMillis());
-		m_Table = new int[ROW_CNT][COL_CNT];
-		for(int i = 0; i < ROW_CNT; i++)
-		{
-			for(int j = 0 ; j < COL_CNT; j++)
-			{
-				m_Table[i][j] = -1;
-			}
-		}
 		
 		pan2.add(gameStart);
 		pan2.add(gameStop);
@@ -76,7 +65,6 @@ class TetrisFrame2 extends JFrame {
 		add("South", pan2);
 		
 		pan1.setFocusable(true);
-		pan2.setFocusable(true);
 	}
 	
 	public void paint(Graphics g) {
@@ -99,13 +87,15 @@ class TetrisFrame2 extends JFrame {
 			gameStop.setEnabled(true);
 			Graphics gra = getGraphics();
 			m_bStart = true;
+			m_bStart2 = true;
 			play = new TetrisPlay2(COL_CNT, ROW_CNT, START_X, START_Y, BLOCK_SIZE, 
 					m_nextRect, m_mainRect, m_bStart, gameStart, gameStop, gra, pan1);
 			play.PlayStart();
 			PlayCT = new Thread(play);
 			PlayCT.start();
 			play2 = new TetrisPlay2(COL_CNT, ROW_CNT, START_X2, START_Y, BLOCK_SIZE, 
-					m_nextRect2, m_mainRect2, m_bStart, gameStart, gameStop, gra, pan2);
+					m_nextRect2, m_mainRect2, m_bStart2, gameStart, gameStop, gra, pan1);
+			play2.PlayStart();
 			PlayCT2 = new Thread(play2);
 			PlayCT2.start();
 		}
@@ -118,7 +108,9 @@ class TetrisFrame2 extends JFrame {
 			gameStart.setEnabled(true);
 			gameStop.setEnabled(false);
 			m_bStart = false;
+			m_bStart2 = false;
 			play.PlayStop();
+			play2.PlayStop();
 		}
 	}
 	
@@ -148,24 +140,7 @@ class TetrisFrame2 extends JFrame {
 		        	play.MoveDown();
 		        }
 			}
-		}
-		@Override
-		public void keyReleased(KeyEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-		@Override
-		public void keyTyped(KeyEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-	}
-	
-	public class KeyHandler2 implements KeyListener{
-		@Override
-		public void keyPressed(KeyEvent e) {
-			// TODO Auto-generated method stub
-			if(m_bStart) {
+			if(m_bStart2) {
 				if (e.getKeyCode() == 97 || e.getKeyCode() == 65)
 				{
 					//System.out.println("왼쪽 누름");
@@ -302,7 +277,7 @@ class TetrisPlay2 implements Runnable{
 	private void InitialGame() {
 		menset();
 		DrawScr();
-		m_nPattern = rand.nextInt(6);
+		m_nPattern = rand.nextInt(7);
 		m_nRot = 0;
 		m_nY = 1;
 		m_nX = COL_CNT/2;
@@ -398,14 +373,13 @@ class TetrisPlay2 implements Runnable{
 		m_nY = 1;
 		m_nPattern = m_nNextPattern;
 		NextBlock(false);
-		m_nNextPattern = rand.nextInt(6);
+		m_nNextPattern = rand.nextInt(7);
 		NextBlock(true);
 		m_nRot = 1;
 		if(!IsAround(m_nX, m_nY + 1)) {
 			gameStart.setEnabled(true);
 			gameStop.setEnabled(false);
 			m_bStart = false;
-			pan1.setFocusable(false);
 			return;
 		}
 	}
@@ -438,44 +412,52 @@ class TetrisPlay2 implements Runnable{
 	}
 	
 	public void RolateBlock(boolean bFlag) {
-		int nRot = m_nRot;
-		DrawBlock(false);
-		if (++m_nRot > 3)
-			m_nRot = 0;
-		if (!IsAround(m_nX, m_nY))
-			m_nRot = nRot;
-		DrawBlock(true);
+		if(m_bStart) {
+			int nRot = m_nRot;
+			DrawBlock(false);
+			if (++m_nRot > 3)
+				m_nRot = 0;
+			if (!IsAround(m_nX, m_nY))
+				m_nRot = nRot;
+			DrawBlock(true);
+		}
 	}
 	
 	public void MoveDown() {
-		while(BlockDown()) {
-			try {
-				Thread.sleep(30);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				System.out.println("방향키 오류 발생");
-				System.exit(1);
+		if(m_bStart) {
+			while(BlockDown()) {
+				try {
+					Thread.sleep(30);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					System.out.println("방향키 오류 발생");
+					System.exit(1);
+				}
 			}
 		}
 	}
 	
 	public void MoveRight()
 	{
-		if (!IsAround(m_nX + 1, m_nY))
-			return;
-		DrawBlock(false);
-		m_nX++;
-		DrawBlock(true);
+		if(m_bStart) {
+			if (!IsAround(m_nX + 1, m_nY))
+				return;
+			DrawBlock(false);
+			m_nX++;
+			DrawBlock(true);
+		}
 	}
 
 
 	public void MoveLeft()
 	{
-		if (!IsAround(m_nX - 1, m_nY))
-			return;
-		DrawBlock(false);
-		m_nX--;
-		DrawBlock(true);
+		if(m_bStart) {
+			if (!IsAround(m_nX - 1, m_nY))
+				return;
+			DrawBlock(false);
+			m_nX--;
+			DrawBlock(true);
+		}
 	}
 	
 	public void PlayStop() {

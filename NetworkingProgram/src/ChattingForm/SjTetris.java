@@ -237,7 +237,7 @@ class TetrisPlay implements Runnable{
 	private void InitialGame() {
 		menset();
 		DrawScr();
-		m_nPattern = rand.nextInt(6);
+		m_nPattern = rand.nextInt(7);
 		m_nRot = 0;
 		m_nY = 1;
 		m_nX = COL_CNT/2;
@@ -333,7 +333,7 @@ class TetrisPlay implements Runnable{
 		m_nY = 1;
 		m_nPattern = m_nNextPattern;
 		NextBlock(false);
-		m_nNextPattern = rand.nextInt(6);
+		m_nNextPattern = rand.nextInt(7);
 		NextBlock(true);
 		m_nRot = 1;
 		if(!IsAround(m_nX, m_nY + 1)) {
