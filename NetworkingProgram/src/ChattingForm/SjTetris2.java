@@ -4,21 +4,23 @@ import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 
-public class SjTetris {
+public class SjTetris2 {
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		TetrisFrame tetrisForm = new TetrisFrame("Sejong Tetris1");
+		TetrisFrame2 tetrisForm = new TetrisFrame2("Sejong Tetris1");
 		tetrisForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		tetrisForm.setSize(514, 729);
+		tetrisForm.setSize(1000, 729);
 		tetrisForm.setVisible(true);
 	}
+
 }
 
-class TetrisFrame extends JFrame {
+class TetrisFrame2 extends JFrame {
 	JPanel pan1, pan2;
 	JButton gameStart, gameStop;
-	TetrisPlay play;
-	Thread PlayCT;
+	TetrisPlay2 play, play2;
+	Thread PlayCT, PlayCT2;
 	//Container c;
 	
 	final int COL_CNT = 10;
@@ -26,13 +28,17 @@ class TetrisFrame extends JFrame {
 	final int START_X = 10;
 	final int START_Y = 30;
 	final int BLOCK_SIZE = 32;
+	final int START_X2 = START_X + 500;
+	int[][] m_Table;
 	Rectangle m_nextRect;
 	Rectangle m_mainRect;
+	Rectangle m_nextRect2;
+	Rectangle m_mainRect2;
 	boolean m_bStart;
 	Random rand;
 	
-	public TetrisFrame() {}
-	public TetrisFrame(String str) {
+	public TetrisFrame2() {}
+	public TetrisFrame2(String str) {
 		super(str);
 		
 		gameStart = new JButton("Game Start");
@@ -43,14 +49,25 @@ class TetrisFrame extends JFrame {
 		pan1 = new JPanel();
 		pan2 = new JPanel();
 		pan1.addKeyListener(new KeyHandler());
+		pan2.addKeyListener(new KeyHandler2());
 		
 		m_bStart = false;
 		m_mainRect = new Rectangle(START_X, START_Y, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
 		m_nextRect = new Rectangle(START_X+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
+		m_mainRect2 = new Rectangle(START_X2, START_Y, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
+		m_nextRect2 = new Rectangle(START_X2+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
 		gameStop.setEnabled(false);
 		
 		rand = new Random();
 		rand.setSeed(System.currentTimeMillis());
+		m_Table = new int[ROW_CNT][COL_CNT];
+		for(int i = 0; i < ROW_CNT; i++)
+		{
+			for(int j = 0 ; j < COL_CNT; j++)
+			{
+				m_Table[i][j] = -1;
+			}
+		}
 		
 		pan2.add(gameStart);
 		pan2.add(gameStop);
@@ -59,6 +76,7 @@ class TetrisFrame extends JFrame {
 		add("South", pan2);
 		
 		pan1.setFocusable(true);
+		pan2.setFocusable(true);
 	}
 	
 	public void paint(Graphics g) {
@@ -67,6 +85,10 @@ class TetrisFrame extends JFrame {
 		g.drawRect(m_mainRect.x, m_mainRect.y, m_mainRect.width, m_mainRect.height);
 		g.setColor(Color.black);
 		g.drawRect(m_nextRect.x, m_nextRect.y, m_nextRect.width, m_nextRect.height);
+		g.setColor(Color.black);
+		g.drawRect(m_mainRect2.x, m_mainRect2.y, m_mainRect.width, m_mainRect.height);
+		g.setColor(Color.black);
+		g.drawRect(m_nextRect2.x, m_nextRect2.y, m_nextRect.width, m_nextRect.height);
 	}
 	
 	public class StartHandler implements ActionListener{
@@ -77,11 +99,15 @@ class TetrisFrame extends JFrame {
 			gameStop.setEnabled(true);
 			Graphics gra = getGraphics();
 			m_bStart = true;
-			play = new TetrisPlay(COL_CNT, ROW_CNT, START_X, START_Y, BLOCK_SIZE, 
+			play = new TetrisPlay2(COL_CNT, ROW_CNT, START_X, START_Y, BLOCK_SIZE, 
 					m_nextRect, m_mainRect, m_bStart, gameStart, gameStop, gra, pan1);
 			play.PlayStart();
 			PlayCT = new Thread(play);
 			PlayCT.start();
+			play2 = new TetrisPlay2(COL_CNT, ROW_CNT, START_X2, START_Y, BLOCK_SIZE, 
+					m_nextRect2, m_mainRect2, m_bStart, gameStart, gameStop, gra, pan2);
+			PlayCT2 = new Thread(play2);
+			PlayCT2.start();
 		}
 	}
 	
@@ -134,9 +160,48 @@ class TetrisFrame extends JFrame {
 			
 		}
 	}
+	
+	public class KeyHandler2 implements KeyListener{
+		@Override
+		public void keyPressed(KeyEvent e) {
+			// TODO Auto-generated method stub
+			if(m_bStart) {
+				if (e.getKeyCode() == 97 || e.getKeyCode() == 65)
+				{
+					//System.out.println("왼쪽 누름");
+					play2.MoveLeft();
+				}
+		        if (e.getKeyCode() == 119|| e.getKeyCode() == 87)
+		        {
+		        	//System.out.println("위 누름");
+		        	play2.RolateBlock(false);
+				}    
+		        if (e.getKeyCode() == 100 || e.getKeyCode() == 68)
+		        {
+		        	//System.out.println("오른쪽 누름");
+		        	play2.MoveRight();
+		        }   
+		        if (e.getKeyCode() == 115 || e.getKeyCode() == 83)
+		        {
+		        	//System.out.println("아래 누름");
+		        	play2.MoveDown();
+		        }
+			}
+		}
+		@Override
+		public void keyReleased(KeyEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public void keyTyped(KeyEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+	}
 }
 
-class TetrisPlay implements Runnable{
+class TetrisPlay2 implements Runnable{
 	Point [][] pattern; //테트릭스 패턴
 	Point [][] nextpattern; // 다음 패턴
 	int m_nNextPattern;
@@ -160,8 +225,8 @@ class TetrisPlay implements Runnable{
 	Random rand;
 	Graphics gra;
 	
-	TetrisPlay(){}
-	TetrisPlay(int COL_CNT, int ROW_CNT, int START_X, int START_Y, int BLOCK_SIZE, Rectangle m_nextRect,
+	TetrisPlay2(){}
+	TetrisPlay2(int COL_CNT, int ROW_CNT, int START_X, int START_Y, int BLOCK_SIZE, Rectangle m_nextRect,
 			Rectangle m_mainRect, boolean m_bStart, JButton gameStart, JButton gameStop, Graphics g, JPanel pan1)
 	{
 		blockPattern();
