@@ -17,17 +17,19 @@ public class SjTetris2 {
 }
 
 class TetrisFrame2 extends JFrame {
-	JPanel pan1, pan2;
+	JPanel pan1;
 	JButton gameStart, gameStop;
 	TetrisPlay2 play, play2;
 	Thread PlayCT, PlayCT2;
+	MyPanel mpan1;
 	
 	final int COL_CNT = 10;
 	final int ROW_CNT = 20;
 	final int START_X = 10;
-	final int START_Y = 30;
+	final int START_Y = 10;
 	final int BLOCK_SIZE = 32;
 	final int START_X2 = START_X + 500;
+	final int START_Y2 = START_Y + 30;
 	int[][] m_Table;
 	Rectangle m_nextRect;
 	Rectangle m_mainRect;
@@ -47,32 +49,32 @@ class TetrisFrame2 extends JFrame {
 		gameStop.addActionListener(new StopHandler());
 		
 		pan1 = new JPanel();
-		pan2 = new JPanel();
 		pan1.addKeyListener(new KeyHandler());
 		
 		m_bStart = false;
 		m_bStart2 = false;
 		m_mainRect = new Rectangle(START_X, START_Y, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
 		m_nextRect = new Rectangle(START_X+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
-		m_mainRect2 = new Rectangle(START_X2, START_Y, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
-		m_nextRect2 = new Rectangle(START_X2+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
+		m_mainRect2 = new Rectangle(START_X2, START_Y2, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
+		m_nextRect2 = new Rectangle(START_X2+BLOCK_SIZE*COL_CNT+20, START_Y2+30, 130, 80);
 		gameStop.setEnabled(false);
+		mpan1 = new MyPanel(m_mainRect, m_nextRect);
 		
-		pan2.add(gameStart);
-		pan2.add(gameStop);
+		pan1.add(gameStart);
+		pan1.add(gameStop);
 		
-		add("North", pan1);
-		add("South", pan2);
+		add(mpan1);
+		add("South", pan1);
 		
 		pan1.setFocusable(true);
 	}
 	
 	public void paint(Graphics g) {
 		super.paint(g);
-		g.setColor(Color.black);
-		g.drawRect(m_mainRect.x, m_mainRect.y, m_mainRect.width, m_mainRect.height);
-		g.setColor(Color.black);
-		g.drawRect(m_nextRect.x, m_nextRect.y, m_nextRect.width, m_nextRect.height);
+//		g.setColor(Color.black);
+//		g.drawRect(m_mainRect.x, m_mainRect.y, m_mainRect.width, m_mainRect.height);
+//		g.setColor(Color.black);
+//		g.drawRect(m_nextRect.x, m_nextRect.y, m_nextRect.width, m_nextRect.height);
 		g.setColor(Color.black);
 		g.drawRect(m_mainRect2.x, m_mainRect2.y, m_mainRect.width, m_mainRect.height);
 		g.setColor(Color.black);
@@ -86,14 +88,15 @@ class TetrisFrame2 extends JFrame {
 			gameStart.setEnabled(false);
 			gameStop.setEnabled(true);
 			Graphics gra = getGraphics();
+			Graphics gra1 = mpan1.getGraphics();
 			m_bStart = true;
 			m_bStart2 = true;
 			play = new TetrisPlay2(COL_CNT, ROW_CNT, START_X, START_Y, BLOCK_SIZE, 
-					m_nextRect, m_mainRect, m_bStart, gameStart, gameStop, gra, pan1);
+					m_nextRect, m_mainRect, m_bStart, gameStart, gameStop, gra1, pan1);
 			play.PlayStart();
 			PlayCT = new Thread(play);
 			PlayCT.start();
-			play2 = new TetrisPlay2(COL_CNT, ROW_CNT, START_X2, START_Y, BLOCK_SIZE, 
+			play2 = new TetrisPlay2(COL_CNT, ROW_CNT, START_X2, START_Y2, BLOCK_SIZE, 
 					m_nextRect2, m_mainRect2, m_bStart2, gameStart, gameStop, gra, pan1);
 			play2.PlayStart();
 			PlayCT2 = new Thread(play2);
@@ -176,6 +179,26 @@ class TetrisFrame2 extends JFrame {
 	}
 }
 
+class MyPanel extends JPanel{
+	Rectangle m_mainRect;
+	Rectangle m_nextRect;
+	
+	MyPanel(){}
+	MyPanel(Rectangle m_mainRect, Rectangle m_nextRect){
+		super();
+		this.m_mainRect = m_mainRect;
+		this.m_nextRect = m_nextRect;
+	}
+	
+	public void paint(Graphics g) {
+		super.paint(g);
+		g.setColor(Color.black);
+		g.drawRect(m_mainRect.x, m_mainRect.y, m_mainRect.width, m_mainRect.height);
+		g.setColor(Color.black);
+		g.drawRect(m_nextRect.x, m_nextRect.y, m_nextRect.width, m_nextRect.height);
+	}
+}
+
 class TetrisPlay2 implements Runnable{
 	Point [][] pattern; //테트릭스 패턴
 	Point [][] nextpattern; // 다음 패턴
@@ -243,8 +266,6 @@ class TetrisPlay2 implements Runnable{
 			}
 		}
 		menset();
-		if(!m_bStart)
-			System.out.println("종료\n");
 	}
 	
 	private void menset() {
