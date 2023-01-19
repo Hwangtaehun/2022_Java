@@ -74,6 +74,7 @@ class ChatServerFrame extends JFrame{
 		disconnectButton = new Button("Server Stop");
 		disconnectButton.addActionListener(new SStopBHandler());
 		sendButton = new Button("Send");
+		sendButton.addActionListener(new SSendBHandler());
 		forceexitButton = new Button("강퇴");
 		forceexitButton.addActionListener(new ListClick());
 		setSize(570,240);
@@ -136,6 +137,7 @@ class ChatServerFrame extends JFrame{
 			portNo.setEnabled(false);
 			severAddr.setEnabled(false);
 			talkName.setEnabled(false);
+			sendButton.setEnabled(true);
 			
 			int iportNo = 0;
 			String sportNo = portNo.getText();
@@ -164,7 +166,17 @@ class ChatServerFrame extends JFrame{
 			portNo.setEnabled(true);
 			severAddr.setEnabled(true);
 			talkName.setEnabled(true);
+			sendButton.setEnabled(false);
 			cs.ServerStop();
+		}
+	}
+	
+	public class SSendBHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			String data = "[Server] " + messageBox.getText();
+			cs.SendMessage(data);
 		}
 	}
 	
@@ -268,6 +280,11 @@ class ChatServer extends Thread{
 		}
 	}
 	
+	public void SendMessage(String data) {
+		for(int i = 0; i < vClient.size(); i++) {
+			vClient.get(i).SendMessage(data);
+		}
+	}
 }
 
 class ChatThread3 extends Thread{
@@ -376,5 +393,10 @@ class ChatThread3 extends Thread{
 	public void serverdisconnectMessage() {
 		socketOut.println("서버 연결이 끊겼습니다.");
 		ListSort();
+	}
+	
+	public void SendMessage(String data) {
+		System.out.println(data);
+		socketOut.println(data);
 	}
 }
