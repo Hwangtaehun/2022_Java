@@ -1,6 +1,14 @@
 package ChattingForm;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.*;
 import javax.swing.*;
 
@@ -20,12 +28,11 @@ class TetrisFrame2 extends JFrame {
 	JPanel pan1, pan2, pan3, pan11, pan12;
 	JTextField serverIp, portNo, talkName, messageBox;
 	JButton gameStart, gameStop, connectButton, disConnectButton, sendButton;
-	JRadioButton serverBt, clientBt;
+	JRadioButton serverBt, clientBt, aloneBt;
 	TetrisPlay2 play, play2;
 	Thread PlayCT, PlayCT2;
 	ButtonGroup mode;
 	int modenum = 0;
-	//MyPanel mpan1;
 	
 	final int COL_CNT = 10;
 	final int ROW_CNT = 20;
@@ -33,7 +40,7 @@ class TetrisFrame2 extends JFrame {
 	final int START_Y = 40;
 	final int BLOCK_SIZE = 32;
 	final int START_X2 = START_X + 500;
-	//final int START_Y2 = START_Y + 30;
+	
 	int[][] m_Table;
 	Rectangle m_nextRect;
 	Rectangle m_mainRect;
@@ -52,24 +59,38 @@ class TetrisFrame2 extends JFrame {
 		gameStop = new JButton("Game Stop");
 		gameStop.addActionListener(new StopHandler());
 		messageBox = new JTextField(30);
+		messageBox.setEnabled(false);
 		serverIp = new JTextField("localhost", 10);
+		serverIp.setEditable(false);
 		portNo = new JTextField("1234", 10);
-		talkName = new JTextField(10);
+		portNo.setEditable(false);
+		talkName = new JTextField("혼자놀기",10);
+		talkName.setEditable(false);
 		Label label1 = new Label(" Server Ip");
 		Label label2 = new Label(" Port No");
 		Label label3 = new Label(" Name");
 		
 		serverBt = new JRadioButton("server");
 		clientBt = new JRadioButton("client");
+		aloneBt = new JRadioButton("혼자놀기");
+		aloneBt.setSelected(true);
 		mode = new ButtonGroup();
 		RadioHandler radioCt = new RadioHandler();
 		serverBt.addActionListener(radioCt);
 		clientBt.addActionListener(radioCt);
+		aloneBt.addActionListener(radioCt);
 		mode.add(serverBt);
 		mode.add(clientBt);
+		mode.add(aloneBt);
 		connectButton = new JButton("connect");
+		connectButton.addActionListener(new CBHandler());
+		connectButton.setEnabled(false);
 		disConnectButton = new JButton("disconnect");
+		disConnectButton.addActionListener(new DBHandler());
+		disConnectButton.setEnabled(false);
 		sendButton = new JButton("send");
+		sendButton.addActionListener(new SBHandler());
+		sendButton.setEnabled(false);
 		
 		pan1 = new JPanel();
 		pan2 = new JPanel();
@@ -89,9 +110,7 @@ class TetrisFrame2 extends JFrame {
 		m_mainRect2 = new Rectangle(START_X2, START_Y, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
 		m_nextRect2 = new Rectangle(START_X2+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
 		gameStop.setEnabled(false);
-		//mpan1 = new MyPanel(m_mainRect, m_nextRect);
 		
-		//pan11.setLayout(new BorderLayout());
 		pan11.add(messageBox);
 		pan11.add(sendButton);
 		pan12.add(gameStart);
@@ -108,8 +127,10 @@ class TetrisFrame2 extends JFrame {
 		pan2.add(talkName);
 		pan2.add(serverBt);
 		pan2.add(clientBt);
+		pan2.add(aloneBt);
 		pan2.add(connectButton);
 		pan2.add(disConnectButton);
+		
 		
 		//add(mpan1);
 		pan1.add("South", pan3);
@@ -134,14 +155,9 @@ class TetrisFrame2 extends JFrame {
 	public class StartHandler implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
 			gameStart.setEnabled(false);
 			gameStop.setEnabled(true);
-			serverIp.setEnabled(false);
-			portNo.setEnabled(false); 
-			talkName.setEnabled(false);
 			Graphics gra = getGraphics();
-			//Graphics gra1 = mpan1.getGraphics();
 			m_bStart = true;
 			m_bStart2 = true;
 			play = new TetrisPlay2(COL_CNT, ROW_CNT, START_X, START_Y, BLOCK_SIZE, 
@@ -154,6 +170,10 @@ class TetrisFrame2 extends JFrame {
 			play2.PlayStart();
 			PlayCT2 = new Thread(play2);
 			PlayCT2.start();
+			if(modenum != 0) {
+				messageBox.setEnabled(true);
+				sendButton.setEnabled(true);
+			}
 		}
 	}
 	
@@ -163,10 +183,85 @@ class TetrisFrame2 extends JFrame {
 			// TODO Auto-generated method stub
 			gameStart.setEnabled(true);
 			gameStop.setEnabled(false);
+			sendButton.setEnabled(false);
+			messageBox.setEnabled(false);
 			m_bStart = false;
 			m_bStart2 = false;
 			play.PlayStop();
 			play2.PlayStop();
+		}
+	}
+	
+	
+	
+	public class RadioHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			if (e.getSource() == serverBt) {
+				modenum = 1;
+				talkName.setText("server");
+				talkName.setEditable(false);
+				connectButton.setEnabled(true);
+			} else if (e.getSource() == clientBt) {
+				modenum = 2;
+				talkName.setText("손님");
+				talkName.setEditable(true);
+				connectButton.setEnabled(true);
+			}
+			else if (e.getSource() == aloneBt) {
+				modenum = 0;
+				talkName.setText("혼자 놀기");
+				talkName.setEditable(false);
+				connectButton.setEnabled(false);
+			}
+			//System.out.println("출력" + modenum);
+		}
+	}
+	
+	public class CBHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			// TODO Auto-generated method stub
+			serverBt.setEnabled(false);
+			clientBt.setEnabled(false);
+			aloneBt.setEnabled(false);
+			serverIp.setEnabled(false);
+			portNo.setEnabled(false); 
+			talkName.setEnabled(false);
+			connectButton.setEnabled(false);
+			disConnectButton.setEnabled(true);
+		}
+	}
+	
+	public class DBHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			// TODO Auto-generated method stub
+			serverBt.setEnabled(true);
+			clientBt.setEnabled(true);
+			aloneBt.setEnabled(true);
+			if(modenum == 1) {
+				serverIp.setEnabled(true);
+				portNo.setEnabled(true); 
+				connectButton.setEnabled(true);
+				disConnectButton.setEnabled(false);
+			}
+			else if(modenum == 2) {
+				serverIp.setEnabled(true);
+				portNo.setEnabled(true); 
+				talkName.setEnabled(true);
+				connectButton.setEnabled(true);
+				disConnectButton.setEnabled(false);
+			}
+		}
+	}
+	
+	public class SBHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	
@@ -224,40 +319,319 @@ class TetrisFrame2 extends JFrame {
 		@Override
 		public void keyTyped(KeyEvent e) {}
 	}
+}
+
+//server
+class TChatServer extends Thread{
+	ServerSocket serverSocket = null;
+	Socket clientSocketet = null;
+	ChatThread chatTrd;
+	boolean bool = true;
+	Vector<ChatThread> vClient = new Vector<>();
 	
-	public class RadioHandler implements ActionListener{
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			if (e.getSource() == serverBt) {
-				modenum = 1;
-				talkName.setText("server");
-			} else if (e.getSource() == clientBt) {
-				modenum = 2;
-				talkName.setText("손님");
+	int iportNo;
+	TextArea showText;
+	JList<String> list;
+	DefaultListModel<String> model;
+	
+	TChatServer(){}
+	TChatServer(TextArea showText, int iportNo, JList<String> l, DefaultListModel<String> m){
+		this.showText = showText;
+		this.iportNo = iportNo;
+		this.list = l;
+		this.model = m;
+	}
+	
+	public void run()
+	{
+		try {
+			serverSocket = new ServerSocket(1234);
+		}catch(IOException e) {
+			System.out.append("Server Socket 생성 오류 발생 !");
+			System.exit(1);
+		}
+		showText.append("Chatting Server3이 1234번 Port에서 접속을 기다립니다.\n");
+		try {
+			while(bool) {
+				clientSocketet = serverSocket.accept();
+				chatTrd = new ChatThread(clientSocketet, vClient, showText, list, model);
+				chatTrd.start();
+				vClient.addElement(chatTrd);
 			}
-			System.out.println("출력" + modenum);
+			serverSocket.close();
+		}
+		catch(IOException e) {
+			System.out.println("접속 실패입니다.");
+			System.exit(1);
+		}
+	}
+	
+	public void ServerStop() 
+	{
+		bool = false;
+		try {
+			for(int i = 0; i < vClient.size(); i++)
+			{
+				vClient.get(i).serverdisconnectMessage();
+				vClient.get(i).clientSocket.close();
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void ServerStart()
+	{
+		bool = true;
+	}
+	
+	public void ReceiveThreadClose(String data)
+	{
+		for(int i = 0; i < vClient.size(); i++)
+		{
+			if(data == vClient.get(i).strName)
+			{
+				try {
+					vClient.get(i).disconnectMessage();
+					vClient.get(i).clientSocket.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					System.out.println("연결해제 실패");
+				}
+			}
+		}
+	}
+	
+	public void SendMessage(String data) {
+		for(int i = 0; i < vClient.size(); i++) {
+			vClient.get(i).SendMessage(data);
 		}
 	}
 }
 
-class MyPanel extends JPanel{
-	Rectangle m_mainRect;
-	Rectangle m_nextRect;
+class ChatThread extends Thread{
+	Socket clientSocket = null;
+	PrintWriter socketOut;
+	BufferedReader socketIn;
+	String strInput, strName = "NoName";
+	Vector<ChatThread> vClient;
+	TextArea showText;
+	JList<String> list;
+	DefaultListModel<String> model;
 	
-	MyPanel(){}
-	MyPanel(Rectangle m_mainRect, Rectangle m_nextRect){
-		super();
-		this.m_mainRect = m_mainRect;
-		this.m_nextRect = m_nextRect;
+	public ChatThread() {}
+	public ChatThread(Socket socket, Vector<ChatThread> v, TextArea showText, JList<String> l, DefaultListModel<String> m) {
+		clientSocket = socket;
+		this.vClient = v;
+		this.showText = showText;
+		this.list = l;
+		this.model = m;
 	}
 	
-	public void paint(Graphics g) {
-		super.paint(g);
-		g.setColor(Color.black);
-		g.drawRect(m_mainRect.x, m_mainRect.y, m_mainRect.width, m_mainRect.height);
-		g.setColor(Color.black);
-		g.drawRect(m_nextRect.x, m_nextRect.y, m_nextRect.width, m_nextRect.height);
+	public void removeClient() throws IOException{
+		vClient.removeElement(this);
+		broadcast("[" + strName + "] 님이 퇴장하셨습니다.");
+	}
+	
+	public void sendUserList() throws IOException{
+		socketOut.println("< 현재 접속자 " + vClient.size() + "명 명단 >");
+		for(int i = 0; i < vClient.size(); i++) {
+			ChatThread trd = ((ChatThread)vClient.elementAt(i));
+			socketOut.println(trd.strName);
+		}
+	}
+	
+	public void run() {
+		try {
+			showText.append("Client:" + clientSocket.toString() + "\n에서 접속하였습니다.\n");
+			socketOut = new PrintWriter(clientSocket.getOutputStream(), true);
+			socketIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			
+			socketOut.println("SjChatServer");
+			strInput = socketIn.readLine();
+			if(strInput.equals("SjChatClient")) {
+				socketOut.println("<단축키> : /h(도움말), /u(접속자목록), /r 대화명 (대화명 변경)");
+				//socketOut.println("대화명을 입력하세요 !");
+				strName = socketIn.readLine();
+				broadcast("[" + strName + "] 님이 입장하셨습니다.");
+				ListSort();
+				
+				while((strInput = socketIn.readLine()) != null) {
+					if(strInput.equals("/h")) {
+						socketOut.println("<단축키> : /h(도움말), /u(접속자목록), /r 대화명 (대화명 변경)");
+					}else if(strInput.equals("/u")) {
+						sendUserList();
+					}
+					else if(strInput.regionMatches(0, "/r", 0, 2)) {
+						String new_name = strInput.substring(2).trim();
+						broadcast("접속자 " + strName + " 님의 대화명이 [" + new_name + "](으)로 바뀌었습니다.");
+						strName = new_name;
+					}
+					else {
+						broadcast("[" + strName + "]" + strInput);
+					}
+				}
+			}else {
+				socketOut.println("잘못된 Client입니다.");
+			}
+			socketOut.close();
+			socketIn.close();
+			clientSocket.close();
+			removeClient();
+		}catch(IOException e) {
+			try {
+				removeClient();
+			}catch(IOException e1) {}
+			showText.append(" " + strName + "의 접속이 끊겼습니다.\n");
+			ListSort();
+		}
+	}
+	
+	public void broadcast(String msg) throws IOException{
+		for(int i = 0; i < vClient.size(); i++) {
+			ChatThread trd = ((ChatThread)vClient.elementAt(i));
+			trd.socketOut.println(msg);
+		}
+		showText.append(msg + "\n");
+	}
+	
+	public void ListSort()
+	{
+		for(int i = 0; i < model.size(); i++)
+		{
+			model.remove(i);
+		}
+		for(int i = 0; i < vClient.size(); i++)
+		{
+			model.addElement(vClient.get(i).strName);
+		}
+		list = new JList<>(model);
+	}
+	
+	public void disconnectMessage() {
+		socketOut.println("강퇴되었습니다.");
+	}
+	
+	public void serverdisconnectMessage() {
+		socketOut.println("서버 연결이 끊겼습니다.");
+		ListSort();
+	}
+	
+	public void SendMessage(String data) {
+		System.out.println(data);
+		socketOut.println(data);
+	}
+}
+
+//client
+class TChatClient{
+	Socket echoSocket = null;
+	PrintStream socketOut = null;
+	BufferedReader socketIn = null;
+	BufferedReader stdIn;
+	String strUser, strMsg;
+	ReceiveThread rec;
+	JTextArea showText;
+	JTextField messageBox;
+	
+	String talkName;
+	
+	TChatClient(){}
+	TChatClient(JTextArea ST, JTextField MB){
+		showText = ST;
+		messageBox = MB;
+	}
+	
+	public void connect(int iportNo, String sseverIp, String stalkName) {
+		try {
+			echoSocket = new Socket(sseverIp, iportNo);//new Socket("localhost", 1234);
+			socketOut = new PrintStream(echoSocket.getOutputStream(), true);
+			socketIn = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
+			strMsg = socketIn.readLine();
+			talkName = stalkName;
+			//if(strMsg.equals("Sj10ChatServer")) {
+			if(strMsg.equals("SjChatServer")) {
+				socketOut.println("SjChatClient");
+				socketOut.println(talkName);
+				rec = new ReceiveThread(socketIn, showText);
+				rec.start();
+			}
+			else {
+				System.out.println("잘못된 Server입니다.");
+				socketOut.close();
+				socketIn.close();
+				echoSocket.close();
+			}
+		}
+		catch(UnknownHostException e) {
+			System.err.println("Server가 없습니다.");
+			System.exit(1);
+		}
+		catch(IOException e) {
+			System.err.println("입출력  Error.");
+			System.exit(1);
+		}
+		catch(Exception e) {
+			System.out.println("연결이 끊겼습니다.");
+			System.exit(1);
+		}
+	}
+	
+	public void disconnect()
+	{
+		try {
+			socketOut.close();
+			socketIn.close();
+			echoSocket.close();
+		}
+		catch(UnknownHostException e) {
+			System.err.println("Server가 없습니다.");
+			System.exit(1);
+		}
+		catch(IOException e) {
+			System.err.println("입출력  Error.");
+			System.exit(1);
+		}
+		catch(Exception e) {
+			System.out.println("연결이 끊겼습니다.");
+			System.exit(1);
+		}
+	}
+	
+	public void send(String stalkName) {
+		if(!talkName.equals(stalkName))
+		{
+			strUser = "/r" + stalkName;
+			socketOut.println(strUser);
+			talkName = stalkName;
+		}
+		strUser = messageBox.getText();
+		socketOut.println(strUser);
+	}
+}
+
+class ReceiveThread extends Thread{
+	BufferedReader socketIn = null;
+	String strSocket;
+	JTextArea showText;
+	
+	ReceiveThread(){}
+	ReceiveThread(BufferedReader socketIn, JTextArea showText){
+		this.socketIn = socketIn;
+		this.showText = showText;
+	}
+	public void run() {
+		showText.append("Server에 접속됨");
+		try {
+			while((strSocket = socketIn.readLine()) != null) {
+				showText.append(strSocket + "\n");
+			}
+		}
+		catch(Exception e) {
+			showText.append("연결이 끊겼습니다.");
+		}
 	}
 }
 
