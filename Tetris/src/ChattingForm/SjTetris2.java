@@ -18,7 +18,7 @@ public class SjTetris2 {
 		// TODO Auto-generated method stub
 		TetrisFrame2 tetrisForm = new TetrisFrame2("Sejong Tetris1");
 		tetrisForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		tetrisForm.setSize(1100, 770);
+		tetrisForm.setSize(1110, 770);
 		tetrisForm.setVisible(true);
 	}
 
@@ -33,6 +33,7 @@ class TetrisFrame2 extends JFrame {
 	Thread PlayCT, PlayCT2;
 	ButtonGroup mode;
 	int modenum = 0;
+	int cnt = 0;
 	
 	final int COL_CNT = 10;
 	final int ROW_CNT = 20;
@@ -49,6 +50,10 @@ class TetrisFrame2 extends JFrame {
 	boolean m_bStart;
 	boolean m_bStart2;
 	Random rand;
+	
+	TChatServer cs;
+	JList<String> list;
+	DefaultListModel<String> model;
 	
 	public TetrisFrame2() {}
 	public TetrisFrame2(String str) {
@@ -131,13 +136,16 @@ class TetrisFrame2 extends JFrame {
 		pan2.add(connectButton);
 		pan2.add(disConnectButton);
 		
-		
-		//add(mpan1);
 		pan1.add("South", pan3);
 		pan1.add("East", pan2);
 		add(pan1);
 		
 		pan1.setFocusable(true);
+		
+		//서버
+		model=new DefaultListModel<>();
+		list=new JList<>(model);
+		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	}
 	
 	public void paint(Graphics g) {
@@ -231,6 +239,27 @@ class TetrisFrame2 extends JFrame {
 			talkName.setEnabled(false);
 			connectButton.setEnabled(false);
 			disConnectButton.setEnabled(true);
+			Graphics gra = getGraphics();
+			if(modenum == 1) {
+				int iportNo = 0;
+				String sportNo = portNo.getText();
+				try{
+					iportNo = Integer.parseInt(sportNo);
+		        }
+		        catch (NumberFormatException ex){
+		            ex.printStackTrace();
+		        }
+				if(cnt == 0)
+				{
+					cs = new TChatServer(gra, iportNo, list, model, START_X2, START_Y);
+					cs.start();
+					cnt++;
+				}
+				cs.ServerStart();
+			}
+			else if(modenum == 2) {
+				
+			}
 		}
 	}
 	
@@ -261,7 +290,12 @@ class TetrisFrame2 extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			// TODO Auto-generated method stub
-			
+			if(modenum == 1) {
+				
+			}
+			else if(modenum == 2) {
+				
+			}
 		}
 	}
 	
@@ -330,16 +364,24 @@ class TChatServer extends Thread{
 	Vector<ChatThread> vClient = new Vector<>();
 	
 	int iportNo;
-	TextArea showText;
 	JList<String> list;
 	DefaultListModel<String> model;
 	
+	Graphics gra;
+	int START_X;
+	int START_Y;
+	String m_arrMsg[];
+	//JTextArea showText;
+	
 	TChatServer(){}
-	TChatServer(TextArea showText, int iportNo, JList<String> l, DefaultListModel<String> m){
-		this.showText = showText;
+	TChatServer(Graphics gra, int iportNo, JList<String> l, DefaultListModel<String> m, int x, int y){
+		this.gra = gra;
 		this.iportNo = iportNo;
 		this.list = l;
 		this.model = m;
+		START_X = x;
+		START_Y = y;
+		m_arrMsg = new String[10];
 	}
 	
 	public void run()
@@ -350,11 +392,11 @@ class TChatServer extends Thread{
 			System.out.append("Server Socket 생성 오류 발생 !");
 			System.exit(1);
 		}
-		showText.append("Chatting Server3이 1234번 Port에서 접속을 기다립니다.\n");
+		drawWord("Chatting Server3이 1234번 Port에서 접속을 기다립니다.\n");
 		try {
 			while(bool) {
 				clientSocketet = serverSocket.accept();
-				chatTrd = new ChatThread(clientSocketet, vClient, showText, list, model);
+				chatTrd = new ChatThread(clientSocketet, vClient, gra, list, model);
 				chatTrd.start();
 				vClient.addElement(chatTrd);
 			}
@@ -363,6 +405,22 @@ class TChatServer extends Thread{
 		catch(IOException e) {
 			System.out.println("접속 실패입니다.");
 			System.exit(1);
+		}
+	}
+	
+	private void drawWord(String str) {
+		int x=0, y=0, z=0;
+		for(int i = 8; i > 0; i--) {
+			m_arrMsg[i] = m_arrMsg[i - 1];
+		}
+		m_arrMsg[0] = str;
+		for(int i = 0; i < 10; i++) {
+			Color c = new Color(x, y, z);
+			gra.setColor(c);
+			gra.drawString(str, START_X, START_Y);
+			x += 23;
+			y += 23;
+			z += 23;
 		}
 	}
 	
@@ -417,15 +475,16 @@ class ChatThread extends Thread{
 	BufferedReader socketIn;
 	String strInput, strName = "NoName";
 	Vector<ChatThread> vClient;
-	TextArea showText;
+	Graphics gra;
 	JList<String> list;
 	DefaultListModel<String> model;
+	//JTextArea showText;
 	
 	public ChatThread() {}
-	public ChatThread(Socket socket, Vector<ChatThread> v, TextArea showText, JList<String> l, DefaultListModel<String> m) {
+	public ChatThread(Socket socket, Vector<ChatThread> v, Graphics gra, JList<String> l, DefaultListModel<String> m) {
 		clientSocket = socket;
 		this.vClient = v;
-		this.showText = showText;
+		this.gra = gra;
 		this.list = l;
 		this.model = m;
 	}
@@ -445,7 +504,7 @@ class ChatThread extends Thread{
 	
 	public void run() {
 		try {
-			showText.append("Client:" + clientSocket.toString() + "\n에서 접속하였습니다.\n");
+			//showText.append("Client:" + clientSocket.toString() + "\n에서 접속하였습니다.\n");
 			socketOut = new PrintWriter(clientSocket.getOutputStream(), true);
 			socketIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			
@@ -484,7 +543,7 @@ class ChatThread extends Thread{
 			try {
 				removeClient();
 			}catch(IOException e1) {}
-			showText.append(" " + strName + "의 접속이 끊겼습니다.\n");
+			//showText.append(" " + strName + "의 접속이 끊겼습니다.\n");
 			ListSort();
 		}
 	}
@@ -494,7 +553,7 @@ class ChatThread extends Thread{
 			ChatThread trd = ((ChatThread)vClient.elementAt(i));
 			trd.socketOut.println(msg);
 		}
-		showText.append(msg + "\n");
+		//showText.append(msg + "\n");
 	}
 	
 	public void ListSort()
@@ -537,6 +596,10 @@ class TChatClient{
 	JTextField messageBox;
 	
 	String talkName;
+	Graphics gra;
+	int START_X;
+	int START_Y;
+	String m_arrMsg[];
 	
 	TChatClient(){}
 	TChatClient(JTextArea ST, JTextField MB){
@@ -609,6 +672,22 @@ class TChatClient{
 		}
 		strUser = messageBox.getText();
 		socketOut.println(strUser);
+	}
+	
+	private void drawWord(String str) {
+		int x=0, y=0, z=0;
+		for(int i = 8; i > 0; i--) {
+			m_arrMsg[i] = m_arrMsg[i - 1];
+		}
+		m_arrMsg[0] = str;
+		for(int i = 0; i < 10; i++) {
+			Color c = new Color(x, y, z);
+			gra.setColor(c);
+			gra.drawString(str, START_X, START_Y);
+			x += 23;
+			y += 23;
+			z += 23;
+		}
 	}
 }
 
