@@ -7,19 +7,17 @@ import java.util.*;
 import javax.swing.*;
 
 public class SjTetris2 {
-
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		TetrisFrame2 tetrisForm = new TetrisFrame2("Sejong Tetris1");
 		tetrisForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		tetrisForm.setSize(1110, 770);
+		tetrisForm.setSize(1110, 730);
 		tetrisForm.setVisible(true);
 	}
-
 }
 
 class TetrisFrame2 extends JFrame {
-	JPanel pan1, pan2, pan3, pan11, pan12, pan21, pan22;
+	JPanel pan1, pan2, pan3, pan11, pan12, pan13, pan21;
 	JTextField serverIp, portNo, talkName, messageBox;
 	JTextArea showText;
 	JButton gameStart, gameStop, connectButton, disConnectButton, sendButton;
@@ -56,12 +54,13 @@ class TetrisFrame2 extends JFrame {
 	public TetrisFrame2() {}
 	public TetrisFrame2(String str) {
 		super(str);
-		showText = new JTextArea(10, 50);
+		showText = new JTextArea(12, 27);
+		showText.setEditable(false);
 		gameStart = new JButton("Game Start");
 		gameStart.addActionListener(new StartHandler());
 		gameStop = new JButton("Game Stop");
 		gameStop.addActionListener(new StopHandler());
-		messageBox = new JTextField(30);
+		messageBox = new JTextField(20);
 		messageBox.setEnabled(false);
 		serverIp = new JTextField("localhost", 10);
 		serverIp.setEditable(false);
@@ -108,12 +107,14 @@ class TetrisFrame2 extends JFrame {
 		pan3 = new JPanel();
 		pan11 = new JPanel();
 		pan12 = new JPanel();
+		pan13 = new JPanel();
 		pan21 = new JPanel();
-		pan22 = new JPanel();
 		
 		pan1.setLayout(new BorderLayout());
 		pan1.addKeyListener(new KeyHandler());
-		pan2.setLayout(new GridLayout(20, 1, 0, 10));
+		pan11.setLayout(new BorderLayout());
+		pan2.setLayout(new BorderLayout());
+		pan21.setLayout(new GridLayout(20, 1, 0, 10));
 		pan3.setLayout(new BorderLayout());
 		
 		m_bStart = false;
@@ -124,29 +125,38 @@ class TetrisFrame2 extends JFrame {
 		m_nextRect2 = new Rectangle(START_X2+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
 		gameStop.setEnabled(false);
 		
-		pan11.add(messageBox);
-		pan11.add(sendButton);
 		pan12.add(gameStart);
 		pan12.add(gameStop);
+		pan13.add(messageBox);
+		pan13.add(sendButton);
 		
-		pan3.add("North", pan11);
-		pan3.add("South", pan12);
+		JScrollPane scrollPane = new JScrollPane(showText);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		
+		pan11.add("Center", pan12);
+		pan11.add("East", pan13);
+		
+		pan3.add("East", scrollPane);
+		pan3.add("South", pan11);
 
-		pan2.add(label1);
-		pan2.add(serverIp);
-		pan2.add(label2);
-		pan2.add(portNo);
-		pan2.add(label3);
-		pan2.add(talkName);
-		pan2.add(serverBt);
-		pan2.add(clientBt);
-		pan2.add(aloneBt);
-		pan2.add(connectButton);
-		pan2.add(disConnectButton);
+		pan21.add(label1);
+		pan21.add(serverIp);
+		pan21.add(label2);
+		pan21.add(portNo);
+		pan21.add(label3);
+		pan21.add(talkName);
+		pan21.add(serverBt);
+		pan21.add(clientBt);
+		pan21.add(aloneBt);
+		pan21.add(connectButton);
+		pan21.add(disConnectButton);
 		
-		pan1.add("South", pan3);
-		pan1.add("East", pan2);
-		add(pan1);
+		pan2.add("North", pan21);
+		
+		add("South", pan3);
+		add("East", pan2);
+		add("North", pan1);
 		
 		pan1.setFocusable(true);
 		
@@ -202,25 +212,29 @@ class TetrisFrame2 extends JFrame {
 		}
 	}
 	
-	
-	
 	public class RadioHandler implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			if (e.getSource() == serverBt) {
 				modenum = 1;
+				serverIp.setEditable(true);
+				portNo.setEditable(true);
 				talkName.setText("server");
 				talkName.setEditable(false);
 				connectButton.setEnabled(true);
 			} else if (e.getSource() == clientBt) {
 				modenum = 2;
+				serverIp.setEditable(true);
+				portNo.setEditable(true);
 				talkName.setText("손님");
 				talkName.setEditable(true);
 				connectButton.setEnabled(true);
 			}
 			else if (e.getSource() == aloneBt) {
 				modenum = 0;
+				serverIp.setEditable(false);
+				portNo.setEditable(false);
 				talkName.setText("혼자 놀기");
 				talkName.setEditable(false);
 				connectButton.setEnabled(false);
@@ -243,7 +257,7 @@ class TetrisFrame2 extends JFrame {
 			disConnectButton.setEnabled(true);
 			messageBox.setEnabled(true);
 			sendButton.setEnabled(true);
-			Graphics gra = getGraphics();
+			//Graphics gra = getGraphics();
 			if(modenum == 1) {
 				int iportNo = 0;
 				String sportNo = portNo.getText();
@@ -255,14 +269,14 @@ class TetrisFrame2 extends JFrame {
 		        }
 				if(cnt == 0)
 				{
-					cs = new TChatServer(gra, iportNo, list, model, START_X2, START_Y);
+					cs = new TChatServer(showText, iportNo, list, model, START_X2, START_Y);
 					cs.start();
 					cnt++;
 				}
 				cs.ServerStart();
 			}
 			else if(modenum == 2) {
-				cc = new TChatClient(gra, messageBox, START_X, START_Y);
+				cc = new TChatClient(showText, messageBox, START_X, START_Y);
 				int iportNo = 0;
 				String sportNo = portNo.getText();
 				stalkName = talkName.getText();
@@ -293,6 +307,7 @@ class TetrisFrame2 extends JFrame {
 				portNo.setEnabled(true); 
 				connectButton.setEnabled(true);
 				disConnectButton.setEnabled(false);
+				cs.ServerStop();
 			}
 			else if(modenum == 2) {
 				serverIp.setEnabled(true);
@@ -300,6 +315,7 @@ class TetrisFrame2 extends JFrame {
 				talkName.setEnabled(true);
 				connectButton.setEnabled(true);
 				disConnectButton.setEnabled(false);
+				cc.disconnect();
 			}
 		}
 	}
@@ -309,10 +325,14 @@ class TetrisFrame2 extends JFrame {
 		public void actionPerformed(ActionEvent event) {
 			// TODO Auto-generated method stub
 			if(modenum == 1) {
-				cs.ServerStop();
+				String data = "[Server] " + messageBox.getText();
+				cs.SendMessage(data);
+				messageBox.setText(null);
+				
 			}
 			else if(modenum == 2) {
-				cc.disconnect();
+				stalkName = talkName.getText();
+				cc.send(stalkName);
 			}
 		}
 	}
@@ -388,21 +408,17 @@ class TChatServer extends Thread{
 	Graphics gra;
 	int START_X;
 	int START_Y;
-	String m_arrMsg[];
-	//JTextArea showText;
+	JTextArea showText;
+	JTextField messageBox;
 	
 	TChatServer(){}
-	TChatServer(Graphics gra, int iportNo, JList<String> l, DefaultListModel<String> m, int x, int y){
-		this.gra = gra;
+	TChatServer(JTextArea showText, int iportNo, JList<String> l, DefaultListModel<String> m, int x, int y){
+		this.showText = showText;
 		this.iportNo = iportNo;
 		this.list = l;
 		this.model = m;
 		START_X = x;
 		START_Y = y;
-		m_arrMsg = new String[10];
-		for(int i = 0; i < 10; i++) {
-			m_arrMsg[i] = "\n";
-		}
 	}
 	
 	public void run()
@@ -413,11 +429,11 @@ class TChatServer extends Thread{
 			System.out.append("Server Socket 생성 오류 발생 !");
 			System.exit(1);
 		}
-		drawWord("Chatting Server3이 1234번 Port에서 접속을 기다립니다.\n");
+		showText.append("Chatting Server3이 1234번 Port에서 접속을 기다립니다.\n");
 		try {
 			while(bool) {
 				clientSocketet = serverSocket.accept();
-				chatTrd = new ChatThread(clientSocketet, vClient, gra, list, model, START_X, START_Y, m_arrMsg);
+				chatTrd = new ChatThread(clientSocketet, vClient, showText, list, model, START_X, START_Y);
 				chatTrd.start();
 				vClient.addElement(chatTrd);
 			}
@@ -472,24 +488,6 @@ class TChatServer extends Thread{
 			vClient.get(i).SendMessage(data);
 		}
 	}
-	
-	private void drawWord(String str) {
-		int x=0, y=0, z=0;
-		int hight = START_Y + 15;
-		for(int i = 8; i > 0; i--) {
-			m_arrMsg[i] = m_arrMsg[i - 1];
-		}
-		m_arrMsg[0] = str;
-		for(int i = 0; i < 10; i++) {
-			Color c = new Color(x, y, z);
-			gra.setColor(c);
-			gra.drawString(m_arrMsg[i], START_X, hight);
-			x += 23;
-			y += 23;
-			z += 23;
-			hight += 10;
-		}
-	}
 }
 
 class ChatThread extends Thread{
@@ -502,21 +500,19 @@ class ChatThread extends Thread{
 	DefaultListModel<String> model;
 	
 	Graphics gra;
-	String m_arrMsg[];
 	int START_X;
 	int START_Y;
-	//JTextArea showText;
+	JTextArea showText;
 	
 	public ChatThread() {}
-	public ChatThread(Socket socket, Vector<ChatThread> v, Graphics gra, JList<String> l, DefaultListModel<String> m, int START_X, int START_Y, String m_arrMsg[]) {
+	public ChatThread(Socket socket, Vector<ChatThread> v, JTextArea showText, JList<String> l, DefaultListModel<String> m, int START_X, int START_Y) {
 		clientSocket = socket;
 		this.vClient = v;
-		this.gra = gra;
+		this.showText = showText;
 		this.list = l;
 		this.model = m;
 		this.START_X = START_X;
 		this.START_Y = START_Y;
-		this.m_arrMsg = m_arrMsg;
 	}
 	
 	public void removeClient() throws IOException{
@@ -534,7 +530,7 @@ class ChatThread extends Thread{
 	
 	public void run() {
 		try {
-			drawWord("Client:" + clientSocket.toString() + "\n에서 접속하였습니다.\n");
+			showText.append("Client:" + clientSocket.toString() + "\n에서 접속하였습니다.\n");
 			socketOut = new PrintWriter(clientSocket.getOutputStream(), true);
 			socketIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			
@@ -573,7 +569,7 @@ class ChatThread extends Thread{
 			try {
 				removeClient();
 			}catch(IOException e1) {}
-			drawWord(" " + strName + "의 접속이 끊겼습니다.\n");
+			showText.append(" " + strName + "의 접속이 끊겼습니다.\n");
 			ListSort();
 		}
 	}
@@ -583,7 +579,7 @@ class ChatThread extends Thread{
 			ChatThread trd = ((ChatThread)vClient.elementAt(i));
 			trd.socketOut.println(msg);
 		}
-		drawWord(msg + "\n");
+		showText.append(msg + "\n");
 	}
 	
 	public void ListSort()
@@ -609,26 +605,9 @@ class ChatThread extends Thread{
 	}
 	
 	public void SendMessage(String data) {
-		System.out.println(data);
+		//System.out.println(data);
 		socketOut.println(data);
-	}
-	
-	private void drawWord(String str) {
-		int x=0, y=0, z=0;
-		int hight = START_Y + 15;
-		for(int i = 9; i > 0; i--) {
-			m_arrMsg[i] = m_arrMsg[i - 1];
-		}
-		m_arrMsg[0] = str;
-		for(int i = 0; i < 10; i++) {
-			Color c = new Color(x, y, z);
-			gra.setColor(c);
-			gra.drawString(m_arrMsg[i], START_X, hight);
-			x += 23;
-			y += 23;
-			z += 23;
-			hight += 10;
-		}
+		showText.append(data);
 	}
 }
 
@@ -641,7 +620,7 @@ class TChatClient{
 	String strUser, strMsg;
 	ReceiveThread rec;
 	JTextField messageBox;
-	//JTextArea showText;
+	JTextArea showText;
 	
 	String talkName;
 	Graphics gra;
@@ -650,8 +629,8 @@ class TChatClient{
 	String m_arrMsg[];
 	
 	TChatClient(){}
-	TChatClient(Graphics gra, JTextField MB, int START_X, int START_Y){
-		this.gra = gra;
+	TChatClient(JTextArea showText, JTextField MB, int START_X, int START_Y){
+		this.showText = showText;
 		messageBox = MB;
 		this.START_X = START_X; 
 		this.START_Y = START_Y;
@@ -668,7 +647,7 @@ class TChatClient{
 			if(strMsg.equals("SjChatServer")) {
 				socketOut.println("SjChatClient");
 				socketOut.println(talkName);
-				rec = new ReceiveThread(socketIn, gra);
+				rec = new ReceiveThread(socketIn, showText);
 				rec.start();
 			}
 			else {
@@ -729,45 +708,27 @@ class ReceiveThread extends Thread{
 	BufferedReader socketIn = null;
 	String strSocket;
 	
-	//JTextArea showText;
+	JTextArea showText;
 	Graphics gra;
 	int START_X;
 	int START_Y;
 	String m_arrMsg[];
 	
 	ReceiveThread(){}
-	ReceiveThread(BufferedReader socketIn, Graphics gra){
+	ReceiveThread(BufferedReader socketIn, JTextArea showText){
 		this.socketIn = socketIn;
-		this.gra = gra;
+		this.showText = showText;
 	}
 	
 	public void run() {
-		drawWord("Server에 접속됨");
+		showText.append("Server에 접속됨");
 		try {
 			while((strSocket = socketIn.readLine()) != null) {
-				drawWord(strSocket + "\n");
+				showText.append(strSocket + "\n");
 			}
 		}
 		catch(Exception e) {
-			drawWord("연결이 끊겼습니다.");
-		}
-	}
-	
-	private void drawWord(String str) {
-		int x=0, y=0, z=0;
-		int hight = START_Y + 15;
-		for(int i = 8; i > 0; i--) {
-			m_arrMsg[i] = m_arrMsg[i - 1];
-		}
-		m_arrMsg[0] = str;
-		for(int i = 0; i < 10; i++) {
-			Color c = new Color(x, y, z);
-			gra.setColor(c);
-			gra.drawString(m_arrMsg[i], START_X, hight);
-			x += 23;
-			y += 23;
-			z += 23;
-			hight += 10;
+			showText.append("연결이 끊겼습니다.");
 		}
 	}
 }
