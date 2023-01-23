@@ -147,13 +147,15 @@ class ChatServerFrame extends JFrame{
 	        catch (NumberFormatException ex){
 	            ex.printStackTrace();
 	        }
-			if(cnt == 0)
-			{
-				cs = new ChatServer(showText, iportNo, list, model);
-				cs.start();
-				cnt++;
-			}
-			cs.ServerStart();
+			cs = new ChatServer(showText, iportNo, list, model);
+			cs.start();
+//			if(cnt == 0)
+//			{
+//				cs = new ChatServer(showText, iportNo, list, model);
+//				cs.start();
+//				cnt++;
+//			}
+//			cs.ServerStart();
 		}
 	}
 	
@@ -221,7 +223,7 @@ class ChatServer extends Thread{
 	public void run()
 	{
 		try {
-			serverSocket = new ServerSocket(1234);
+			serverSocket = new ServerSocket(iportNo);
 		}catch(IOException e) {
 			System.out.append("Server Socket 생성 오류 발생 !");
 			System.exit(1);
@@ -256,6 +258,7 @@ class ChatServer extends Thread{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		new Share();
 	}
 	
 	public void ServerStart()
@@ -398,5 +401,21 @@ class ChatThread3 extends Thread{
 	public void SendMessage(String data) {
 		System.out.println(data);
 		socketOut.println(data);
+	}
+}
+
+class Share{
+	Socket echoSocket = null;
+	
+	public Share() {
+		try {
+			echoSocket = new Socket("localhost", 1234);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

@@ -46,8 +46,35 @@ class Data{
 }
 
 class Share{
-	JButton gameStart, gameStop;
+	JButton gameStart, gameStop, connectButton, disConnectButton;
 	int state;
+}
+
+class ServerClose{
+	Socket CloseSocket = null;
+	
+	public ServerClose() {
+		try {
+			CloseSocket = new Socket("localhost", 1234);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public ServerClose(int iportNo) {
+		try {
+			CloseSocket = new Socket("localhost", iportNo);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
 
 class TetrisFrame2 extends JFrame {
@@ -58,7 +85,6 @@ class TetrisFrame2 extends JFrame {
 	JRadioButton serverBt, clientBt, aloneBt;
 	ButtonGroup mode;
 	int modenum = 0;
-	int cnt = 0;
 	TetrisPlay2 play, play2;
 	Thread PlayCT, PlayCT2;
 
@@ -130,6 +156,8 @@ class TetrisFrame2 extends JFrame {
 		
 		share.gameStart = gameStart;
 		share.gameStop = gameStop;
+		share.connectButton = connectButton;
+		share.disConnectButton = disConnectButton; 
 		
 		m_bStart = false;
 		m_bStart2 = false;
@@ -309,13 +337,8 @@ class TetrisFrame2 extends JFrame {
 		        catch (NumberFormatException ex){
 		            ex.printStackTrace();
 		        }
-				if(cnt == 0)
-				{
-					cs = new TChatServer(showText, iportNo, list, model, share);
-					cs.start();
-					cnt++;
-				}
-				cs.ServerStart();
+				cs = new TChatServer(showText, iportNo, list, model, share);
+				cs.start();
 			}
 			else if(modenum == 2) {
 				cc = new TChatClient(showText, messageBox, share);
@@ -474,15 +497,14 @@ class TChatServer extends Thread{
 		}
 		showText.append("Chatting Server3이 1234번 Port에서 접속을 기다립니다.\n");
 		try {
-			clientSocketet = serverSocket.accept();
-			share.state = num.STATE_LISTEN;
-			chatTrd = new ChatThread(clientSocketet, vClient, showText, list, model, share);
-			chatTrd.start();
-			vClient.addElement(chatTrd);
-//			while(bool) {
-//				
-//			}
-//			serverSocket.close();
+			while(bool) {
+				clientSocketet = serverSocket.accept();
+				share.state = num.STATE_LISTEN;
+				chatTrd = new ChatThread(clientSocketet, vClient, showText, list, model, share);
+				chatTrd.start();
+				vClient.addElement(chatTrd);
+			}
+			serverSocket.close();
 		}
 		catch(IOException e) {
 			System.out.println("접속 실패입니다.");
@@ -493,22 +515,19 @@ class TChatServer extends Thread{
 	public void ServerStop() 
 	{
 		bool = false;
+		new ServerClose();
 		try {
 			for(int i = 0; i < vClient.size(); i++)
 			{
 				vClient.get(i).serverdisconnectMessage();
 				vClient.get(i).clientSocket.close();
 			}
-			serverSocket.close();	
+			showText.append("서버를 정상적으로 종료했습니다.\n");
+			share.state = num.STATE_INIT;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	public void ServerStart()
-	{
-		bool = true;
 	}
 	
 	public void ReceiveThreadClose(String data)
@@ -539,7 +558,7 @@ class ChatThread extends Thread{
 	Socket clientSocket = null;
 	PrintWriter socketOut;
 	BufferedReader socketIn;
-	String strInput, strName = "NoName";
+	String strInput, strName;
 	Vector<ChatThread> vClient;
 	JList<String> list;
 	DefaultListModel<String> model;
@@ -580,7 +599,7 @@ class ChatThread extends Thread{
 	
 	public void run() {
 		try {
-			showText.append("Client:" + clientSocket.toString() + "\n에서 접속하였습니다.\n");
+			//showText.append("Client:" + clientSocket.toString() + "\n에서 접속하였습니다.\n");
 			socketOut = new PrintWriter(clientSocket.getOutputStream(), true);
 			socketIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			

@@ -119,8 +119,6 @@ class ChatClientFrame extends JFrame{
 		pan3.setLayout(new BorderLayout());
 		pan3.add("Center", pan31);
 		pan3.add("South", pan32);
-		
-		cc = new ClientChatting(showText, messageBox);
 	}
 	
 	public class CCBHandler implements ActionListener{
@@ -145,6 +143,7 @@ class ChatClientFrame extends JFrame{
 	        }
 			String sseverIp = severIp.getText();
 			
+			cc = new ClientChatting(showText, messageBox);
 			cc.connect(iportNo, sseverIp, stalkName);
 		}
 	}
