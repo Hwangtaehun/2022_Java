@@ -16,52 +16,25 @@ public class SjTetris2 {
 	}
 }
 
-class UserStatic{
-	final int COL_CNT = 10;
-	final int ROW_CNT = 20;
-	final int START_X = 10;
-	final int START_Y = 40;
-	final int BLOCK_SIZE = 32;
-	final int START_X2 = START_X + 500;
-	final int STATE_INIT = 0;
-	final int STATE_LISTEN = 1;
-	final int STATE_CONNECT = 2;
-	final int STATE_GAME_START = 3;
-	final int STATE_GAME_DIE = 4;
-	
-	UserStatic(){}
-}
-
-class Data{
-	UserStatic num;
-	char cFlag;
-	String message;
-	int[][] m_Table;
-	TetrisPlay2 tetris;
-	
-	public Data() {
-		num = new UserStatic();
-		m_Table = new int[num.ROW_CNT][num.COL_CNT];
-	}
-}
-
-class Share{
-	JButton gameStart, gameStop;
-	int state;
-}
-
 class TetrisFrame2 extends JFrame {
 	JPanel pan1, pan2, pan3, pan11, pan12, pan13, pan21;
 	JTextField serverIp, portNo, talkName, messageBox;
 	JTextArea showText;
 	JButton gameStart, gameStop, connectButton, disConnectButton, sendButton;
 	JRadioButton serverBt, clientBt, aloneBt;
+	TetrisPlay2 play, play2;
+	Thread PlayCT, PlayCT2;
 	ButtonGroup mode;
 	int modenum = 0;
 	int cnt = 0;
-	TetrisPlay2 play, play2;
-	Thread PlayCT, PlayCT2;
-
+	
+	final int COL_CNT = 10;
+	final int ROW_CNT = 20;
+	final int START_X = 10;
+	final int START_Y = 40;
+	final int BLOCK_SIZE = 32;
+	final int START_X2 = START_X + 500;
+	
 	int[][] m_Table;
 	Rectangle m_nextRect;
 	Rectangle m_mainRect;
@@ -77,23 +50,16 @@ class TetrisFrame2 extends JFrame {
 	
 	TChatClient cc;
 	String stalkName;
-	UserStatic num;
-	Share share;
 	
 	public TetrisFrame2() {}
 	public TetrisFrame2(String str) {
 		super(str);
-		num = new UserStatic();
-		share = new Share();
-		share.state = num.STATE_INIT;
 		showText = new JTextArea(12, 27);
 		showText.setEditable(false);
 		gameStart = new JButton("Game Start");
 		gameStart.addActionListener(new StartHandler());
-		gameStart.setEnabled(false);
 		gameStop = new JButton("Game Stop");
 		gameStop.addActionListener(new StopHandler());
-		gameStop.setEnabled(false);
 		messageBox = new JTextField(20);
 		messageBox.setEnabled(false);
 		serverIp = new JTextField("localhost", 10);
@@ -128,15 +94,13 @@ class TetrisFrame2 extends JFrame {
 		sendButton.addActionListener(new SBHandler());
 		sendButton.setEnabled(false);
 		
-		share.gameStart = gameStart;
-		share.gameStop = gameStop;
-		
 		m_bStart = false;
 		m_bStart2 = false;
-		m_mainRect = new Rectangle(num.START_X, num.START_Y, num.BLOCK_SIZE*num.COL_CNT+4, num.BLOCK_SIZE*num.ROW_CNT+4);
-		m_nextRect = new Rectangle(num.START_X+num.BLOCK_SIZE*num.COL_CNT+20, num.START_Y+30, 130, 80);
-		m_mainRect2 = new Rectangle(num.START_X2, num.START_Y, num.BLOCK_SIZE*num.COL_CNT+4, num.BLOCK_SIZE*num.ROW_CNT+4);
-		m_nextRect2 = new Rectangle(num.START_X2+num.BLOCK_SIZE*num.COL_CNT+20, num.START_Y+30, 130, 80);
+		m_mainRect = new Rectangle(START_X, START_Y, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
+		m_nextRect = new Rectangle(START_X+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
+		m_mainRect2 = new Rectangle(START_X2, START_Y, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
+		m_nextRect2 = new Rectangle(START_X2+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
+		gameStop.setEnabled(false);
 		
 		pan1 = new JPanel();
 		pan2 = new JPanel();
@@ -155,10 +119,10 @@ class TetrisFrame2 extends JFrame {
 		
 		m_bStart = false;
 		m_bStart2 = false;
-		m_mainRect = new Rectangle(num.START_X, num.START_Y, num.BLOCK_SIZE*num.COL_CNT+4, num.BLOCK_SIZE*num.ROW_CNT+4);
-		m_nextRect = new Rectangle(num.START_X+num.BLOCK_SIZE*num.COL_CNT+20, num.START_Y+30, 130, 80);
-		m_mainRect2 = new Rectangle(num.START_X2, num.START_Y, num.BLOCK_SIZE*num.COL_CNT+4, num.BLOCK_SIZE*num.ROW_CNT+4);
-		m_nextRect2 = new Rectangle(num.START_X2+num.BLOCK_SIZE*num.COL_CNT+20, num.START_Y+30, 130, 80);
+		m_mainRect = new Rectangle(START_X, START_Y, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
+		m_nextRect = new Rectangle(START_X+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
+		m_mainRect2 = new Rectangle(START_X2, START_Y, BLOCK_SIZE*COL_CNT+4, BLOCK_SIZE*ROW_CNT+4);
+		m_nextRect2 = new Rectangle(START_X2+BLOCK_SIZE*COL_CNT+20, START_Y+30, 130, 80);
 		gameStop.setEnabled(false);
 		
 		pan12.add(gameStart);
@@ -217,24 +181,21 @@ class TetrisFrame2 extends JFrame {
 	public class StartHandler implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if(share.state == num.STATE_CONNECT)
-			{
-				gameStart.setEnabled(false);
-				gameStop.setEnabled(true);
-				Graphics gra = getGraphics();
-				m_bStart = true;
-				m_bStart2 = true;
-				play = new TetrisPlay2(num.START_X, num.START_Y, m_nextRect, m_mainRect, m_bStart, 
-						gameStart, gameStop, gra, pan1);
-				play.PlayStart();
-				PlayCT = new Thread(play);
-				PlayCT.start();
-				play2 = new TetrisPlay2(num.START_X2, num.START_Y, m_nextRect2, m_mainRect2, m_bStart2, 
-						gameStart, gameStop, gra, pan1);
-				play2.PlayStart();
-				PlayCT2 = new Thread(play2);
-				PlayCT2.start();
-			}
+			gameStart.setEnabled(false);
+			gameStop.setEnabled(true);
+			Graphics gra = getGraphics();
+			m_bStart = true;
+			m_bStart2 = true;
+			play = new TetrisPlay2(COL_CNT, ROW_CNT, START_X, START_Y, BLOCK_SIZE, 
+					m_nextRect, m_mainRect, m_bStart, gameStart, gameStop, gra, pan1);
+			play.PlayStart();
+			PlayCT = new Thread(play);
+			PlayCT.start();
+			play2 = new TetrisPlay2(COL_CNT, ROW_CNT, START_X2, START_Y, BLOCK_SIZE, 
+					m_nextRect2, m_mainRect2, m_bStart2, gameStart, gameStop, gra, pan1);
+			play2.PlayStart();
+			PlayCT2 = new Thread(play2);
+			PlayCT2.start();
 		}
 	}
 	
@@ -242,15 +203,12 @@ class TetrisFrame2 extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			if(share.state == num.STATE_CONNECT)
-			{
-				gameStart.setEnabled(true);
-				gameStop.setEnabled(false);
-				m_bStart = false;
-				m_bStart2 = false;
-				play.PlayStop();
-				play2.PlayStop();
-			}
+			gameStart.setEnabled(true);
+			gameStop.setEnabled(false);
+			m_bStart = false;
+			m_bStart2 = false;
+			play.PlayStop();
+			play2.PlayStop();
 		}
 	}
 	
@@ -311,14 +269,14 @@ class TetrisFrame2 extends JFrame {
 		        }
 				if(cnt == 0)
 				{
-					cs = new TChatServer(showText, iportNo, list, model, share);
+					cs = new TChatServer(showText, iportNo, list, model, START_X2, START_Y);
 					cs.start();
 					cnt++;
 				}
 				cs.ServerStart();
 			}
 			else if(modenum == 2) {
-				cc = new TChatClient(showText, messageBox, share);
+				cc = new TChatClient(showText, messageBox, START_X, START_Y);
 				int iportNo = 0;
 				String sportNo = portNo.getText();
 				stalkName = talkName.getText();
@@ -448,20 +406,19 @@ class TChatServer extends Thread{
 	DefaultListModel<String> model;
 	
 	Graphics gra;
+	int START_X;
+	int START_Y;
 	JTextArea showText;
 	JTextField messageBox;
 	
-	Share share;
-	UserStatic num;
-	
 	TChatServer(){}
-	TChatServer(JTextArea showText, int iportNo, JList<String> l, DefaultListModel<String> m, Share share){
+	TChatServer(JTextArea showText, int iportNo, JList<String> l, DefaultListModel<String> m, int x, int y){
 		this.showText = showText;
 		this.iportNo = iportNo;
 		this.list = l;
 		this.model = m;
-		this.share = share;
-		num = new UserStatic();
+		START_X = x;
+		START_Y = y;
 	}
 	
 	public void run()
@@ -474,15 +431,13 @@ class TChatServer extends Thread{
 		}
 		showText.append("Chatting Server3이 1234번 Port에서 접속을 기다립니다.\n");
 		try {
-			clientSocketet = serverSocket.accept();
-			share.state = num.STATE_LISTEN;
-			chatTrd = new ChatThread(clientSocketet, vClient, showText, list, model, share);
-			chatTrd.start();
-			vClient.addElement(chatTrd);
-//			while(bool) {
-//				
-//			}
-//			serverSocket.close();
+			while(bool) {
+				clientSocketet = serverSocket.accept();
+				chatTrd = new ChatThread(clientSocketet, vClient, showText, list, model, START_X, START_Y);
+				chatTrd.start();
+				vClient.addElement(chatTrd);
+			}
+			serverSocket.close();
 		}
 		catch(IOException e) {
 			System.out.println("접속 실패입니다.");
@@ -499,7 +454,7 @@ class TChatServer extends Thread{
 				vClient.get(i).serverdisconnectMessage();
 				vClient.get(i).clientSocket.close();
 			}
-			serverSocket.close();	
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -545,24 +500,19 @@ class ChatThread extends Thread{
 	DefaultListModel<String> model;
 	
 	Graphics gra;
+	int START_X;
+	int START_Y;
 	JTextArea showText;
 	
-	Share share;
-	UserStatic num;
-	Data gSend, gReceive;
-	
 	public ChatThread() {}
-	public ChatThread(Socket socket, Vector<ChatThread> v, JTextArea showText, JList<String> l, DefaultListModel<String> m, Share share) 
-	{
-		num = new UserStatic();
+	public ChatThread(Socket socket, Vector<ChatThread> v, JTextArea showText, JList<String> l, DefaultListModel<String> m, int START_X, int START_Y) {
 		clientSocket = socket;
 		this.vClient = v;
 		this.showText = showText;
 		this.list = l;
 		this.model = m;
-		this.share = share;
-		share.state = num.STATE_CONNECT;
-		share.gameStart.setEnabled(true);
+		this.START_X = START_X;
+		this.START_Y = START_Y;
 	}
 	
 	public void removeClient() throws IOException{
@@ -673,20 +623,16 @@ class TChatClient{
 	
 	String talkName;
 	Graphics gra;
+	int START_X;
+	int START_Y;
 	String m_arrMsg[];
 	
-	Share share;
-	UserStatic num;
-	Data gSend;
-	
 	TChatClient(){}
-	TChatClient(JTextArea showText, JTextField MB, Share share){
+	TChatClient(JTextArea showText, JTextField MB, int START_X, int START_Y){
 		this.showText = showText;
 		messageBox = MB;
-		this.share = share;
-		num = new UserStatic();
-		share.state = num.STATE_CONNECT;
-		share.gameStart.setEnabled(true);
+		this.START_X = START_X; 
+		this.START_Y = START_Y;
 	}
 	
 	public void connect(int iportNo, String sseverIp, String stalkName) {
@@ -700,7 +646,7 @@ class TChatClient{
 			if(strMsg.equals("SjChatServer")) {
 				socketOut.println("SjChatClient");
 				socketOut.println(talkName);
-				rec = new ReceiveThread(socketIn, showText, share);
+				rec = new ReceiveThread(socketIn, showText);
 				rec.start();
 			}
 			else {
@@ -763,17 +709,14 @@ class ReceiveThread extends Thread{
 	
 	JTextArea showText;
 	Graphics gra;
+	int START_X;
+	int START_Y;
 	String m_arrMsg[];
 	
-	Data gReceive;
-	Share share;
-	UserStatic num;
-	
 	ReceiveThread(){}
-	ReceiveThread(BufferedReader socketIn, JTextArea showText, Share share){
+	ReceiveThread(BufferedReader socketIn, JTextArea showText){
 		this.socketIn = socketIn;
 		this.showText = showText;
-		this.share = share;
 	}
 	
 	public void run() {
@@ -812,19 +755,17 @@ class TetrisPlay2 implements Runnable{
 	boolean m_bStart;
 	Random rand;
 	Graphics gra;
-	UserStatic num;
 	
 	TetrisPlay2(){}
-	TetrisPlay2(int START_X, int START_Y, Rectangle m_nextRect,Rectangle m_mainRect, boolean m_bStart, 
-			JButton gameStart, JButton gameStop, Graphics g, JPanel pan1)
+	TetrisPlay2(int COL_CNT, int ROW_CNT, int START_X, int START_Y, int BLOCK_SIZE, Rectangle m_nextRect,
+			Rectangle m_mainRect, boolean m_bStart, JButton gameStart, JButton gameStop, Graphics g, JPanel pan1)
 	{
-		num = new UserStatic();
 		blockPattern();
-		this.COL_CNT = num.COL_CNT;
-		this.ROW_CNT = num.ROW_CNT;
+		this.COL_CNT = COL_CNT;
+		this.ROW_CNT = ROW_CNT;
 		this.START_X = START_X;
 		this.START_Y = START_Y;
-		this.BLOCK_SIZE = num.BLOCK_SIZE;
+		this.BLOCK_SIZE = BLOCK_SIZE;
 		this.m_nextRect = m_nextRect;
 		this.m_mainRect = m_mainRect;
 		this.m_bStart = m_bStart;
