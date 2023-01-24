@@ -38,6 +38,7 @@ class Data{
 	String gameData;
 	int[][] otherTable;
 	TetrisPlay2 tetris;
+	boolean otherstart = false;
 	
 	public Data() {
 		num = new UserStatic();
@@ -45,7 +46,7 @@ class Data{
 	}
 	
 	public void GameSetting(int[][] m_Table) {
-		gameData = "\t";
+		gameData = "/t";
 		for(int i = 0; i < num.ROW_CNT; i++)
 		{
 			for(int j = 0 ; j < num.COL_CNT; j++)
@@ -55,18 +56,17 @@ class Data{
 		}
 	}
 	
-	public void Message(String str) {
-		message = "\s" + str;
+	public void SendMessage(String str) {
+		this.message = "/s" + str;
 	}
 	
 	public void InputGameData(String str) {
 		int n = 2;
-		
 		for(int i = 0; i < num.ROW_CNT; i++)
 		{
 			for(int j = 0 ; j < num.COL_CNT; j++)
 			{
-				otherTable[i][j] = (int)str.charAt(n);
+				otherTable[i][j] = Character.getNumericValue(str.charAt(n));
 				n++;
 			}
 		}
@@ -75,7 +75,16 @@ class Data{
 
 class Share{
 	JButton gameStart, gameStop, connectButton, disConnectButton;
+	ChatThread sendclient = null;
+	TChatClient sendserver = null;
 	int state;
+	boolean mystart;
+	Rectangle m_nextRect2;
+	Rectangle m_mainRect2;
+	Graphics gra;
+	JPanel pan1;
+	
+	public void Share() {}
 }
 
 class ServerClose{
@@ -113,8 +122,10 @@ class TetrisFrame2 extends JFrame {
 	JRadioButton serverBt, clientBt, aloneBt;
 	ButtonGroup mode;
 	int modenum = 0;
-	TetrisPlay2 play, play2;
-	Thread PlayCT, PlayCT2;
+//	TetrisPlay2 play, play2;
+//	Thread PlayCT, PlayCT2;
+	TetrisPlay2 play;
+	Thread PlayCT;
 
 	int[][] m_Table;
 	Rectangle m_nextRect;
@@ -122,7 +133,7 @@ class TetrisFrame2 extends JFrame {
 	Rectangle m_nextRect2;
 	Rectangle m_mainRect2;
 	boolean m_bStart;
-	boolean m_bStart2;
+	//boolean m_bStart2;
 	Random rand;
 	
 	TChatServer cs;
@@ -186,13 +197,6 @@ class TetrisFrame2 extends JFrame {
 		share.connectButton = connectButton;
 		share.disConnectButton = disConnectButton; 
 		
-		m_bStart = false;
-		m_bStart2 = false;
-		m_mainRect = new Rectangle(num.START_X, num.START_Y, num.BLOCK_SIZE*num.COL_CNT+4, num.BLOCK_SIZE*num.ROW_CNT+4);
-		m_nextRect = new Rectangle(num.START_X+num.BLOCK_SIZE*num.COL_CNT+20, num.START_Y+30, 130, 80);
-		m_mainRect2 = new Rectangle(num.START_X2, num.START_Y, num.BLOCK_SIZE*num.COL_CNT+4, num.BLOCK_SIZE*num.ROW_CNT+4);
-		m_nextRect2 = new Rectangle(num.START_X2+num.BLOCK_SIZE*num.COL_CNT+20, num.START_Y+30, 130, 80);
-		
 		pan1 = new JPanel();
 		pan2 = new JPanel();
 		pan3 = new JPanel();
@@ -209,11 +213,13 @@ class TetrisFrame2 extends JFrame {
 		pan3.setLayout(new BorderLayout());
 		
 		m_bStart = false;
-		m_bStart2 = false;
+		//m_bStart2 = false;
 		m_mainRect = new Rectangle(num.START_X, num.START_Y, num.BLOCK_SIZE*num.COL_CNT+4, num.BLOCK_SIZE*num.ROW_CNT+4);
 		m_nextRect = new Rectangle(num.START_X+num.BLOCK_SIZE*num.COL_CNT+20, num.START_Y+30, 130, 80);
 		m_mainRect2 = new Rectangle(num.START_X2, num.START_Y, num.BLOCK_SIZE*num.COL_CNT+4, num.BLOCK_SIZE*num.ROW_CNT+4);
 		m_nextRect2 = new Rectangle(num.START_X2+num.BLOCK_SIZE*num.COL_CNT+20, num.START_Y+30, 130, 80);
+		share.m_mainRect2 = m_mainRect2;
+		share.m_nextRect2 = m_nextRect2;
 		gameStop.setEnabled(false);
 		
 		pan12.add(gameStart);
@@ -255,6 +261,7 @@ class TetrisFrame2 extends JFrame {
 		model=new DefaultListModel<>();
 		list=new JList<>(model);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		share.gra = getGraphics();
 	}
 	
 	public void paint(Graphics g) {
@@ -284,23 +291,28 @@ class TetrisFrame2 extends JFrame {
 				PlayCT = new Thread(play);
 				PlayCT.start();
 			}
-			if(share.state == num.STATE_CONNECT)
+			if(modenum == 1)
 			{
-				gameStart.setEnabled(false);
-				gameStop.setEnabled(true);
-				Graphics gra = getGraphics();
-				m_bStart = true;
-				m_bStart2 = true;
-				play = new TetrisPlay2(num.START_X, num.START_Y, m_nextRect, m_mainRect, m_bStart, 
-						gameStart, gameStop, gra, pan1);
-				play.PlayStart();
-				PlayCT = new Thread(play);
-				PlayCT.start();
-				play2 = new TetrisPlay2(num.START_X2, num.START_Y, m_nextRect2, m_mainRect2, m_bStart2, 
-						gameStart, gameStop, gra, pan1);
-				play2.PlayStart();
-				PlayCT2 = new Thread(play2);
-				PlayCT2.start();
+				if(share.state == num.STATE_CONNECT)
+				{
+					gameStart.setEnabled(false);
+					gameStop.setEnabled(true);
+					Graphics gra = getGraphics();
+					m_bStart = true;
+					play = new TetrisPlay2(num.START_X, num.START_Y, m_nextRect, m_mainRect, m_bStart, 
+							gameStart, gameStop, gra, pan1);
+					play.PlayStart();
+					PlayCT = new Thread(play);
+					PlayCT.start();
+					cs.sendMessage("/b");
+					
+//					m_bStart2 = true;
+//					play2 = new TetrisPlay2(num.START_X2, num.START_Y, m_nextRect2, m_mainRect2, m_bStart2, 
+//							gameStart, gameStop, gra, pan1);
+//					play2.PlayStart();
+//					PlayCT2 = new Thread(play2);
+//					PlayCT2.start();
+				}
 			}
 		}
 	}
@@ -321,9 +333,9 @@ class TetrisFrame2 extends JFrame {
 				gameStart.setEnabled(true);
 				gameStop.setEnabled(false);
 				m_bStart = false;
-				m_bStart2 = false;
+				//m_bStart2 = false;
 				play.PlayStop();
-				play2.PlayStop();
+				//play2.PlayStop();
 			}
 		}
 	}
@@ -390,7 +402,13 @@ class TetrisFrame2 extends JFrame {
 				cs.start();
 			}
 			else if(modenum == 2) {
-				cc = new TChatClient(showText, messageBox, share);
+				Graphics gra = getGraphics();
+				m_bStart = true;
+				play = new TetrisPlay2(num.START_X, num.START_Y, m_nextRect, m_mainRect, m_bStart, 
+						gameStart, gameStop, gra, pan1);
+				play.PlayStart();
+				cc = new TChatClient(showText, messageBox, share, play);
+				share.sendserver = cc;
 				int iportNo = 0;
 				String sportNo = portNo.getText();
 				stalkName = talkName.getText();
@@ -401,7 +419,6 @@ class TetrisFrame2 extends JFrame {
 		            ex.printStackTrace();
 		        }
 				String sserverIp = serverIp.getText();
-				
 				cc.connect(iportNo, sserverIp, stalkName);
 			}
 		}
@@ -440,7 +457,7 @@ class TetrisFrame2 extends JFrame {
 			// TODO Auto-generated method stub
 			if(modenum == 1) {
 				String data = "[Server] " + messageBox.getText();
-				cs.SendMessage(data);
+				cs.sendMessage(data);
 				messageBox.setText(null);
 				
 			}
@@ -477,28 +494,28 @@ class TetrisFrame2 extends JFrame {
 		        	play.MoveDown();
 		        }
 			}
-			if(m_bStart2) {
-				if (e.getKeyCode() == 97 || e.getKeyCode() == 65)
-				{
-					//System.out.println("왼쪽 누름");
-					play2.MoveLeft();
-				}
-		        if (e.getKeyCode() == 119|| e.getKeyCode() == 87)
-		        {
-		        	//System.out.println("위 누름");
-		        	play2.RolateBlock(false);
-				}    
-		        if (e.getKeyCode() == 100 || e.getKeyCode() == 68)
-		        {
-		        	//System.out.println("오른쪽 누름");
-		        	play2.MoveRight();
-		        }   
-		        if (e.getKeyCode() == 115 || e.getKeyCode() == 83)
-		        {
-		        	//System.out.println("아래 누름");
-		        	play2.MoveDown();
-		        }
-			}
+//			if(m_bStart2) {
+//				if (e.getKeyCode() == 97 || e.getKeyCode() == 65)
+//				{
+//					//System.out.println("왼쪽 누름");
+//					play2.MoveLeft();
+//				}
+//		        if (e.getKeyCode() == 119|| e.getKeyCode() == 87)
+//		        {
+//		        	//System.out.println("위 누름");
+//		        	play2.RolateBlock(false);
+//				}    
+//		        if (e.getKeyCode() == 100 || e.getKeyCode() == 68)
+//		        {
+//		        	//System.out.println("오른쪽 누름");
+//		        	play2.MoveRight();
+//		        }   
+//		        if (e.getKeyCode() == 115 || e.getKeyCode() == 83)
+//		        {
+//		        	//System.out.println("아래 누름");
+//		        	play2.MoveDown();
+//		        }
+//			}
 		}
 		@Override
 		public void keyReleased(KeyEvent e) {}
@@ -552,6 +569,7 @@ class TChatServer extends Thread{
 				chatTrd = new ChatThread(clientSocketet, vClient, showText, list, model, share);
 				chatTrd.start();
 				vClient.addElement(chatTrd);
+				share.sendclient = chatTrd;
 			}
 			serverSocket.close();
 		}
@@ -596,9 +614,15 @@ class TChatServer extends Thread{
 		}
 	}
 	
-	public void SendMessage(String data) {
+	public void sendMessage(String data) {
 		for(int i = 0; i < vClient.size(); i++) {
-			vClient.get(i).SendMessage(data);
+			vClient.get(i).sendMessage(data);
+		}
+	}
+	
+	public void makeThread() {
+		for(int i = 0; i < vClient.size(); i++) {
+			vClient.get(i).makeThread();
 		}
 	}
 }
@@ -617,7 +641,9 @@ class ChatThread extends Thread{
 	
 	Share share;
 	UserStatic num;
-	//Data gSend, gReceive;
+	Data support;
+	TetrisPlay2 play2;
+	Thread PlayCT2;
 	
 	public ChatThread() {}
 	public ChatThread(Socket socket, Vector<ChatThread> v, JTextArea showText, JList<String> l, DefaultListModel<String> m, Share share) 
@@ -631,18 +657,25 @@ class ChatThread extends Thread{
 		this.share = share;
 		share.state = num.STATE_CONNECT;
 		share.gameStart.setEnabled(true);
+		support = new Data();
 	}
 	
 	public void removeClient() throws IOException{
 		vClient.removeElement(this);
-		broadcast("[" + strName + "] 님이 퇴장하셨습니다.");
+		support.SendMessage("[" + strName + "] 님이 퇴장하셨습니다.");
+		broadcast(support.message);
+		//broadcast("[" + strName + "] 님이 퇴장하셨습니다.");
 	}
 	
 	public void sendUserList() throws IOException{
-		socketOut.println("< 현재 접속자 " + vClient.size() + "명 명단 >");
+		support.SendMessage("< 현재 접속자 " + vClient.size() + "명 명단 >");
+		socketOut.println(support.message);
+		//socketOut.println("< 현재 접속자 " + vClient.size() + "명 명단 >");
 		for(int i = 0; i < vClient.size(); i++) {
 			ChatThread trd = ((ChatThread)vClient.elementAt(i));
-			socketOut.println(trd.strName);
+			support.SendMessage(trd.strName);
+			socketOut.println(support.message);
+			//socketOut.println(trd.strName);
 		}
 	}
 	
@@ -655,29 +688,44 @@ class ChatThread extends Thread{
 			socketOut.println("SjChatServer");
 			strInput = socketIn.readLine();
 			if(strInput.equals("SjChatClient")) {
-				socketOut.println("<단축키> : /h(도움말), /u(접속자목록), /r 대화명 (대화명 변경)");
-				socketOut.println("대화명을 입력하세요 !");
+				socketOut.println("/s<단축키> : /h(도움말), /u(접속자목록), /r 대화명 (대화명 변경)");
+				socketOut.println("/s대화명을 입력하세요 !");
 				strName = socketIn.readLine();
-				broadcast("[" + strName + "] 님이 입장하셨습니다.");
+				support.SendMessage("[" + strName + "] 님이 입장하셨습니다.");
+				broadcast(support.message);
+				//broadcast("[" + strName + "] 님이 입장하셨습니다.");
 				ListSort();
 				
 				while((strInput = socketIn.readLine()) != null) {
-					if(strInput.equals("/h")) {
-						socketOut.println("<단축키> : /h(도움말), /u(접속자목록), /r 대화명 (대화명 변경)");
-					}else if(strInput.equals("/u")) {
-						sendUserList();
+					if(strInput.regionMatches(0, "/s", 0, 2))
+					{
+						String temp = strInput.substring(2);
+						strInput = temp;
+						if(strInput.equals("/h")) {
+							socketOut.println("/s<단축키> : /h(도움말), /u(접속자목록), /r 대화명 (대화명 변경)");
+						}else if(strInput.equals("/u")) {
+							sendUserList();
+						}
+						else if(strInput.regionMatches(0, "/r", 0, 2)) {
+							String new_name = strInput.substring(2).trim();
+							support.SendMessage("접속자 " + strName + " 님의 대화명이 [" + new_name + "](으)로 바뀌었습니다.");
+							broadcast(support.message);
+							//broadcast("접속자 " + strName + " 님의 대화명이 [" + new_name + "](으)로 바뀌었습니다.");
+							strName = new_name;
+						}
+						else {
+							support.SendMessage("[" + strName + "]" + strInput);
+							broadcast(support.message);
+							//broadcast("[" + strName + "]" + strInput);
+						}
 					}
-					else if(strInput.regionMatches(0, "/r", 0, 2)) {
-						String new_name = strInput.substring(2).trim();
-						broadcast("접속자 " + strName + " 님의 대화명이 [" + new_name + "](으)로 바뀌었습니다.");
-						strName = new_name;
-					}
-					else {
-						broadcast("[" + strName + "]" + strInput);
+					else if(strInput.regionMatches(0, "/t", 0, 2)) 
+					{
+						
 					}
 				}
 			}else {
-				socketOut.println("잘못된 Client입니다.");
+				socketOut.println("/s잘못된 Client입니다.");
 			}
 			socketOut.close();
 			socketIn.close();
@@ -697,6 +745,8 @@ class ChatThread extends Thread{
 			ChatThread trd = ((ChatThread)vClient.elementAt(i));
 			trd.socketOut.println(msg);
 		}
+		String temp = msg.substring(2);
+		msg = temp;
 		showText.append(msg + "\n");
 	}
 	
@@ -714,17 +764,38 @@ class ChatThread extends Thread{
 	}
 	
 	public void disconnectMessage() {
-		socketOut.println("강퇴되었습니다.");
+		socketOut.println("/s강퇴되었습니다.");
 	}
 	
 	public void serverdisconnectMessage() {
-		socketOut.println("서버 연결이 끊겼습니다.");
+		socketOut.println("/x");
+		socketOut.println("/s서버 연결이 끊겼습니다.");
 		ListSort();
 	}
 	
-	public void SendMessage(String data) {
-		socketOut.println(data);
-		showText.append(data);
+	public void sendMessage(String data) {
+		//if(strInput.regionMatches(0, "/b", 0, 2))
+		if(strInput.equals("/b"))	
+		{
+			socketOut.println(data);
+			showText.append(data);
+		}
+		else
+		{
+			String temp = "/s" + data;
+			socketOut.println(temp);
+			showText.append(data + "\n");
+		}
+	}
+	
+	public void makeThread()
+	{
+		support.otherstart = true;
+		play2 = new TetrisPlay2(num.START_X2, num.START_Y, share.m_nextRect2, share.m_mainRect2, support.otherstart, 
+				share.gameStart, share.gameStop, share.gra, share.pan1);
+		play2.PlayStart();
+		PlayCT2 = new Thread(play2);
+		PlayCT2.start();
 	}
 }
 
@@ -745,16 +816,19 @@ class TChatClient{
 	
 	Share share;
 	UserStatic num;
-	//Data gSend;
+	Data support;
+	TetrisPlay2 play;
 	
 	TChatClient(){}
-	TChatClient(JTextArea showText, JTextField MB, Share share){
+	TChatClient(JTextArea showText, JTextField MB, Share share, TetrisPlay2 play){
 		this.showText = showText;
 		messageBox = MB;
 		this.share = share;
 		num = new UserStatic();
 		share.state = num.STATE_CONNECT;
 		share.gameStart.setEnabled(true);
+		this.play = play;
+		support = new Data();
 	}
 	
 	public void connect(int iportNo, String sseverIp, String stalkName) {
@@ -764,11 +838,11 @@ class TChatClient{
 			socketIn = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
 			strMsg = socketIn.readLine();
 			talkName = stalkName;
-			//if(strMsg.equals("Sj10ChatServer")) {
+			
 			if(strMsg.equals("SjChatServer")) {
 				socketOut.println("SjChatClient");
 				socketOut.println(talkName);
-				rec = new ReceiveThread(socketIn, showText, share);
+				rec = new ReceiveThread(socketIn, showText, share, play);
 				rec.start();
 			}
 			else {
@@ -817,11 +891,15 @@ class TChatClient{
 		if(!talkName.equals(stalkName))
 		{
 			strUser = "/r" + stalkName;
-			socketOut.println(strUser);
+			support.SendMessage(strUser);
+			socketOut.println(support.message);
+			//socketOut.println(strUser);
 			talkName = stalkName;
 		}
 		strUser = messageBox.getText();
-		socketOut.println(strUser);
+		support.SendMessage(strUser);
+		socketOut.println(support.message);
+		//socketOut.println(strUser);
 	}
 }
 
@@ -833,22 +911,45 @@ class ReceiveThread extends Thread{
 	Graphics gra;
 	String m_arrMsg[];
 	
-	//Data gReceive;
+	Data support;
 	Share share;
 	UserStatic num;
+	TetrisPlay2 play;
+	Thread PlayCT;
 	
 	ReceiveThread(){}
-	ReceiveThread(BufferedReader socketIn, JTextArea showText, Share share){
+	ReceiveThread(BufferedReader socketIn, JTextArea showText, Share share, TetrisPlay2 play){
 		this.socketIn = socketIn;
 		this.showText = showText;
 		this.share = share;
+		this.play = play;
+		support = new Data();
 	}
 	
 	public void run() {
 		showText.append("Server에 접속됨");
 		try {
 			while((strSocket = socketIn.readLine()) != null) {
-				showText.append(strSocket + "\n");
+				if(strSocket.regionMatches(0, "/s", 0, 2))
+				{
+					String temp = strSocket.substring(2);
+					strSocket = temp;
+					showText.append(strSocket + "\n");
+				}
+				else if(strSocket.regionMatches(0, "/t", 0, 2))
+				{
+					
+				}
+				else if(strSocket.regionMatches(0, "/x", 0, 2))
+				{
+					share.connectButton.setEnabled(true);
+					share.disConnectButton.setEnabled(false);
+				}
+				else if(strSocket.regionMatches(0, "/b", 0, 2)) 
+				{
+					PlayCT = new Thread(play);
+					PlayCT.start();
+				}
 			}
 		}
 		catch(Exception e) {
@@ -1147,6 +1248,10 @@ class TetrisPlay2 implements Runnable{
 	
 	public void PlayStart() {
 		NextBlock(false);
+	}
+	
+	public void sendData() {
+		
 	}
 	
 	private void blockPattern() {
