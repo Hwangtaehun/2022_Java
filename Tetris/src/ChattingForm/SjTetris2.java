@@ -34,14 +34,42 @@ class UserStatic{
 
 class Data{
 	UserStatic num;
-	char cFlag;
 	String message;
-	int[][] m_Table;
+	String gameData;
+	int[][] otherTable;
 	TetrisPlay2 tetris;
 	
 	public Data() {
 		num = new UserStatic();
-		m_Table = new int[num.ROW_CNT][num.COL_CNT];
+		otherTable = new int[num.ROW_CNT][num.COL_CNT];
+	}
+	
+	public void GameSetting(int[][] m_Table) {
+		gameData = "\t";
+		for(int i = 0; i < num.ROW_CNT; i++)
+		{
+			for(int j = 0 ; j < num.COL_CNT; j++)
+			{
+				gameData += String.valueOf(m_Table[i][j]);
+			}
+		}
+	}
+	
+	public void Message(String str) {
+		message = "\s" + str;
+	}
+	
+	public void InputGameData(String str) {
+		int n = 2;
+		
+		for(int i = 0; i < num.ROW_CNT; i++)
+		{
+			for(int j = 0 ; j < num.COL_CNT; j++)
+			{
+				otherTable[i][j] = (int)str.charAt(n);
+				n++;
+			}
+		}
 	}
 }
 
@@ -116,7 +144,6 @@ class TetrisFrame2 extends JFrame {
 		showText.setEditable(false);
 		gameStart = new JButton("Game Start");
 		gameStart.addActionListener(new StartHandler());
-		gameStart.setEnabled(false);
 		gameStop = new JButton("Game Stop");
 		gameStop.addActionListener(new StopHandler());
 		gameStop.setEnabled(false);
@@ -245,6 +272,18 @@ class TetrisFrame2 extends JFrame {
 	public class StartHandler implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			if(modenum == 0)
+			{
+				gameStart.setEnabled(false);
+				gameStop.setEnabled(true);
+				Graphics gra = getGraphics();
+				m_bStart = true;
+				play = new TetrisPlay2(num.START_X, num.START_Y, m_nextRect, m_mainRect, m_bStart, 
+						gameStart, gameStop, gra, pan1);
+				play.PlayStart();
+				PlayCT = new Thread(play);
+				PlayCT.start();
+			}
 			if(share.state == num.STATE_CONNECT)
 			{
 				gameStart.setEnabled(false);
@@ -270,6 +309,13 @@ class TetrisFrame2 extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
+			if(modenum == 0)
+			{
+				gameStart.setEnabled(true);
+				gameStop.setEnabled(false);
+				m_bStart = false;
+				play.PlayStop();
+			}
 			if(share.state == num.STATE_CONNECT)
 			{
 				gameStart.setEnabled(true);
@@ -293,6 +339,7 @@ class TetrisFrame2 extends JFrame {
 				talkName.setText("server");
 				talkName.setEditable(false);
 				connectButton.setEnabled(true);
+				gameStart.setEnabled(false);
 			} else if (e.getSource() == clientBt) {
 				modenum = 2;
 				serverIp.setEditable(true);
@@ -300,6 +347,7 @@ class TetrisFrame2 extends JFrame {
 				talkName.setText("손님");
 				talkName.setEditable(true);
 				connectButton.setEnabled(true);
+				gameStart.setEnabled(false);
 			}
 			else if (e.getSource() == aloneBt) {
 				modenum = 0;
@@ -308,6 +356,7 @@ class TetrisFrame2 extends JFrame {
 				talkName.setText("혼자 놀기");
 				talkName.setEditable(false);
 				connectButton.setEnabled(false);
+				gameStart.setEnabled(true);
 			}
 			//System.out.println("출력" + modenum);
 		}
@@ -568,7 +617,7 @@ class ChatThread extends Thread{
 	
 	Share share;
 	UserStatic num;
-	Data gSend, gReceive;
+	//Data gSend, gReceive;
 	
 	public ChatThread() {}
 	public ChatThread(Socket socket, Vector<ChatThread> v, JTextArea showText, JList<String> l, DefaultListModel<String> m, Share share) 
@@ -599,7 +648,7 @@ class ChatThread extends Thread{
 	
 	public void run() {
 		try {
-			//showText.append("Client:" + clientSocket.toString() + "\n에서 접속하였습니다.\n");
+			showText.append("Client:" + clientSocket.toString() + "\n에서 접속하였습니다.\n");
 			socketOut = new PrintWriter(clientSocket.getOutputStream(), true);
 			socketIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			
@@ -696,7 +745,7 @@ class TChatClient{
 	
 	Share share;
 	UserStatic num;
-	Data gSend;
+	//Data gSend;
 	
 	TChatClient(){}
 	TChatClient(JTextArea showText, JTextField MB, Share share){
@@ -784,7 +833,7 @@ class ReceiveThread extends Thread{
 	Graphics gra;
 	String m_arrMsg[];
 	
-	Data gReceive;
+	//Data gReceive;
 	Share share;
 	UserStatic num;
 	
