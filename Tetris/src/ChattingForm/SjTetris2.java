@@ -83,6 +83,7 @@ class Share{
 	Rectangle m_mainRect2;
 	Graphics gra;
 	JPanel pan1;
+	int modenum;
 	
 	public void Share() {}
 }
@@ -286,7 +287,7 @@ class TetrisFrame2 extends JFrame {
 				Graphics gra = getGraphics();
 				m_bStart = true;
 				play = new TetrisPlay2(num.START_X, num.START_Y, m_nextRect, m_mainRect, m_bStart, 
-						gameStart, gameStop, gra, pan1);
+						gameStart, gameStop, gra, pan1, share);
 				play.PlayStart();
 				PlayCT = new Thread(play);
 				PlayCT.start();
@@ -300,7 +301,7 @@ class TetrisFrame2 extends JFrame {
 					Graphics gra = getGraphics();
 					m_bStart = true;
 					play = new TetrisPlay2(num.START_X, num.START_Y, m_nextRect, m_mainRect, m_bStart, 
-							gameStart, gameStop, gra, pan1);
+							gameStart, gameStop, gra, pan1, share);
 					play.PlayStart();
 					PlayCT = new Thread(play);
 					PlayCT.start();
@@ -346,6 +347,7 @@ class TetrisFrame2 extends JFrame {
 			// TODO Auto-generated method stub
 			if (e.getSource() == serverBt) {
 				modenum = 1;
+				share.modenum = modenum;
 				serverIp.setEditable(true);
 				portNo.setEditable(true);
 				talkName.setText("server");
@@ -354,6 +356,7 @@ class TetrisFrame2 extends JFrame {
 				gameStart.setEnabled(false);
 			} else if (e.getSource() == clientBt) {
 				modenum = 2;
+				share.modenum = modenum;
 				serverIp.setEditable(true);
 				portNo.setEditable(true);
 				talkName.setText("손님");
@@ -363,6 +366,7 @@ class TetrisFrame2 extends JFrame {
 			}
 			else if (e.getSource() == aloneBt) {
 				modenum = 0;
+				share.modenum = modenum;
 				serverIp.setEditable(false);
 				portNo.setEditable(false);
 				talkName.setText("혼자 놀기");
@@ -405,7 +409,7 @@ class TetrisFrame2 extends JFrame {
 				Graphics gra = getGraphics();
 				m_bStart = true;
 				play = new TetrisPlay2(num.START_X, num.START_Y, m_nextRect, m_mainRect, m_bStart, 
-						gameStart, gameStop, gra, pan1);
+						gameStart, gameStop, gra, pan1, share);
 				play.PlayStart();
 				cc = new TChatClient(showText, messageBox, share, play);
 				share.sendserver = cc;
@@ -721,7 +725,11 @@ class ChatThread extends Thread{
 					}
 					else if(strInput.regionMatches(0, "/t", 0, 2)) 
 					{
-						
+						String temp = strInput.substring(2);
+						strInput = temp;
+						support.InputGameData(temp);
+						play2.m_Table = support.otherTable;
+						play2.DrawScr();
 					}
 				}
 			}else {
@@ -778,7 +786,12 @@ class ChatThread extends Thread{
 		if(strInput.equals("/b"))	
 		{
 			socketOut.println(data);
-			showText.append(data);
+			System.out.println(data);
+		}
+		else if(strInput.regionMatches(0, "/t", 0, 2))
+		{
+			socketOut.println(data);
+			System.out.println(data);
 		}
 		else
 		{
@@ -792,7 +805,7 @@ class ChatThread extends Thread{
 	{
 		support.otherstart = true;
 		play2 = new TetrisPlay2(num.START_X2, num.START_Y, share.m_nextRect2, share.m_mainRect2, support.otherstart, 
-				share.gameStart, share.gameStop, share.gra, share.pan1);
+				share.gameStart, share.gameStop, share.gra, share.pan1, share);
 		play2.PlayStart();
 		PlayCT2 = new Thread(play2);
 		PlayCT2.start();
@@ -842,7 +855,7 @@ class TChatClient{
 			if(strMsg.equals("SjChatServer")) {
 				socketOut.println("SjChatClient");
 				socketOut.println(talkName);
-				rec = new ReceiveThread(socketIn, showText, share, play);
+				rec = new ReceiveThread(socketIn, showText, share, play, support);
 				rec.start();
 			}
 			else {
@@ -896,10 +909,16 @@ class TChatClient{
 			//socketOut.println(strUser);
 			talkName = stalkName;
 		}
-		strUser = messageBox.getText();
-		support.SendMessage(strUser);
-		socketOut.println(support.message);
-		//socketOut.println(strUser);
+		else if(stalkName.regionMatches(0, "/t", 0, 2))
+		{
+			socketOut.println(stalkName);
+		}
+		else {
+			strUser = messageBox.getText();
+			support.SendMessage(strUser);
+			socketOut.println(support.message);
+			//socketOut.println(strUser);
+		}
 	}
 }
 
@@ -914,16 +933,16 @@ class ReceiveThread extends Thread{
 	Data support;
 	Share share;
 	UserStatic num;
-	TetrisPlay2 play;
-	Thread PlayCT;
+	TetrisPlay2 play, play2;
+	Thread PlayCT, PlayCT2;
 	
 	ReceiveThread(){}
-	ReceiveThread(BufferedReader socketIn, JTextArea showText, Share share, TetrisPlay2 play){
+	ReceiveThread(BufferedReader socketIn, JTextArea showText, Share share, TetrisPlay2 play, Data support){
 		this.socketIn = socketIn;
 		this.showText = showText;
 		this.share = share;
 		this.play = play;
-		support = new Data();
+		this.support = support;
 	}
 	
 	public void run() {
@@ -938,7 +957,8 @@ class ReceiveThread extends Thread{
 				}
 				else if(strSocket.regionMatches(0, "/t", 0, 2))
 				{
-					
+					play2.m_Table = support.otherTable;
+					play2.DrawScr();
 				}
 				else if(strSocket.regionMatches(0, "/x", 0, 2))
 				{
@@ -949,7 +969,14 @@ class ReceiveThread extends Thread{
 				{
 					PlayCT = new Thread(play);
 					PlayCT.start();
+					support.otherstart = true;
+					play2 = new TetrisPlay2(num.START_X2, num.START_Y, share.m_nextRect2, share.m_mainRect2, support.otherstart, 
+							share.gameStart, share.gameStop, share.gra, share.pan1, share);
+					play2.PlayStart();
+					PlayCT2 = new Thread(play2);
+					PlayCT2.start();
 				}
+				System.out.println(strSocket);
 			}
 		}
 		catch(Exception e) {
@@ -982,18 +1009,22 @@ class TetrisPlay2 implements Runnable{
 	Random rand;
 	Graphics gra;
 	UserStatic num;
+	Share share;
+	Data data;
 	
 	TetrisPlay2(){}
 	TetrisPlay2(int START_X, int START_Y, Rectangle m_nextRect,Rectangle m_mainRect, boolean m_bStart, 
-			JButton gameStart, JButton gameStop, Graphics g, JPanel pan1)
+			JButton gameStart, JButton gameStop, Graphics g, JPanel pan1, Share share)
 	{
 		num = new UserStatic();
+		data = new Data();
 		blockPattern();
 		this.COL_CNT = num.COL_CNT;
 		this.ROW_CNT = num.ROW_CNT;
+		this.BLOCK_SIZE = num.BLOCK_SIZE;
+		this.share = share;
 		this.START_X = START_X;
 		this.START_Y = START_Y;
-		this.BLOCK_SIZE = num.BLOCK_SIZE;
 		this.m_nextRect = m_nextRect;
 		this.m_mainRect = m_mainRect;
 		this.m_bStart = m_bStart;
@@ -1039,7 +1070,7 @@ class TetrisPlay2 implements Runnable{
 		}
 	}
 	
-	private void DrawScr() {
+	public void DrawScr() {
 		int row, col;
 		for(row = 0; row < ROW_CNT; row++) {
 			for(col = 0; col < COL_CNT; col++) {
@@ -1151,6 +1182,16 @@ class TetrisPlay2 implements Runnable{
 				row++;
 			}
 		}
+		if(share.state == num.STATE_CONNECT) {
+			if(share.modenum == 1) {
+				data.GameSetting(m_Table);
+				share.sendclient.sendMessage(data.gameData);
+			}
+			else if(share.modenum == 2) {
+				data.GameSetting(m_Table);
+				share.sendserver.send(data.gameData);
+			}
+		}
 		m_nX = COL_CNT / 2;
 		m_nY = 1;
 		m_nPattern = m_nNextPattern;
@@ -1248,10 +1289,6 @@ class TetrisPlay2 implements Runnable{
 	
 	public void PlayStart() {
 		NextBlock(false);
-	}
-	
-	public void sendData() {
-		
 	}
 	
 	private void blockPattern() {
