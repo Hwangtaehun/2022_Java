@@ -75,7 +75,7 @@ public class SjTetris2PanelD extends JPanel{
 		offG.setColor(Color.red);
 		offG.drawString("Game Over !", 56, 150);
 		offG.setColor(Color.blue);
-		offG.drawString("Score: "+score, 56, 170);
+		offG.drawString("Score: " + score, 56, 170);
 	}
 	
 	public void drawTitle() {
@@ -94,7 +94,7 @@ public class SjTetris2PanelD extends JPanel{
 		
 		if(checkDrop()) {
 			for(int i = 0; i < 4; i++) {
-				blockY[i] = blockY[i]+1;
+				blockY[i] = blockY[i] + 1;
 			}
 		}else {
 			drawBlock();
@@ -108,7 +108,7 @@ public class SjTetris2PanelD extends JPanel{
 		boolean delOk;
 		for(int row = 20; row >= 0; row--) {
 			delOk = true;
-			for(int col = 0; col < 12; col++) {
+			for(int col =0; col < 12; col++) {
 				if(map[col][row] == 0)
 					delOk = false;
 			}
@@ -123,7 +123,7 @@ public class SjTetris2PanelD extends JPanel{
 				}
 				for(int delRow = row; delRow > 0; delRow--) {
 					for(int delCol = 0; delCol < 12; delCol++) {
-						map[delCol][delRow] = map[delCol][delRow - 1];
+						map[delCol][delRow] = map[delCol][delRow-1];
 					}
 				}
 				for(int i = 0; i < 12; i++) {
@@ -188,9 +188,9 @@ public class SjTetris2PanelD extends JPanel{
 			if((blockY[i] + 1) < 21) {
 				if(map[blockX[i]][blockY[i]+1] != 0) {
 					dropOk = false;
-				}else {
-					dropOk = false;
 				}
+			}else {
+				dropOk = false;
 			}
 		}
 		return dropOk;
@@ -199,7 +199,7 @@ public class SjTetris2PanelD extends JPanel{
 	public boolean checkTurn() {
 		boolean turnOk = true;
 		for(int i = 0;i < 4; i++) {
-			if((blockX[i] >= 0) && (blockX[i] < 12) && (blockY[i] > 0) && (blockY[i] < 21)) {
+			if((blockX[i] >= 0) && (blockX[i] < 12) && (blockY[i] >= 0) && (blockY[i] < 21)) {
 				if(map[blockX[i]][blockY[i]] != 0)
 					turnOk = false;
 			}
@@ -215,7 +215,7 @@ public class SjTetris2PanelD extends JPanel{
 		removeBlock();
 		
 		for(int i = 0; i < 4; i++) {
-			if(((blockX[i]+dir) >= 0) && ((blockY[i]+dir) < 12)) {
+			if(((blockX[i]+dir) >= 0) && ((blockX[i]+dir) < 12)) {
 				if(map[blockX[i] + dir][blockY[i]] != 0)
 					moveOk = false;
 			}
@@ -338,7 +338,7 @@ public class SjTetris2PanelD extends JPanel{
 			while(bGame) {
 				try {
 					Thread.sleep(delayTime);
-				} catch (InterruptedException ie) {}
+				}catch(InterruptedException ie) {}
 				dropBlock();
 				drawBlock();
 				drawMap();
