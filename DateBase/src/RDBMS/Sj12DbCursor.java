@@ -21,7 +21,7 @@ public class Sj12DbCursor {
 	}
 
 	public Connection dbConnect() throws Exception {
-		Connection con = DriverManager.getConnection("jdbc:ucanaccess://C:\\수강생\\황태훈\\Database\\SjTestDB.accdb;memory=false");
+		Connection con = DriverManager.getConnection("jdbc:ucanaccess://D:\\Github\\2022_Java\\DateBase\\SjTestDb.accdb:memory = false");
 		return con;
 	}
 	
