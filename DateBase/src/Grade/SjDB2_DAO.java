@@ -45,4 +45,63 @@ public class SjDB2_DAO {
 			e.printStackTrace();
 		}
 	}
+	
+	public void insertData(String sql) throws SQLException{
+		//sql = "INSERT INTO Score (strCode, strName) VALUES('1006', '세종')";
+		sql = "INSERT INTO Score VALUES('1008','세종', 99, 88, 77, 0, 0, 0)";
+		smt.executeUpdate(sql);
+	}
+	
+	public void updateData(String sql) throws SQLException{
+		//sql = "UPDATE Score Set nKor = 100";
+		sql = "UPDATE Score SET nkor = 100 WHERE strName = '세종'";
+		smt.executeUpdate(sql);
+	}
+	
+	public void deleteData(String sql) throws SQLException{
+		//sql = "DELETE FROM Score WHERE strName = '세종'";
+		//sql = "DELETE FROM Score WHERE strName LIKE '세%'";
+		sql = "DELETE FROM Score WHERE strName LIKE '세*'";
+		smt.executeUpdate(sql);
+	}
+	
+	public void totAvg() throws SQLException{
+		ResultSet rs;
+		int tot;
+		double avg;
+		String sql = "Select * FROM Score  ";
+		rs = smt.executeQuery(sql);
+		while(rs.next()) {
+			tot = rs.getInt("nKor") + rs.getInt("nMat") + rs.getInt("nEng");
+			avg = (double)tot/3.0;
+			sql = "UPDATE Score Set nTotal = " + tot + ", dAverage =" + avg + " where strCode = '" + rs.getString("strCode") + " ' ";
+			smt.executeUpdate(sql);
+		}
+	}
+	
+	public void rank() throws SQLException{
+		ResultSet rs;
+		int tot = 0, rank1 = 0, rank2 = 0;
+		String sql = "Select * FROM Score order by nTotal desc ";
+		rs = smt.executeQuery(sql);
+		while(rs.next()) {
+			rank1++;
+			if(tot != rs.getInt("nTotal")) {
+				tot = rs.getInt("nTotal");
+				rank2 = rank1;
+			}
+			sql = "UPDATE Score Set nRank = " + rank2 + " where strCode ='" + rs.getString("strCode") + "'";
+			smt.executeUpdate(sql);
+		}
+	}
+	
+	public void Close() {
+		try {
+			smt.close();
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
