@@ -4,10 +4,13 @@ import java.sql.*;
 public class SjDB2_DAO {
 	private Connection con;
 	private Statement smt;
+	private ResultSet rs;
+	
 	public SjDB2_DAO() {
 		try {
 			con = DriverManager.getConnection("jdbc:ucanaccess://SjTestDb.accdb:memory = false");
 			smt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			rs = smt.executeQuery("Select * FROM Score order by strCode");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -48,20 +51,20 @@ public class SjDB2_DAO {
 	
 	public void insertData(String sql) throws SQLException{
 		//sql = "INSERT INTO Score (strCode, strName) VALUES('1006', '세종')";
-		sql = "INSERT INTO Score VALUES('1008','세종', 99, 88, 77, 0, 0, 0)";
+		//sql = "INSERT INTO Score VALUES('1008','세종', 99, 88, 77, 0, 0, 0)";
 		smt.executeUpdate(sql);
 	}
 	
 	public void updateData(String sql) throws SQLException{
 		//sql = "UPDATE Score Set nKor = 100";
-		sql = "UPDATE Score SET nkor = 100 WHERE strName = '세종'";
+		//sql = "UPDATE Score SET nkor = 100 WHERE strName = '세종'";
 		smt.executeUpdate(sql);
 	}
 	
 	public void deleteData(String sql) throws SQLException{
 		//sql = "DELETE FROM Score WHERE strName = '세종'";
 		//sql = "DELETE FROM Score WHERE strName LIKE '세%'";
-		sql = "DELETE FROM Score WHERE strName LIKE '세*'";
+		//sql = "DELETE FROM Score WHERE strName LIKE '세*'";
 		smt.executeUpdate(sql);
 	}
 	
@@ -92,6 +95,42 @@ public class SjDB2_DAO {
 			}
 			sql = "UPDATE Score Set nRank = " + rank2 + " where strCode ='" + rs.getString("strCode") + "'";
 			smt.executeUpdate(sql);
+		}
+	}
+	
+	public void first() {
+		try {
+			rs.first();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void last() {
+		try {
+			rs.last();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void previous() {
+		try {
+			rs.relative(-1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void next() {
+		try {
+			rs.relative(1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	

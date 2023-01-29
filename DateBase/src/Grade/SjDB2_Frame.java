@@ -1,6 +1,8 @@
 package Grade;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.SQLException;
+
 import javax.swing.*;
 
 public class SjDB2_Frame extends JFrame{
@@ -89,75 +91,98 @@ public class SjDB2_Frame extends JFrame{
 		cpane.add("East", table);
 		pack();
 	}
-}
-
-class firstHandler implements ActionListener{
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-	}
-}
-
-class lastHandler implements ActionListener{
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-	}
-}
-
-class previousHandler implements ActionListener{
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-	}
-}
-
-class nextHandler implements ActionListener{
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-	}
-}
-
-class newFileHandler implements ActionListener{
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-	}
-}
-
-class insertHandler implements ActionListener{
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-	}
-}
-
-class updateHandler implements ActionListener{
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-	}
-}
-
-class deleteHandler implements ActionListener{
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-	}
-}
-
-class sortHandler implements ActionListener{
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-	}
-}
-
-class closeHandler implements ActionListener{
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		System.exit(1);
-	}
 	
+	class firstHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			db.first();
+		}
+	}
+
+	class lastHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			db.last();
+		}
+	}
+
+	class previousHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			db.previous();
+		}
+	}
+
+	class nextHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			db.next();
+		}
+	}
+
+	class newFileHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+		}
+	}
+
+	class insertHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String sql = "INSERT INTO Score VALUES('1008','세종', 99, 88, 77, 0, 0, 0)";
+			try {
+				db.insertData(sql);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	class updateHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String sql = "UPDATE Score SET nkor = 100 WHERE strName = '세종'";
+			try {
+				db.updateData(sql);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	class deleteHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String sql = "DELETE FROM Score WHERE strName LIKE '세*'";
+			try {
+				db.deleteData(sql);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	class sortHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			try {
+				db.rank();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	class closeHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.exit(1);
+		}
+	}
 }
+
