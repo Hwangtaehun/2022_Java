@@ -49,25 +49,6 @@ public class SjDB2_DAO {
 		}
 	}
 	
-	public void insertData(String sql) throws SQLException{
-		//sql = "INSERT INTO Score (strCode, strName) VALUES('1006', '세종')";
-		//sql = "INSERT INTO Score VALUES('1008','세종', 99, 88, 77, 0, 0, 0)";
-		smt.executeUpdate(sql);
-	}
-	
-	public void updateData(String sql) throws SQLException{
-		//sql = "UPDATE Score Set nKor = 100";
-		//sql = "UPDATE Score SET nkor = 100 WHERE strName = '세종'";
-		smt.executeUpdate(sql);
-	}
-	
-	public void deleteData(String sql) throws SQLException{
-		//sql = "DELETE FROM Score WHERE strName = '세종'";
-		//sql = "DELETE FROM Score WHERE strName LIKE '세%'";
-		//sql = "DELETE FROM Score WHERE strName LIKE '세*'";
-		smt.executeUpdate(sql);
-	}
-	
 	public void totAvg() throws SQLException{
 		ResultSet rs;
 		int tot;

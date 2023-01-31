@@ -1,6 +1,7 @@
 package Grade;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.swing.*;
@@ -25,7 +26,7 @@ public class SjDB2_Frame extends JFrame{
 		pan11 = new JPanel();
 		pan12 = new JPanel();
 		pan13 = new JPanel();
-		table = new SjDB2_TableMode();
+		table = new SjDB2_TableMode(db, this);
 		
 		number = new JTextField(10);
 		name = new JTextField(10);
@@ -92,31 +93,87 @@ public class SjDB2_Frame extends JFrame{
 		pack();
 	}
 	
+	void setTextField(ResultSet rs) {
+		String number = null, name = null;
+		int kor = 0, mat = 0, eng = 0;
+		try {
+			number = (rs.getString("strCode")).trim();
+			name = (rs.getString("strName")).trim();
+			kor = rs.getInt("nKor");
+			mat = rs.getInt("nMat");
+			eng = rs.getInt("nEng");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		this.number.setText(number);
+		this.name.setText(name);
+		this.kor.setText(Integer.toString(kor));
+		this.mat.setText(Integer.toString(mat));
+		this.eng.setText(Integer.toString(eng));
+	}
+	
 	class firstHandler implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			db.first();
+			ResultSet rs;
+			String sql = "Select * FROM Score order by strCode";
+			rs = db.getResultSet(sql);
+			try {
+				rs.first();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			setTextField(rs);
 		}
 	}
 
 	class lastHandler implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			db.last();
+			ResultSet rs;
+			String sql = "Select * FROM Score order by strCode";
+			rs = db.getResultSet(sql);
+			try {
+				rs.last();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			setTextField(rs);
 		}
 	}
 
 	class previousHandler implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			db.previous();
+			ResultSet rs;
+			String sql = "Select * FROM Score order by strCode";
+			rs = db.getResultSet(sql);
+			try {
+				rs.relative(-1);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			setTextField(rs);
 		}
 	}
 
 	class nextHandler implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			db.next();
+			ResultSet rs;
+			String sql = "Select * FROM Score order by strCode";
+			rs = db.getResultSet(sql);
+			try {
+				rs.relative(1);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			setTextField(rs);
 		}
 	}
 
@@ -130,39 +187,48 @@ public class SjDB2_Frame extends JFrame{
 	class insertHandler implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String sql = "INSERT INTO Score VALUES('1008','세종', 99, 88, 77, 0, 0, 0)";
+			String i, j;
+			i = number.getText();
+			j = name.getText();
+			String sql = "INSERT INTO Score VALUES("+ "'" + i + "'," + "'" + j + "'," + kor.getText() + "," + 
+													mat.getText() + "," + eng.getText() + "," + 0 + ","+ 
+													0 + "," + 0 +")";
+			db.Excute(sql);
 			try {
-				db.insertData(sql);
+				db.totAvg();
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			table.setTable();
 		}
 	}
 
 	class updateHandler implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String sql = "UPDATE Score SET nkor = 100 WHERE strName = '세종'";
+			String i = number.getText();
+			String sql = "UPDATE Score SET strName = '" + name.getText() + "',nkor = " +
+						kor.getName() + ",nMat = " + mat.getText() + ",nEng = " + eng.getText() + 
+						" WHERE strCode = " + "'" + i + "'";
+			db.Excute(sql);
 			try {
-				db.updateData(sql);
+				db.totAvg();
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			table.setTable();
 		}
 	}
 
 	class deleteHandler implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String sql = "DELETE FROM Score WHERE strName LIKE '세*'";
-			try {
-				db.deleteData(sql);
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			String i = number.getText();
+			String sql = "DELETE FROM Score WHERE strCode LIKE '" + i + "'";
+			db.Excute(sql);
+			table.setTable();
 		}
 	}
 
@@ -175,6 +241,7 @@ public class SjDB2_Frame extends JFrame{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			table.setTable();
 		}
 	}
 
