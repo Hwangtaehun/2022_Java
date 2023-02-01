@@ -46,15 +46,27 @@ public class SjDB2_TableMode extends JPanel implements MouseListener{
 		rs = db.getResultSet(sql);
 		for(int i = 0; i < 50; i++) {
 			try {
-				dataModel[i][0] = (rs.getString("strCode")).trim();
-				dataModel[i][1] = (rs.getString("strName")).trim();
-				dataModel[i][2] = rs.getInt("nKor");
-				dataModel[i][3] = rs.getInt("nMat");
-				dataModel[i][4] = rs.getInt("nEng");
-				dataModel[i][5] = rs.getInt("nTotal");
-				dataModel[i][6] = rs.getDouble("dAverage");
-				dataModel[i][7] = rs.getInt("nRank");
-				rs.next();
+				if(rs.next() == false) {
+					dataModel[i][0] = null;
+					dataModel[i][1] = null;
+					dataModel[i][2] = null;
+					dataModel[i][3] = null;
+					dataModel[i][4] = null;
+					dataModel[i][5] = null;
+					dataModel[i][6] = null;
+					dataModel[i][7] = null;
+				}
+				else {
+					dataModel[i][0] = (rs.getString("strCode")).trim();
+					dataModel[i][1] = (rs.getString("strName")).trim();
+					dataModel[i][2] = rs.getInt("nKor");
+					dataModel[i][3] = rs.getInt("nMat");
+					dataModel[i][4] = rs.getInt("nEng");
+					dataModel[i][5] = rs.getInt("nTotal");
+					dataModel[i][6] = rs.getDouble("dAverage");
+					dataModel[i][7] = rs.getInt("nRank");
+					rs.next();
+				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
