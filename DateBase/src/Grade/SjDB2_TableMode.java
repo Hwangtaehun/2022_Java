@@ -15,9 +15,10 @@ public class SjDB2_TableMode extends JPanel implements MouseListener{
 	public SjDB2_TableMode(SjDB2_DAO db, SjDB2_Frame frame)
 	{
 		super();
-		initForm();
 		this.db = db;
 		this.frame = frame;
+		//setTable();
+		initForm();
 	}
 	
 	void initForm() {
