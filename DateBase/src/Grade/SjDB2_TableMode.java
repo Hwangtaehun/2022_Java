@@ -10,6 +10,8 @@ public class SjDB2_TableMode extends JPanel implements MouseListener{
 	SjDB2_Frame frame;
 	SjDB2_DAO db;
 	Object[][] dataModel;
+	JScrollPane scrollPane;
+	String columnModel[];
 	
 	public SjDB2_TableMode() {}
 	public SjDB2_TableMode(SjDB2_DAO db, SjDB2_Frame frame)
@@ -17,32 +19,32 @@ public class SjDB2_TableMode extends JPanel implements MouseListener{
 		super();
 		this.db = db;
 		this.frame = frame;
-		//setTable();
 		initForm();
 	}
 	
 	void initForm() {
-		String columnModel[] = {"학번", "이름", "국어", "수학", "영어", "총점", "평균", "석차"};
-		
-		Object[][] dataModel = {
-			{"1001", "홍길동", 99, 99, 99, 297, 99.0, 2},
-			{"1002", "신유신", 86, 78, 78, 244, 61.3, 3},
-			{"1003", "강감찬", 69, 45, 88, 202, 67.3, 5},
-			{"1004", "강신라", 49, 100, 88, 237, 79.0, 4},
-			{"1005", "신세종", 100, 100, 100, 300, 100.0, 1}
-		};
-		
+		columnModel = new String[8];
+		columnModel[0] = "학번";
+		columnModel[1] = "이름"; 
+		columnModel[2] = "국어";
+		columnModel[3] = "수학";
+		columnModel[4] = "영어";
+		columnModel[5] = "총점";
+		columnModel[6] = "평균";
+		columnModel[7] = "석차";
+		//columnModel[] = {"학번", "이름", "국어", "수학", "영어", "총점", "평균", "석차"};
+		setTable();
 		table = new JTable(dataModel, columnModel);
 		table.addMouseListener(this);
-		JScrollPane scrollPane = new JScrollPane(table);
-		//scrollPane.addMouseListener(this);
+		scrollPane = new JScrollPane(table);
+		scrollPane.addMouseListener(this);
 		add(scrollPane);
 	}
 	
-	public void setTable() {
+	void setTable() {
 		dataModel = new Object[50][8];
 		ResultSet rs;
-		String sql = "Select * FROM Score  ";
+		String sql = "Select * FROM Score order by strCode";
 		rs = db.getResultSet(sql);
 		for(int i = 0; i < 50; i++) {
 			try {
@@ -65,7 +67,6 @@ public class SjDB2_TableMode extends JPanel implements MouseListener{
 					dataModel[i][5] = rs.getInt("nTotal");
 					dataModel[i][6] = rs.getDouble("dAverage");
 					dataModel[i][7] = rs.getInt("nRank");
-					rs.next();
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -125,14 +126,15 @@ public class SjDB2_TableMode extends JPanel implements MouseListener{
 		// TODO Auto-generated method stub
 		
 	}
-	
-//	void initForm2() {
-//		MyTable myTable = new MyTable();
-//		JTable table = new JTable(myTable);
-//		JScrollPane scrollPane = new JScrollPane(table);
-//		add(scrollPane);
-//	}
 }
+
+
+//void initForm2() {
+//MyTable myTable = new MyTable();
+//JTable table = new JTable(myTable);
+//JScrollPane scrollPane = new JScrollPane(table);
+//add(scrollPane);
+//}
 
 //class MyTable extends AbstractTableModel{
 //	Object[][] data = {

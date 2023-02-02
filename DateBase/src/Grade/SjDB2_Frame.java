@@ -1,8 +1,7 @@
 package Grade;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 import javax.swing.*;
 
@@ -91,6 +90,17 @@ public class SjDB2_Frame extends JFrame{
 		cpane.add("West", pan1);
 		cpane.add("East", table);
 		pack();
+		
+		ResultSet rs;
+		String sql = "Select * FROM Score order by strCode";
+		rs = db.getResultSet(sql);
+		try {
+			rs.first();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		setTextField(rs);
 	}
 	
 	void setTextField(ResultSet rs) {
@@ -152,12 +162,19 @@ public class SjDB2_Frame extends JFrame{
 			String sql = "Select * FROM Score order by strCode";
 			rs = db.getResultSet(sql);
 			try {
-				rs.relative(-1);
+				while(rs.next()) {
+					System.out.println("이전버튼"+rs.getString("strCode"));
+					String rscode = rs.getString("strCode").trim();
+					if(rscode.equals(number.getText()))
+						break;
+				}
+				if(rs.relative(-1)){
+					setTextField(rs);
+				}
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			setTextField(rs);
 		}
 	}
 
@@ -168,12 +185,19 @@ public class SjDB2_Frame extends JFrame{
 			String sql = "Select * FROM Score order by strCode";
 			rs = db.getResultSet(sql);
 			try {
-				rs.relative(1);
+				while(rs.next()) {
+					System.out.println("다음버튼"+rs.getString("strCode"));
+					String rscode = rs.getString("strCode").trim();
+					if(rscode.equals(number.getText()))
+						break;
+				}
+				if(rs.relative(1)) {
+					setTextField(rs);
+				}
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			setTextField(rs);
 		}
 	}
 
@@ -196,11 +220,11 @@ public class SjDB2_Frame extends JFrame{
 			db.Excute(sql);
 			try {
 				db.totAvg();
+				db.rank();
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			table.setTable();
 		}
 	}
 
@@ -208,17 +232,17 @@ public class SjDB2_Frame extends JFrame{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String i = number.getText();
-			String sql = "UPDATE Score SET strName = '" + name.getText() + "',nkor = " +
-						kor.getName() + ",nMat = " + mat.getText() + ",nEng = " + eng.getText() + 
+			String sql = "UPDATE Score SET strName = '" + name.getText() + "',nKor = " +
+						kor.getText() + ",nMat = " + mat.getText() + ",nEng = " + eng.getText() + 
 						" WHERE strCode = " + "'" + i + "'";
 			db.Excute(sql);
 			try {
 				db.totAvg();
+				db.rank();
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			table.setTable();
 		}
 	}
 
@@ -228,7 +252,14 @@ public class SjDB2_Frame extends JFrame{
 			String i = number.getText();
 			String sql = "DELETE FROM Score WHERE strCode LIKE '" + i + "'";
 			db.Excute(sql);
-			table.setTable();
+			table.setEnabled(false);
+			table.setEnabled(true);
+			try {
+				db.rank();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 	}
 
@@ -241,7 +272,6 @@ public class SjDB2_Frame extends JFrame{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			table.setTable();
 		}
 	}
 
@@ -249,6 +279,7 @@ public class SjDB2_Frame extends JFrame{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			System.exit(1);
+			db.Close();
 		}
 	}
 }

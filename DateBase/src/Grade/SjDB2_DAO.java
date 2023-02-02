@@ -8,7 +8,8 @@ public class SjDB2_DAO {
 	
 	public SjDB2_DAO() {
 		try {
-			con = DriverManager.getConnection("jdbc:ucanaccess://SjTestDb.accdb:memory = false");
+			//con = DriverManager.getConnection("jdbc:ucanaccess://C:\\수강생\\황태훈\\Database\\SjTestDB.accdb;memory=false");
+			con = DriverManager.getConnection("jdbc:ucanaccess://..\\DateBase\\SjTestDB.accdb;memory=false");
 			smt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			rs = smt.executeQuery("Select * FROM Score order by strCode");
 		} catch (SQLException e) {
