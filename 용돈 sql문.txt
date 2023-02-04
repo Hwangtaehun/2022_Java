@@ -1,0 +1,45 @@
+CREATE TABLE Incomes (
+  incomeid    INTEGER PRIMARY KEY,
+  deposit     INTEGER DEFAULT 500000 CHECK(deposit > 0),
+  incomedate  DATE,
+  in_inform   VARCHAR(50)
+);
+
+CREATE TABLE  Expenses (
+  expenseid   INTEGER PRIMARY KEY,
+  spend       INTEGER DEFAULT 89100 CHECK(spend > 0),
+  expensedate DATE,
+  ex_inform   VARCHAR(50)
+);
+
+CREATE TABLE Banks (
+  bankid     INTEGER PRIMARY KEY,
+  incomeid   INTEGER ,
+  expenseid  INTEGER ,
+  FOREIGN KEY (incomeid) REFERENCES Incomes(incomeid),
+  FOREIGN KEY (expenseid) REFERENCES Expenses(expenseid)
+);
+
+INSERT INTO Incomes VALUES(1, 50000, STR_TO_DATE('2023-01-01','%Y-%m-%d'), 'bonus money');
+INSERT INTO Incomes VALUES(2, 500000, STR_TO_DATE('2023-01-05','%Y-%m-%d'), 'allowance');
+
+INSERT INTO Expenses VALUES(1, 1000, STR_TO_DATE('2023-01-02','%Y-%m-%d'), 'buy rent');
+INSERT INTO Expenses VALUES(2, 3850, STR_TO_DATE('2023-01-05','%Y-%m-%d'), 'public transportation');
+INSERT INTO Expenses VALUES(3, 65000, STR_TO_DATE('2023-01-23','%Y-%m-%d'), 'credit card');
+INSERT INTO Expenses VALUES(4, 200000, STR_TO_DATE('2023-01-23','%Y-%m-%d'), 'insurance' );
+INSERT INTO Expenses VALUES(5, 89100, STR_TO_DATE('2023-01-31','%Y-%m-%d'), 'national pension' );
+
+INSERT INTO Banks VALUES(1, 1, null);
+INSERT INTO Banks VALUES(2, null, 1);
+INSERT INTO Banks VALUES(3, 2, null);
+INSERT INTO Banks VALUES(4, null, 2);
+INSERT INTO Banks VALUES(5, null, 3);
+INSERT INTO Banks VALUES(6, null, 4);
+INSERT INTO Banks VALUES(7, null, 5);
+
+Select Incomes.deposit, Expenses.spend, Incomes.incomedate, Expenses.expensedate, Incomes.in_inform, Expenses.ex_inform
+From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid;
+
+Select SUM(deposit) as 수입 From Incomes;
+Select SUM(spend) as 지출 From Expenses;
+Select SUM(deposit) - SUM(spend) as 남은돈 From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid;

@@ -10,12 +10,12 @@ public class Sj12MySqlConnect {
 			Connection con = DriverManager.getConnection(url, "sj002", "sj4321"); 
 			
 			if(con != null)
-				System.out.println("楷搬 己傍");
+				System.out.println("鞐瓣舶 靹标车");
 			else
-				System.out.println("楷搬 角菩");
+				System.out.println("鞐瓣舶 頃挫牅");
 			
 			Statement smt = con.createStatement();
-			System.out.println("Statement 按眉 积己 己傍");
+			System.out.println("Statement 臧濎泊 靸濎劚 靹标车");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -11,7 +11,7 @@ public class Sj12MySqlDml {
 		//db.deleteData();
 		//db.selectData();
 		//db.totAvg();
-		db.rank();
+		//db.rank();
 		db.Close();
 	}
 }
@@ -41,7 +41,7 @@ class Sj12DmlTest2{
 	}
 	
 	public void insertData() throws SQLException{
-		//sql = "INSERT INTO Score (strCode, strName) VALUES('1006', '¼¼Á¾')";
+		//sql = "INSERT INTO Score (strCode, strName) VALUES('1006', 'ï¿½ï¿½ï¿½ï¿½')";
 		sql = "INSERT INTO Score VALUES('1008','sejong', 99, 88, 77, 0, 0, 0)";
 		smt.executeUpdate(sql);
 		printAllData();
@@ -56,7 +56,7 @@ class Sj12DmlTest2{
 	
 	public void deleteData() throws SQLException{
 		sql = "DELETE FROM Score WHERE strName = 'sejong'";
-		//sql = "DELETE FROM Score WHERE strName LIKE '¼¼%'";
+		//sql = "DELETE FROM Score WHERE strName LIKE 'ï¿½ï¿½%'";
 		smt.executeUpdate(sql);
 		printAllData();
 	}
@@ -70,8 +70,8 @@ class Sj12DmlTest2{
 		meta = rs.getMetaData();
 		System.out.println(meta.getColumnClassName(1) + "\t" + meta.getColumnClassName(2));
 		int cnt = rs.getInt(meta.getColumnName(1));
-		System.out.println("Record ¼ö  : " + cnt);
-		System.out.println("±¹¾î Á¡¼ö ÇÔ°è : " + rs.getDouble(meta.getColumnName(2)));
+		System.out.println("Record ï¿½ï¿½  : " + cnt);
+		System.out.println("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô°ï¿½ : " + rs.getDouble(meta.getColumnName(2)));
 	}
 	
 	public void totAvg() throws SQLException{
