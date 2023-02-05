@@ -1,3 +1,13 @@
+DROP DATABASE IF EXISTS  madang;
+DROP USER IF EXISTS  madang@localhost;
+use mysql;
+create user madang@localhost identified by 'madang';
+create database madang;
+grant all privileges on madang.* to madang@localhost with grant option;
+commit;
+ 
+USE madang;
+
 CREATE TABLE Incomes (
   incomeid    INTEGER PRIMARY KEY,
   deposit     INTEGER DEFAULT 500000 CHECK(deposit > 0),
@@ -7,7 +17,7 @@ CREATE TABLE Incomes (
 
 CREATE TABLE  Expenses (
   expenseid   INTEGER PRIMARY KEY,
-  spend       INTEGER DEFAULT 89100 CHECK(spend > 0),
+  spend       INTEGER DEFAULT 89100 CHECK(spend < 0),
   expensedate DATE,
   ex_inform   VARCHAR(50)
 );
@@ -23,7 +33,7 @@ CREATE TABLE Banks (
 INSERT INTO Incomes VALUES(1, 50000, STR_TO_DATE('2023-01-01','%Y-%m-%d'), 'bonus money');
 INSERT INTO Incomes VALUES(2, 500000, STR_TO_DATE('2023-01-05','%Y-%m-%d'), 'allowance');
 
-INSERT INTO Expenses VALUES(1, 1000, STR_TO_DATE('2023-01-02','%Y-%m-%d'), 'buy rent');
+INSERT INTO Expenses VALUES(1, 1000, STR_TO_DATE('2023-01-02','%Y-%m-%d'), 'rent comicbook');
 INSERT INTO Expenses VALUES(2, 3850, STR_TO_DATE('2023-01-05','%Y-%m-%d'), 'public transportation');
 INSERT INTO Expenses VALUES(3, 65000, STR_TO_DATE('2023-01-23','%Y-%m-%d'), 'credit card');
 INSERT INTO Expenses VALUES(4, 200000, STR_TO_DATE('2023-01-23','%Y-%m-%d'), 'insurance' );
@@ -42,4 +52,4 @@ From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join 
 
 Select SUM(deposit) as 수입 From Incomes;
 Select SUM(spend) as 지출 From Expenses;
-Select SUM(deposit) - SUM(spend) as 남은돈 From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid;
+Select SUM(deposit) + SUM(spend) as 남은돈 From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid;
