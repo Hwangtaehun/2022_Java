@@ -7,11 +7,11 @@ public class Sj12AccessDbConnect {
 	
 	public static void main(String[] args) {
 		try {
-			con = DriverManager.getConnection("jdbc:ucanaccess://C:\\¼ö°­»ý\\È²ÅÂÈÆ\\Database\\SjTestDB.accdb;memory=false");
-			System.out.println("Access DB¿¡ ¿¬°á ¼º°ø!!");
+			con = DriverManager.getConnection("jdbc:ucanaccess://..\\DateBase\\Allowance.accdb;memory=false");
+			System.out.println("Access DBï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½!!");
 			
 			smt = con.createStatement();
-			System.out.println("Statement °´Ã¼ »ý¼º ¼º°ø !!");
+			System.out.println("Statement ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ !!");
 			
 			smt.close();
 			con.close();

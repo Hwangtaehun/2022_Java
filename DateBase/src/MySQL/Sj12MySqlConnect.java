@@ -3,11 +3,13 @@ import java.sql.*;
 
 public class Sj12MySqlConnect {
 	public static void main(String[] args) {
-		String url = "jdbc:mysql://192.168.1.30:3306/test";
+		//String url = "jdbc:mysql://192.168.1.30:3306/test";
+		String url = "jdbc:mysql://localhost:3306/madang";
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			Connection con = DriverManager.getConnection(url, "sj002", "sj4321"); 
+			//Connection con = DriverManager.getConnection(url, "sj002", "sj4321"); 
+			Connection con = DriverManager.getConnection(url, "madang", "madang"); 
 			
 			if(con != null)
 				System.out.println("연결 성공");

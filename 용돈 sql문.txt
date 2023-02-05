@@ -24,8 +24,9 @@ CREATE TABLE  Expenses (
 
 CREATE TABLE Banks (
   bankid     INTEGER PRIMARY KEY,
-  incomeid   INTEGER ,
-  expenseid  INTEGER ,
+  incomeid   INTEGER,
+  expenseid  INTEGER,
+  balance    INTEGER,
   FOREIGN KEY (incomeid) REFERENCES Incomes(incomeid),
   FOREIGN KEY (expenseid) REFERENCES Expenses(expenseid)
 );
@@ -33,21 +34,21 @@ CREATE TABLE Banks (
 INSERT INTO Incomes VALUES(1, 50000, STR_TO_DATE('2023-01-01','%Y-%m-%d'), 'bonus money');
 INSERT INTO Incomes VALUES(2, 500000, STR_TO_DATE('2023-01-05','%Y-%m-%d'), 'allowance');
 
-INSERT INTO Expenses VALUES(1, 1000, STR_TO_DATE('2023-01-02','%Y-%m-%d'), 'rent comicbook');
-INSERT INTO Expenses VALUES(2, 3850, STR_TO_DATE('2023-01-05','%Y-%m-%d'), 'public transportation');
-INSERT INTO Expenses VALUES(3, 65000, STR_TO_DATE('2023-01-23','%Y-%m-%d'), 'credit card');
-INSERT INTO Expenses VALUES(4, 200000, STR_TO_DATE('2023-01-23','%Y-%m-%d'), 'insurance' );
-INSERT INTO Expenses VALUES(5, 89100, STR_TO_DATE('2023-01-31','%Y-%m-%d'), 'national pension' );
+INSERT INTO Expenses VALUES(1, -1000, STR_TO_DATE('2023-01-02','%Y-%m-%d'), 'buy rent');
+INSERT INTO Expenses VALUES(2, -3850, STR_TO_DATE('2023-01-05','%Y-%m-%d'), 'public transportation');
+INSERT INTO Expenses VALUES(3, -65000, STR_TO_DATE('2023-01-23','%Y-%m-%d'), 'credit card');
+INSERT INTO Expenses VALUES(4, -200000, STR_TO_DATE('2023-01-23','%Y-%m-%d'), 'insurance' );
+INSERT INTO Expenses VALUES(5, -89100, STR_TO_DATE('2023-01-31','%Y-%m-%d'), 'national pension' );
 
-INSERT INTO Banks VALUES(1, 1, null);
-INSERT INTO Banks VALUES(2, null, 1);
-INSERT INTO Banks VALUES(3, 2, null);
-INSERT INTO Banks VALUES(4, null, 2);
-INSERT INTO Banks VALUES(5, null, 3);
-INSERT INTO Banks VALUES(6, null, 4);
-INSERT INTO Banks VALUES(7, null, 5);
+INSERT INTO Banks VALUES(1, 1, null, 50000);
+INSERT INTO Banks VALUES(2, null, 1, 49000);
+INSERT INTO Banks VALUES(3, 2, null, null);
+INSERT INTO Banks VALUES(4, null, 2, null);
+INSERT INTO Banks VALUES(5, null, 3, null);
+INSERT INTO Banks VALUES(6, null, 4, null);
+INSERT INTO Banks VALUES(7, null, 5, null);
 
-Select Incomes.deposit, Expenses.spend, Incomes.incomedate, Expenses.expensedate, Incomes.in_inform, Expenses.ex_inform
+Select Incomes.deposit, Expenses.spend, Incomes.incomedate, Expenses.expensedate, Incomes.in_inform, Expenses.ex_inform, Banks.balance
 From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid;
 
 Select SUM(deposit) as 수입 From Incomes;

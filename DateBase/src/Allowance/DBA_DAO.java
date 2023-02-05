@@ -4,13 +4,18 @@ import java.sql.*;
 public class DBA_DAO {
 	private Connection con;
 	private Statement smt;
-	private ResultSet rs;
+	private Statement smt2;
 	
 	public DBA_DAO() {
-		try {
-			con = DriverManager.getConnection("jdbc:ucanaccess://..\\DateBase\\Database1.accdb;memory=false");
+		String url = "jdbc:mysql://localhost:3306/madang";
+		try {			
+			Class.forName("com.mysql.jdbc.Driver");
+			con = DriverManager.getConnection(url, "madang", "madang");
 			smt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
-			rs = smt.executeQuery("Select * FROM Score order by strCode");
+			smt2 = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -43,7 +48,7 @@ public class DBA_DAO {
 	
 	public void Excute(String sql) {
 		try {
-			smt.executeUpdate(sql);
+			smt2.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

@@ -11,7 +11,7 @@ public class DBA_Frame extends JFrame{
 	private ResultSet result;
 	private JTable table;
 	private int dataCount, selectedCol, sw = 1;
-	private JTextField tf_Code, tf_Name, tf_Kor, tf_Mat, tf_Eng;
+	private JTextField tf_Price, tf_Date, tf_Inform;
 	private JButton newBt, addBt, updateBt, deleteBt;
 	
 	
@@ -21,7 +21,9 @@ public class DBA_Frame extends JFrame{
 		super();
 		stuDB = db;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		result = stuDB.getResultSet("Select * FROM Score order by strCode");
+		String sql = "Select Incomes.deposit, Expenses.spend, Incomes.incomedate, Expenses.expensedate, Incomes.in_inform, Expenses.ex_inform, Banks.balance "
+				+ "From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid";
+		result = stuDB.getResultSet(sql);
 		
 		initForm();
 	}
@@ -40,45 +42,29 @@ public class DBA_Frame extends JFrame{
 		gbc.weightx = 1;
 		gbc.weighty = 1;
 		setGrid(gbc, 0, 1, 1, 1);
-		label = new JLabel("      번   호     ");
+		label = new JLabel("      금  액     ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 1, 1, 1);
-		tf_Code = new JTextField(5);
-		gbl.setConstraints(tf_Code, gbc);
-		leftPanel.add(tf_Code);
+		tf_Price = new JTextField(5);
+		gbl.setConstraints(tf_Price, gbc);
+		leftPanel.add(tf_Price);
 		setGrid(gbc, 0, 2, 1, 1);
-		label = new JLabel("      이  름     ");
+		label = new JLabel("      날 짜     ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 2, 1, 1);
-		tf_Name = new JTextField(10);
-		gbl.setConstraints(tf_Name, gbc);
-		leftPanel.add(tf_Name);
+		tf_Date = new JTextField(10);
+		gbl.setConstraints(tf_Date, gbc);
+		leftPanel.add(tf_Date);
 		setGrid(gbc, 0, 3, 1, 1);
-		label = new JLabel("      국  어     ");
+		label = new JLabel("      내  역     ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 3, 1, 1);
-		tf_Kor = new JTextField(5);
-		gbl.setConstraints(tf_Kor, gbc);
-		leftPanel.add(tf_Kor);
-		setGrid(gbc, 0, 4, 1, 1);
-		label = new JLabel("      수  학     ");
-		gbl.setConstraints(label, gbc);
-		leftPanel.add(label);
-		setGrid(gbc, 1, 4, 1, 1);
-		tf_Mat = new JTextField(5);
-		gbl.setConstraints(tf_Mat, gbc);
-		leftPanel.add(tf_Mat);
-		setGrid(gbc, 0, 5, 1, 1);
-		label = new JLabel("      영  어     ");
-		gbl.setConstraints(label, gbc);
-		leftPanel.add(label);
-		setGrid(gbc, 1, 5, 1, 1);
-		tf_Eng = new JTextField(5);
-		gbl.setConstraints(tf_Eng, gbc);
-		leftPanel.add(tf_Eng);
+		tf_Inform = new JTextField(5);
+		gbl.setConstraints(tf_Inform, gbc);
+		leftPanel.add(tf_Inform);
 		setGrid(gbc, 0, 6, 1, 1);
 		label = new JLabel(" ");
 		gbl.setConstraints(label, gbc);
@@ -141,7 +127,7 @@ public class DBA_Frame extends JFrame{
 		
 		setEnabledButton(true);
 		
-		String columnName[] = {"학번", "이름", "국어", "수학", "영어", "총점", "평균", "석차"};
+		String columnName[] = {"수입", "지출", "수입날짜", "지출날짜", "수입내역", "지출내역", "잔고"};
 		tablemodel = new DBA_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
 		
@@ -179,15 +165,14 @@ public class DBA_Frame extends JFrame{
 		
 	}
 	
-	private void inputTable(int cnt, String num, String name, int kor, int mat, int eng, int total, double average, int rank) {
-		table.setValueAt(num, cnt, 0);
-		table.setValueAt(name, cnt, 1);
-		table.setValueAt(kor, cnt, 2);
-		table.setValueAt(mat, cnt, 3);
-		table.setValueAt(eng, cnt, 4);
-		table.setValueAt(total, cnt, 5);
-		table.setValueAt(average, cnt, 6);
-		table.setValueAt(rank, cnt, 7);
+	private void inputTable(int cnt, int deposit, int spend, Date incomedate, Date expensedate, String in_inform, String ex_inform, int balance) {
+		table.setValueAt(deposit, cnt, 0);
+		table.setValueAt(spend, cnt, 1);
+		table.setValueAt(incomedate, cnt, 2);
+		table.setValueAt(expensedate, cnt, 3);
+		table.setValueAt(in_inform, cnt, 4);
+		table.setValueAt(ex_inform, cnt, 5);
+		table.setValueAt(balance, cnt, 6);
 	}
 	
 	private void removeTableRow(int row) {
@@ -198,22 +183,30 @@ public class DBA_Frame extends JFrame{
 		table.setValueAt(null, row, 4);
 		table.setValueAt(null, row, 5);
 		table.setValueAt(null, row, 6);
-		table.setValueAt(null, row, 7);
 	}
 	
 	private void LoadList() {
+		String sql;
 		if(sw == 1)
-			result = stuDB.getResultSet("SELECT * FROM Score order by strCode");
+		{
+			sql = "Select Incomes.deposit, Expenses.spend, Incomes.incomedate, Expenses.expensedate, Incomes.in_inform, Expenses.ex_inform, Banks.balance "
+					  + "From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid";
+				result = stuDB.getResultSet(sql);
+		}
 		else
-			result = stuDB.getResultSet("SELECT * FROM Score order by nTotal desc");
+		{
+			sql = "Select Incomes.deposit, Expenses.spend, Incomes.incomedate, Expenses.expensedate, Incomes.in_inform, Expenses.ex_inform, Banks.balance "
+					  + "From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid";
+				result = stuDB.getResultSet(sql);
+		}
 		
 		for(int i = 0; i < dataCount; i++) {
 			removeTableRow(i);
 		}
 		try {
 			for(dataCount = 0; result.next(); dataCount++) {
-				inputTable(dataCount, result.getString("strCode"), result.getString("strName"), result.getInt("nKor"), result.getInt("nMat"), result.getInt("nEng"),
-						 result.getInt("nTotal"), result.getDouble("dAverage"), result.getInt("nRank"));
+				inputTable(dataCount, result.getInt("Incomes.deposit"), result.getInt("Expenses.spend"), result.getDate("Incomes.incomedate"), result.getDate("Expenses.expensedate"),
+						   result.getString("Incomes.in_inform"), result.getString("Expenses.ex_inform"), result.getInt("Banks.balance"));
 			}
 			repaint();
 		} catch (SQLException e) {
@@ -221,7 +214,7 @@ public class DBA_Frame extends JFrame{
 		}
 	}
 	
-	private void rank() {
+	private void balance() {
 		int tot = 0, rank1 = 0, rank2 = 0;
 		String sql;
 		ResultSet rs = stuDB.getResultSet("Select * FROM Score order by nTotal desc ");
@@ -242,16 +235,23 @@ public class DBA_Frame extends JFrame{
 	
 	public void MoveData() {
 		try {
-			String hakBun = result.getString("strCode");
-			String name = result.getString("strName");
-			String kor = String.valueOf(result.getInt("nKor"));
-			String eng = String.valueOf(result.getInt("nMat"));
-			String mat = String.valueOf(result.getInt("nEng"));
-			tf_Code.setText(hakBun);
-			tf_Name.setText(name);
-			tf_Kor.setText(kor);
-			tf_Mat.setText(mat);
-			tf_Eng.setText(eng);
+			int check = result.getInt("Incomes.deposit");
+			if(check == 0) {
+				String price = String.valueOf(result.getInt("Expenses.spend"));
+				String date = String.valueOf(result.getDate("Expenses.expensedate"));
+				String inform = result.getString("Expenses.ex_inform");
+				tf_Price.setText(price);
+				tf_Date.setText(date);
+				tf_Inform.setText(inform);
+			}
+			else {
+				String price = String.valueOf(result.getInt("Incomes.deposit"));
+				String date = String.valueOf(result.getDate("Incomes.incomedate"));
+				String inform = result.getString("Incomes.in_inform");
+				tf_Price.setText(price);
+				tf_Date.setText(date);
+				tf_Inform.setText(inform);
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}	
@@ -270,11 +270,19 @@ public class DBA_Frame extends JFrame{
 				if(selectedCol >= dataCount)
 					System.out.println("data is Empty");
 				else {
-					tf_Code.setText(table.getValueAt(selectedCol, 0).toString());
-					tf_Name.setText(table.getValueAt(selectedCol, 1).toString());
-					tf_Kor.setText(table.getValueAt(selectedCol, 2).toString());
-					tf_Mat.setText(table.getValueAt(selectedCol, 3).toString());
-					tf_Eng.setText(table.getValueAt(selectedCol, 4).toString());
+					String text = table.getValueAt(selectedCol, 0).toString();
+					if(text.equals("0"))
+					{
+						tf_Price.setText(table.getValueAt(selectedCol, 1).toString());
+						tf_Date.setText(table.getValueAt(selectedCol, 3).toString());
+						tf_Inform.setText(table.getValueAt(selectedCol, 5).toString());
+					}
+					else 
+					{
+						tf_Price.setText(table.getValueAt(selectedCol, 0).toString());
+						tf_Date.setText(table.getValueAt(selectedCol, 2).toString());
+						tf_Inform.setText(table.getValueAt(selectedCol, 4).toString());
+					}
 					try {
 						result.absolute(selectedCol + 1);
 						MoveData();
@@ -290,11 +298,9 @@ public class DBA_Frame extends JFrame{
 	class newButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			tf_Code.setText(null);
-			tf_Name.setText(null);
-			tf_Kor.setText(null);
-			tf_Mat.setText(null);
-			tf_Eng.setText(null);
+			tf_Price.setText(null);
+			tf_Date.setText(null);
+			tf_Inform.setText(null);
 			setEnabledButton(false);
 		}
 	}
@@ -303,7 +309,7 @@ public class DBA_Frame extends JFrame{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String sql;
-			if(tf_Code.getText().isEmpty()) {
+			if(tf_Price.getText().isEmpty()) {
 				System.out.println("번호기 입력되지 않았습니다.");
 				return;
 			}
@@ -313,7 +319,7 @@ public class DBA_Frame extends JFrame{
 			      tf_Kor.getText() + "','" + tf_Eng.getText() + "','" + tf_Mat.getText() + "'," + Integer.toString(total) + "," + Double.toString(total/3.0) + ")";
 			System.out.println(sql);
 			stuDB.Excute(sql);
-			rank();
+			balance();
 			LoadList();
 			setEnabledButton(true);
 		}
@@ -334,7 +340,7 @@ public class DBA_Frame extends JFrame{
 					" WHERE strCode = '" + code + "'";
 			System.out.println(sql);
 			stuDB.Excute(sql);
-			rank();
+			balance();
 			LoadList();
 		}
 	}
@@ -350,7 +356,7 @@ public class DBA_Frame extends JFrame{
 			code = table.getValueAt(selectedCol, 0).toString();
 			sql = "DELETE FROM Score WHERE strCode = '" + code + "'";
 			stuDB.Excute(sql);
-			rank();
+			balance();
 			LoadList();
 		}
 	}

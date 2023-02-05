@@ -13,11 +13,13 @@ class DdlTest{
 	Statement smt;
 	
 	public DdlTest() {
-		String url = "jdbc:mysql://192.168.1.30:3306/testdb";
+		//String url = "jdbc:mysql://192.168.1.30:3306/testdb";
+		String url = "jdbc:mysql://localhost:3306/madang";
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			con = DriverManager.getConnection(url, "sj002", "sj4321"); 
+			//con = DriverManager.getConnection(url, "sj002", "sj4321"); 
+			con = DriverManager.getConnection(url, "madang", "madang"); 
 			smt = con.createStatement();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -41,36 +43,40 @@ class DdlTest{
 			
 			printData(rs, 1);
 			
-			rs = smt.executeQuery("use test");
+			//rs = smt.executeQuery("use test");
+			rs = smt.executeQuery("use madang");
 			rs = smt.executeQuery("show tables");
 			printData(rs, 1);
 			
 			
-			smt.execute("create table Incomes (incomeid INTEGER PRIMARY KEY, deposit INTEGER DEFAULT 500000 CHECK(deposit > 0), incomedata DATE, in_inform VARCHAR(50)");
-			smt.execute("create table Expenses ( expenseid INTEGER PRIMARY KEY, spend INTEGER DEFAULT 89100 CHECK(spend < 0), expensedata DATE, ex_inform VARCHAR(50)");
-			smt.execute("create table Banks ( bankid INTEGER PRIMARY KEY, incomeid INTEGER, expenseid INTEGER, FOREIGN KEY (incomeid) REFERENCES Incomes(incomeid), FOREIGN KEY (expenseid) REFERENCES Expenses(expenseid)");
-			rs = smt.executeQuery("show tables");
-			printData(rs, 1);
-			
-			sql = "INSERT INTO Incomes VALUES(1, 50000, STR_TO_DATE('2023-01-01','%Y-%m-%d'), 'bonus money')";
-			smt.executeUpdate(sql);
-			
-			sql = "INSERT INTO Expenses VALUES(1, 1000, STR_TO_DATE('2023-01-02','%Y-%m-%d'), 'rent comicbook')";
-			smt.executeUpdate(sql);
-			
-			sql = "INSERT INTO Banks VALUES(1, 1, null)";
-			smt.executeUpdate(sql);
-			
-			sql = "INSERT INTO Banks VALUES(2, null, 1)";
-			smt.executeUpdate(sql);
-			
-			printAllData();
-			
-//			smt.execute("drop table Incomes");
-//			smt.execute("drop table Expenses");
-//			smt.execute("drop table Banks");
+//			smt.execute("create table Incomes (incomeid INTEGER PRIMARY KEY, deposit INTEGER DEFAULT 500000 CHECK(deposit > 0), incomedata DATE, in_inform VARCHAR(50)");
+//			smt.execute("create table Expenses (expenseid INTEGER PRIMARY KEY, spend INTEGER DEFAULT 89100 CHECK(spend < 0), expensedata DATE, ex_inform VARCHAR(50)");
+//			smt.execute("create table Banks (bankid INTEGER PRIMARY KEY, incomeid INTEGER, expenseid INTEGER, balance INTEGER, FOREIGN KEY (incomeid) REFERENCES Incomes(incomeid), FOREIGN KEY (expenseid) REFERENCES Expenses(expenseid)");
 //			rs = smt.executeQuery("show tables");
 //			printData(rs, 1);
+//			
+//			sql = "INSERT INTO Incomes VALUES(1, 50000, STR_TO_DATE('2023-01-01','%Y-%m-%d'), 'bonus money')";
+//			smt.executeUpdate(sql);
+//			
+//			sql = "INSERT INTO Expenses VALUES(1, -1000, STR_TO_DATE('2023-01-02','%Y-%m-%d'), 'rent comicbook')";
+//			smt.executeUpdate(sql);
+//			
+//			sql = "INSERT INTO Banks VALUES(1, 1, null, 50000)";
+//			smt.executeUpdate(sql);
+//			
+//			sql = "INSERT INTO Banks VALUES(2, null, 1, 49000)";
+//			smt.executeUpdate(sql);
+//			
+//			printAllData();
+			
+//			smt.execute("drop table Banks");
+//			smt.execute("drop table Incomes");
+//			smt.execute("drop table Expenses");
+//			
+//			rs = smt.executeQuery("show tables");
+//			printData(rs, 1);
+			
+			printAllData();
 			
 			rs.close();
 		} catch (SQLException e) {
@@ -91,10 +97,10 @@ class DdlTest{
 	
 	public void printAllData() throws SQLException{
 		ResultSet rs;
-		int deposit, spend;
+		int deposit, spend, balance;
 		String sql, in_inform, ex_inform;
 		Date in_date, ex_date;
-		sql = "Select Incomes.deposit, Expenses.spend, Incomes.incomedate, Expenses.expensedate, Incomes.in_inform, Expenses.ex_inform "
+		sql = "Select Incomes.deposit, Expenses.spend, Incomes.incomedate, Expenses.expensedate, Incomes.in_inform, Expenses.ex_inform, Banks.balance "
 				+ "From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid";
 		rs = smt.executeQuery(sql);
 		while(rs.next()) {
@@ -102,11 +108,13 @@ class DdlTest{
 			spend = rs.getInt("Expenses.spend");
 			in_date = rs.getDate("Incomes.incomedate");
 			ex_date = rs.getDate("Expenses.expensedate");
-			in_inform = rs.getString("Incomes.in_inform").trim();
-			ex_inform = rs.getString("Expenses.ex_inform").trim();
-			System.out.println("수입" + deposit + "\t" + "지출" + spend);
-			System.out.println("수입날짜" + in_date + "\t" + "지출날짜" + ex_date);
-			System.out.println("수입내역" + in_inform + "\t" + "지출내역" + ex_inform);
+			in_inform = rs.getString("Incomes.in_inform");
+			ex_inform = rs.getString("Expenses.ex_inform");
+			balance = rs.getInt("Banks.balance");
+			System.out.println("수입 " + deposit + "\t" + "지출 " + spend);
+			System.out.println("수입날짜 " + in_date + "\t" + "지출날짜 " + ex_date);
+			System.out.println("수입내역 " + in_inform + "\t" + "지출내역 " + ex_inform);
+			System.out.println("잔고 " + balance);
 		}
 	}
 }
