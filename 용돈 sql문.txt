@@ -40,13 +40,13 @@ INSERT INTO Expenses VALUES(3, -65000, STR_TO_DATE('2023-01-23','%Y-%m-%d'), 'cr
 INSERT INTO Expenses VALUES(4, -200000, STR_TO_DATE('2023-01-23','%Y-%m-%d'), 'insurance' );
 INSERT INTO Expenses VALUES(5, -89100, STR_TO_DATE('2023-01-31','%Y-%m-%d'), 'national pension' );
 
-INSERT INTO Banks VALUES(1, 1, null, 50000);
-INSERT INTO Banks VALUES(2, null, 1, 49000);
-INSERT INTO Banks VALUES(3, 2, null, null);
-INSERT INTO Banks VALUES(4, null, 2, null);
-INSERT INTO Banks VALUES(5, null, 3, null);
-INSERT INTO Banks VALUES(6, null, 4, null);
-INSERT INTO Banks VALUES(7, null, 5, null);
+INSERT INTO Banks(bankid, incomeid, balance) VALUES(1, 1, 50000);
+INSERT INTO Banks(bankid, expenseid, balance) VALUES(2, 1, 49000);
+INSERT INTO Banks VALUES(3, 2, null, 549000);
+INSERT INTO Banks VALUES(4, null, 2, 545150);
+INSERT INTO Banks VALUES(5, null, 3, 480150);
+INSERT INTO Banks VALUES(6, null, 4, 280150);
+INSERT INTO Banks VALUES(7, null, 5, 191050);
 
 Select Incomes.deposit, Expenses.spend, Incomes.incomedate, Expenses.expensedate, Incomes.in_inform, Expenses.ex_inform, Banks.balance
 From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid;
@@ -54,3 +54,11 @@ From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join 
 Select SUM(deposit) as 수입 From Incomes;
 Select SUM(spend) as 지출 From Expenses;
 Select SUM(deposit) + SUM(spend) as 남은돈 From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid;
+
+table.setValueAt(deposit, cnt, 0);
+table.setValueAt(spend, cnt, 1);
+table.setValueAt(incomedate, cnt, 2);
+table.setValueAt(expensedate, cnt, 3);
+table.setValueAt(in_inform, cnt, 4);
+table.setValueAt(ex_inform, cnt, 5);
+table.setValueAt(balance, cnt, 6);

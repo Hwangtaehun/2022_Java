@@ -14,8 +14,6 @@ public class DBA_Frame extends JFrame{
 	private JTextField tf_Price, tf_Date, tf_Inform;
 	private JButton newBt, addBt, updateBt, deleteBt;
 	
-	
-	
 	public DBA_Frame() {}
 	public DBA_Frame(DBA_DAO db) {
 		super();
@@ -257,6 +255,25 @@ public class DBA_Frame extends JFrame{
 		}	
 	}
 	
+	public int Lastkey(String sql, String key) {
+		int num = 0;
+		Statement smt = null;
+		ResultSet rs;
+		
+		try {
+			
+			rs = smt.executeQuery(sql);
+			while(result.next()) 
+			{
+				num = rs.getInt(key);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return num + 1;
+	}
+	
 	class tableListener implements ListSelectionListener{
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
@@ -308,15 +325,34 @@ public class DBA_Frame extends JFrame{
 	class addButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String sql;
+			String sql, check;
+			int bankid, foreignid;
+			
 			if(tf_Price.getText().isEmpty()) {
 				System.out.println("번호기 입력되지 않았습니다.");
 				return;
 			}
-			int total;
-			total = Integer.parseInt(tf_Kor.getText()) + Integer.parseInt(tf_Mat.getText()) + Integer.parseInt(tf_Eng.getText());
-			sql = " INSERT INTO Score (strCode, strName, nKor, nMat, nEng, nTotal, dAverage ) VALUES('" + tf_Code.getText() + "','" + tf_Name.getText() + "','" +
-			      tf_Kor.getText() + "','" + tf_Eng.getText() + "','" + tf_Mat.getText() + "'," + Integer.toString(total) + "," + Double.toString(total/3.0) + ")";
+			check = tf_Price.getText();
+			bankid = Lastkey("Select * FROM Bank order by bankid", "Bank.bankid");
+			
+			if(Integer.parseInt(check) > 0)
+			{
+				foreignid = Lastkey("Select * FROM Incomes order by incomeid", "Incomes.Incomes");
+				sql = " INSERT INTO Incomes (incomeid,  deposit, incomedate, in_inform) VALUES(" + foreignid + "," + tf_Price.getText() 
+					  + "STR_TO_DATE('" + tf_Date + "','%Y-%m-%d'),'" + tf_Inform + "')";
+				System.out.println(sql);
+				stuDB.Excute(sql);
+				sql = " INSERT INTO Banks (bankid, incomeid) VALUES(" + bankid + "," + foreignid + ")";
+			}
+			else 
+			{
+				foreignid = Lastkey("Select * FROM Expenses order by incomeid", "Expenses.expenseid");
+				sql = " INSERT INTO Expenses (expenseid, spend, expensedate, ex_inform) VALUES(" + foreignid + "," + tf_Price.getText() 
+				  + "STR_TO_DATE('" + tf_Date + "','%Y-%m-%d'),'" + tf_Inform + "')";
+				System.out.println(sql);
+				stuDB.Excute(sql);
+				sql = " INSERT INTO Banks (bankid, expenseid) VALUES(" + bankid + "," + foreignid + ")";
+			}
 			System.out.println(sql);
 			stuDB.Excute(sql);
 			balance();
@@ -328,18 +364,27 @@ public class DBA_Frame extends JFrame{
 	class updateButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String sql, code;
+			String sql, code, check;
 			if(selectedCol == -1) {
 				System.out.println("변경할 셀이 선택되지 않았습니다.");
 				return;
 			}
-			code = table.getValueAt(selectedCol, 0).toString();
-			int total = Integer.parseInt(tf_Kor.getText()) + Integer.parseInt(tf_Mat.getText()) + Integer.parseInt(tf_Eng.getText());
-			sql = "UPDATE Score SET strName = '" + tf_Name.getText() + "', nKor = " + tf_Kor.getText() + ", nMat = " + tf_Mat.getText() + 
-					", nEng = " + tf_Eng.getText() + ", nTotal = " + Integer.toString(total) + ", dAverage = " + Double.toString(total/3.0) + 
-					" WHERE strCode = '" + code + "'";
-			System.out.println(sql);
-			stuDB.Excute(sql);
+			check = tf_Price.getText();
+			if(Integer.parseInt(check) > 0)
+			{
+				sql = " INSERT INTO Incomes (incomeid,  deposit, incomedate, in_inform) VALUES(" + ")";
+			}
+			else 
+			{
+				sql = " INSERT INTO Expenses (expenseid, spend, expensedate, ex_inform) VALUES(" + ")";
+			}
+//			code = table.getValueAt(selectedCol, 0).toString();
+//			int total = Integer.parseInt(tf_Kor.getText()) + Integer.parseInt(tf_Mat.getText()) + Integer.parseInt(tf_Eng.getText());
+//			sql = "UPDATE Score SET strName = '" + tf_Name.getText() + "', nKor = " + tf_Kor.getText() + ", nMat = " + tf_Mat.getText() + 
+//					", nEng = " + tf_Eng.getText() + ", nTotal = " + Integer.toString(total) + ", dAverage = " + Double.toString(total/3.0) + 
+//					" WHERE strCode = '" + code + "'";
+//			System.out.println(sql);
+//			stuDB.Excute(sql);
 			balance();
 			LoadList();
 		}
@@ -429,3 +474,5 @@ public class DBA_Frame extends JFrame{
 		}
 	}
 }
+
+
