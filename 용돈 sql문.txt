@@ -55,10 +55,11 @@ Select SUM(deposit) as 수입 From Incomes;
 Select SUM(spend) as 지출 From Expenses;
 Select SUM(deposit) + SUM(spend) as 남은돈 From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid;
 
-table.setValueAt(deposit, cnt, 0);
-table.setValueAt(spend, cnt, 1);
-table.setValueAt(incomedate, cnt, 2);
-table.setValueAt(expensedate, cnt, 3);
-table.setValueAt(in_inform, cnt, 4);
-table.setValueAt(ex_inform, cnt, 5);
-table.setValueAt(balance, cnt, 6);
+table.setValueAt(bankid, cnt, 0);
+table.setValueAt(deposit, cnt, 1);
+table.setValueAt(spend, cnt, 2);
+table.setValueAt(incomedate, cnt, 3);
+table.setValueAt(expensedate, cnt, 4);
+table.setValueAt(in_inform, cnt, 5);
+table.setValueAt(ex_inform, cnt, 6);
+table.setValueAt(balance, cnt, 7);
