@@ -13,12 +13,10 @@ class DdlTest{
 	Statement smt;
 	
 	public DdlTest() {
-		//String url = "jdbc:mysql://192.168.1.30:3306/testdb";
 		String url = "jdbc:mysql://localhost:3306/madang";
 		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			//con = DriverManager.getConnection(url, "sj002", "sj4321"); 
+			Class.forName("com.mysql.jdbc.Driver"); 
 			con = DriverManager.getConnection(url, "madang", "madang"); 
 			smt = con.createStatement();
 		} catch (ClassNotFoundException e) {
@@ -43,18 +41,16 @@ class DdlTest{
 			
 			printData(rs, 1);
 			
-			//rs = smt.executeQuery("use test");
-			rs = smt.executeQuery("use madang");
+			rs = smt.executeQuery("use test");
 			rs = smt.executeQuery("show tables");
 			printData(rs, 1);
 			
-			
-//			smt.execute("create table Incomes (incomeid INTEGER PRIMARY KEY, deposit INTEGER DEFAULT 500000 CHECK(deposit > 0), incomedata DATE, in_inform VARCHAR(50)");
-//			smt.execute("create table Expenses (expenseid INTEGER PRIMARY KEY, spend INTEGER DEFAULT 89100 CHECK(spend < 0), expensedata DATE, ex_inform VARCHAR(50)");
-//			smt.execute("create table Banks (bankid INTEGER PRIMARY KEY, incomeid INTEGER, expenseid INTEGER, balance INTEGER, FOREIGN KEY (incomeid) REFERENCES Incomes(incomeid), FOREIGN KEY (expenseid) REFERENCES Expenses(expenseid)");
-//			rs = smt.executeQuery("show tables");
+//			smt.execute("use test");
+//			smt.execute("create table Incomes (incomeid INTEGER PRIMARY KEY, deposit INTEGER DEFAULT 500000 CHECK(deposit > 0), incomedate DATE, in_inform VARCHAR(50))");
+//			smt.execute("create table Expenses (expenseid INTEGER PRIMARY KEY, spend INTEGER DEFAULT 89100 CHECK(spend < 0), expensedate DATE, ex_inform VARCHAR(50))");
+//			smt.execute("create table Banks (bankid INTEGER PRIMARY KEY, incomeid INTEGER, expenseid INTEGER, balance INTEGER, FOREIGN KEY (incomeid) REFERENCES Incomes(incomeid), FOREIGN KEY (expenseid) REFERENCES Expenses(expenseid))");
 //			printData(rs, 1);
-//			
+			
 //			sql = "INSERT INTO Incomes VALUES(1, 50000, STR_TO_DATE('2023-01-01','%Y-%m-%d'), 'bonus money')";
 //			smt.executeUpdate(sql);
 //			
@@ -76,7 +72,7 @@ class DdlTest{
 //			rs = smt.executeQuery("show tables");
 //			printData(rs, 1);
 			
-			printAllData();
+			//printAllData();
 			
 			rs.close();
 		} catch (SQLException e) {
