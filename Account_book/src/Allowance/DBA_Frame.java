@@ -13,20 +13,33 @@ public class DBA_Frame extends JFrame{
 	private int dataCount, selectedCol, sw = 1;
 	private JTextField tf_Price, tf_Date, tf_Inform;
 	private JButton newBt, addBt, updateBt, deleteBt;
+	private String manModel[], conModel[];
+	private JComboBox <String> manBox, conBox;
 	
 	public DBA_Frame() {}
 	public DBA_Frame(DBA_DAO db) {
 		super();
 		stuDB = db;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		String sql = "Select Incomes.deposit, Expenses.spend, Incomes.incomedate, Expenses.expensedate, Incomes.in_inform, Expenses.ex_inform, Banks.balance "
-				+ "From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid";
+		String sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+				+ "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
 		result = stuDB.getResultSet(sql);
 		
 		initForm();
 	}
 	
 	void initForm() {
+		int num;
+		String sql = "Select * From Manager";
+		num = Countkey(sql);
+		manModel = new String[num];
+		InputData(manModel, sql, "title");
+		
+		sql = "Select * From Connection";
+		num = Countkey(sql);
+		conModel = new String[num];
+		InputData(conModel, sql, "title");
+		
 		Container cpane = getContentPane();
 		JPanel leftPanel = new JPanel();
 		JPanel centerPanel = new JPanel();
@@ -40,26 +53,44 @@ public class DBA_Frame extends JFrame{
 		gbc.weightx = 1;
 		gbc.weighty = 1;
 		setGrid(gbc, 0, 1, 1, 1);
-		label = new JLabel("      금  액     ");
+		label = new JLabel("     관  리  구  분   ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 1, 1, 1);
-		tf_Price = new JTextField(5);
-		gbl.setConstraints(tf_Price, gbc);
-		leftPanel.add(tf_Price);
+		manBox = new JComboBox<String>(new DefaultComboBoxModel<String>(manModel));
+		manBox.addItemListener(new comboBoxListener());
+		gbl.setConstraints(manBox, gbc);
+		leftPanel.add(manBox);
 		setGrid(gbc, 0, 2, 1, 1);
-		label = new JLabel("      날 짜     ");
+		label = new JLabel("     금  액         ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 2, 1, 1);
-		tf_Date = new JTextField(10);
-		gbl.setConstraints(tf_Date, gbc);
-		leftPanel.add(tf_Date);
+		tf_Price = new JTextField(10);
+		gbl.setConstraints(tf_Price, gbc);
+		leftPanel.add(tf_Price);
 		setGrid(gbc, 0, 3, 1, 1);
-		label = new JLabel("      내  역     ");
+		label = new JLabel("     날  짜         ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 3, 1, 1);
+		tf_Date = new JTextField(5);
+		gbl.setConstraints(tf_Date, gbc);
+		leftPanel.add(tf_Date);
+		setGrid(gbc, 0, 4, 1, 1);
+		label = new JLabel("     거  래  처     ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc, 1, 4, 1, 1);
+		conBox = new JComboBox<String>(new DefaultComboBoxModel<String>(conModel));
+		conBox.addItemListener(new comboBoxListener());
+		gbl.setConstraints(conBox, gbc);
+		leftPanel.add(conBox);
+		setGrid(gbc, 0, 5, 1, 1);
+		label = new JLabel("     내  용          ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc, 1, 5, 1, 1);
 		tf_Inform = new JTextField(5);
 		gbl.setConstraints(tf_Inform, gbc);
 		leftPanel.add(tf_Inform);
@@ -125,7 +156,7 @@ public class DBA_Frame extends JFrame{
 		
 		setEnabledButton(true);
 		
-		String columnName[] = {"번호", "수입", "지출", "수입날짜", "지출날짜", "수입내역", "지출내역", "잔고"};
+		String columnName[] = {"번호", "관리구분", "금액", "날짜", "거래처", "내용", "잔액"};
 		tablemodel = new DBA_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
 		
@@ -163,15 +194,14 @@ public class DBA_Frame extends JFrame{
 		
 	}
 	
-	private void inputTable(int cnt, int bankid, int deposit, int spend, Date incomedate, Date expensedate, String in_inform, String ex_inform, int balance) {
-		table.setValueAt(bankid, cnt, 0);
-		table.setValueAt(deposit, cnt, 1);
-		table.setValueAt(spend, cnt, 2);
-		table.setValueAt(incomedate, cnt, 3);
-		table.setValueAt(expensedate, cnt, 4);
-		table.setValueAt(in_inform, cnt, 5);
-		table.setValueAt(ex_inform, cnt, 6);
-		table.setValueAt(balance, cnt, 7);
+	private void inputTable(int cnt, int id, String man_title, int price, Date date, String con_title, String inform, int balance) {
+		table.setValueAt(id, cnt, 0);
+		table.setValueAt(man_title, cnt, 1);
+		table.setValueAt(price, cnt, 2);
+		table.setValueAt(date, cnt, 3);
+		table.setValueAt(con_title, cnt, 4);
+		table.setValueAt(inform, cnt, 5);
+		table.setValueAt(balance, cnt, 6);
 	}
 	
 	private void removeTableRow(int row) {
@@ -182,21 +212,20 @@ public class DBA_Frame extends JFrame{
 		table.setValueAt(null, row, 4);
 		table.setValueAt(null, row, 5);
 		table.setValueAt(null, row, 6);
-		table.setValueAt(null, row, 7);
 	}
 	
 	private void LoadList() {
 		String sql;
 		if(sw == 1)
 		{
-			sql = "Select Banks.bankid, Incomes.deposit, Expenses.spend, Incomes.incomedate, Expenses.expensedate, Incomes.in_inform, Expenses.ex_inform, Banks.balance "
-					  + "From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid";
+			sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+			      + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
 				result = stuDB.getResultSet(sql);
 		}
 		else
 		{
-			sql = "Select Banks.bankid, Incomes.deposit, Expenses.spend, Incomes.incomedate, Expenses.expensedate, Incomes.in_inform, Expenses.ex_inform, Banks.balance "
-					  + "From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid";
+			sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+				   + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
 				result = stuDB.getResultSet(sql);
 		}
 		
@@ -205,8 +234,8 @@ public class DBA_Frame extends JFrame{
 		}
 		try {
 			for(dataCount = 0; result.next(); dataCount++) {
-				inputTable(dataCount, result.getInt("Banks.bankid"), result.getInt("Incomes.deposit"), result.getInt("Expenses.spend"), result.getDate("Incomes.incomedate"), result.getDate("Expenses.expensedate"),
-						   result.getString("Incomes.in_inform"), result.getString("Expenses.ex_inform"), result.getInt("Banks.balance"));
+				inputTable(dataCount, result.getInt("Banks.id"), result.getString("Manager.title"), result.getInt("Banks.price"), result.getDate("Banks.date"),
+						   result.getString("Connection.title"), result.getString("Banks.inform"), result.getInt("Banks.balance"));
 			}
 			repaint();
 		} catch (SQLException e) {
@@ -215,17 +244,20 @@ public class DBA_Frame extends JFrame{
 	}
 	
 	private void balance() {
-		int num = 0, tot = 0;
-		String sql = "Select Banks.bankid, Incomes.deposit, Expenses.spend, Incomes.incomedate, Expenses.expensedate, Incomes.in_inform, Expenses.ex_inform, Banks.balance "
-				  + "From Banks left join Expenses on Banks.expenseid = Expenses.expenseid left join Incomes on Banks.incomeid = Incomes.incomeid order by Banks.bankid";
+		int num = 0, tot = 0, man_id =0;
+		String sql = "Select Banks.id, Manager.manid, Banks.price, Banks.balance From Banks left join Manager on Banks.manid = Manager.manid";
 		ResultSet rs = stuDB.getResultSet(sql);
 		try {
 			while(rs.next()) {
 				num++;
 				if(num != rs.getInt("Banks.bankid"))
 				{
-					tot += rs.getInt("Incomes.deposit");
-					tot += rs.getInt("Expenses.spend");
+					man_id = rs.getInt("Manager.manid");
+					if(man_id > 20000)
+						tot += rs.getInt("Banks.price");
+					else
+						tot -= rs.getInt("Banks.price");
+					
 					sql = "UPDATE Banks Set balance = " + tot + " where bankid = " + rs.getString("Banks.bankid");
 					stuDB.Excute(sql);
 					sql = "UPDATE Banks Set bankid = " + num + " where bankid = " + rs.getString("Banks.bankid");
@@ -257,23 +289,16 @@ public class DBA_Frame extends JFrame{
 	
 	private void MoveData() {
 		try {
-			int check = result.getInt("Incomes.deposit");
-			if(check == 0) {
-				String price = String.valueOf(result.getInt("Expenses.spend"));
-				String date = String.valueOf(result.getDate("Expenses.expensedate"));
-				String inform = result.getString("Expenses.ex_inform");
-				tf_Price.setText(price);
-				tf_Date.setText(date);
-				tf_Inform.setText(inform);
-			}
-			else {
-				String price = String.valueOf(result.getInt("Incomes.deposit"));
-				String date = String.valueOf(result.getDate("Incomes.incomedate"));
-				String inform = result.getString("Incomes.in_inform");
-				tf_Price.setText(price);
-				tf_Date.setText(date);
-				tf_Inform.setText(inform);
-			}
+			String manager = result.getString("Manager.title");
+			String price = String.valueOf(result.getInt("Banks.price"));
+			String date = String.valueOf(result.getDate("Banks.date"));
+			String connection = result.getString("Connection.title");
+			String inform = result.getString("Banks.inform");
+			manBox.setSelectedItem(manager);
+			tf_Price.setText(price);
+			tf_Date.setText(date);
+			conBox.setSelectedItem(connection);
+			tf_Inform.setText(inform);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}	
@@ -286,6 +311,19 @@ public class DBA_Frame extends JFrame{
 			while(rs.next()) 
 			{
 				num = rs.getInt(key);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return num;
+	}
+	
+	private int Countkey(String sql) {
+		int num = 0;
+		ResultSet rs = stuDB.getResultSet(sql);
+		try {
+			while(rs.next()) 
+			{
 				num++;
 			}
 		} catch (SQLException e) {
@@ -295,43 +333,22 @@ public class DBA_Frame extends JFrame{
 		return num;
 	}
 	
-	private String Foreignkey(String bankid) {
-		String sql  = "Select * FROM Banks WHERE bankid = " + bankid;
-		String fianl = null;
+	private int Foreignkey(String table, String title) {
+		String sql  = "Select * FROM " + table + " WHERE bankid = " + title;
+		int num = 0;
 		
 		ResultSet rs = stuDB.getResultSet(sql);
 		try {
 			rs.next();
-			if(rs.getInt("incomeid") == 0) {
-				fianl = Integer.toString(rs.getInt("expenseid"));
-			}
-			else {
-				fianl = Integer.toString(rs.getInt("incomeid"));
-			}
+			if(table.equals("Manager"))
+				num = rs.getInt("manid");
+			else
+				num = rs.getInt("conid");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return fianl;
-	}
-	
-	private String CheckTable(String bankid) {
-		String fianl = null;
-		String sql  = "Select * FROM Banks WHERE bankid = " + bankid;
-		ResultSet rs = stuDB.getResultSet(sql);
-		try {
-			rs.next();
-			if(rs.getInt("incomeid") == 0) {
-				fianl = "Expenses";
-			}
-			else {
-				fianl = "Incomes";
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return fianl;
+		return num;
 	}
 	
 	private String CheckDate(String date) {
@@ -341,7 +358,7 @@ public class DBA_Frame extends JFrame{
 		int count = date.length();
 		array_word = date.split("");
 		
-		number = CheckNumber(date);
+		number = ExistNumber(date);
 		if(number) {
 			if(count == 8)
 			{
@@ -438,13 +455,51 @@ public class DBA_Frame extends JFrame{
 		return fianl;
 	}
 	
-	private boolean CheckNumber(String date) {
+	private boolean ExistNumber(String date) {
 		try {
 		      Integer.parseInt(date);
 		      return true;
 		    } catch (NumberFormatException ex) {
 		      return false;
 		    }
+	}
+	
+	private void InputData(String dataModel[], String sql, String id) {
+		int num = 0;
+		ResultSet rs = stuDB.getResultSet(sql);
+		
+		try {
+			while(rs.next())
+			{
+				dataModel[num] = rs.getString(id);
+				num++;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+//		for(int i = 0; i < dataModel.length; i++)
+//		{
+//			System.out.println(dataModel[i]);
+//		}
+//		System.out.print("\n");
+	}
+	
+	public void comboxSetValueAt(String dataModel[], String name)
+	{
+		if(name.equals("con")) {
+			conBox.removeAllItems();
+			for (int i = 0; i < dataModel.length; i++) {
+				conBox.addItem(dataModel[i]);
+			}
+		}
+		else {
+			manBox.removeAllItems();
+			for (int i = 0; i < dataModel.length; i++) {
+				manBox.addItem(dataModel[i]);
+			}
+		}
 	}
 	
 	class tableListener implements ListSelectionListener{
@@ -460,19 +515,11 @@ public class DBA_Frame extends JFrame{
 				if(selectedCol >= dataCount)
 					System.out.println("data is Empty");
 				else {
-					String text = table.getValueAt(selectedCol, 1).toString();
-					if(text.equals("0"))
-					{
-						tf_Price.setText(table.getValueAt(selectedCol, 2).toString());
-						tf_Date.setText(table.getValueAt(selectedCol, 4).toString());
-						tf_Inform.setText(table.getValueAt(selectedCol, 6).toString());
-					}
-					else
-					{
-						tf_Price.setText(table.getValueAt(selectedCol, 1).toString());
-						tf_Date.setText(table.getValueAt(selectedCol, 3).toString());
-						tf_Inform.setText(table.getValueAt(selectedCol, 5).toString());
-					}
+					manBox.setSelectedItem(table.getValueAt(selectedCol, 1).toString());
+					tf_Price.setText(table.getValueAt(selectedCol, 2).toString());
+					tf_Date.setText(table.getValueAt(selectedCol, 3).toString());
+					conBox.setSelectedItem(table.getValueAt(selectedCol, 4).toString());
+					tf_Inform.setText(table.getValueAt(selectedCol, 5).toString());
 					try {
 						result.absolute(selectedCol + 1);
 						MoveData();
@@ -482,6 +529,13 @@ public class DBA_Frame extends JFrame{
 					repaint();
 				}
 			}
+		}
+	}
+	
+	class comboBoxListener implements ItemListener{
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			// TODO Auto-generated method stub
 		}
 	}
 	
@@ -499,37 +553,20 @@ public class DBA_Frame extends JFrame{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String sql, check, date;
-			int bankid, foreignid;
+			int bankid, manid, conid;
 			
 			if(tf_Price.getText().isEmpty()) {
 				System.out.println("번호기 입력되지 않았습니다.");
 				return;
 			}
-			check = tf_Price.getText();
-			bankid = Lastkey("Select * FROM Banks order by bankid", "Banks.bankid");
+			bankid = Lastkey("Select * FROM Banks order by bankid", "Banks.bankid") + 1;
+			manid = Foreignkey("Manager", manBox.getSelectedItem().toString());
+			conid = Foreignkey("Connection", conBox.getSelectedItem().toString());
 			date = CheckDate(tf_Date.getText());
-			
-			
-			if(Integer.parseInt(check) > 0)
-			{
-				foreignid = Lastkey("Select * FROM Incomes order by incomeid", "Incomes.Incomeid");
-				sql = " INSERT INTO Incomes (incomeid,  deposit, incomedate, in_inform) VALUES(" + foreignid + "," + tf_Price.getText() + ","
-					  + "STR_TO_DATE('" + date + "','%Y-%m-%d'),'" + tf_Inform.getText() + "')";
-				System.out.println(sql);
-				stuDB.Excute(sql);
-				sql = " INSERT INTO Banks (bankid, incomeid) VALUES(" + bankid + "," + foreignid + ")";
-			}
-			else 
-			{
-				foreignid = Lastkey("Select * FROM Expenses order by expenseid", "Expenses.expenseid");
-				sql = " INSERT INTO Expenses (expenseid, spend, expensedate, ex_inform) VALUES(" + foreignid + "," + tf_Price.getText() + ","
-				  + "STR_TO_DATE('" + date + "','%Y-%m-%d'),'" + tf_Inform.getText() + "')";
-				System.out.println(sql);
-				stuDB.Excute(sql);
-				sql = " INSERT INTO Banks (bankid, expenseid) VALUES(" + bankid + "," + foreignid + ")";
-			}
+			sql = " INSERT INTO Banks VALUES(" + bankid + "," + manid + ","+ tf_Price.getText() + "," +"STR_TO_DATE('" + tf_Date.getText() + "','%Y-%m-%d')," + tf_Inform + "," + conid +", null)";
 			System.out.println(sql);
 			stuDB.Excute(sql);
+			
 			balance();
 			LoadList();
 			setEnabledButton(true);
@@ -545,70 +582,70 @@ public class DBA_Frame extends JFrame{
 				return;
 			}
 			code = table.getValueAt(selectedCol, 0).toString();
-			key = Foreignkey(code);
-			checkkey = CheckTable(code);
-			checkprice = tf_Price.getText();
-			date = CheckDate(tf_Date.getText());
-			if(checkkey.equals("Incomes")) //수입
-			{
-				if(Integer.parseInt(checkprice) < 0) 
-				{
-					int expenseid= Lastkey("Select * FROM Expenses order by expenseid", "Expenses.expenseid");
-					
-					sql = "DELETE FROM Banks WHERE bankid = '" + code + "'";
-					System.out.println(sql);
-					stuDB.Excute(sql);
-					
-					sql = "DELETE FROM Incomes WHERE incomeid = '" + key + "'";
-					System.out.println(sql);
-					stuDB.Excute(sql);
-					
-					sql = " INSERT INTO Expenses (expenseid, spend, expensedate, ex_inform) VALUES(" + expenseid + "," + tf_Price.getText() + ","
-					  + "STR_TO_DATE('" + date + "','%Y-%m-%d'),'" + tf_Inform.getText() + "')";
-					System.out.println(sql);
-					stuDB.Excute(sql);
-					
-					sql = " INSERT INTO Banks (bankid, expenseid) VALUES(" + code + "," + expenseid + ")";
-					System.out.println(sql);
-					stuDB.Excute(sql);
-				}
-				else 
-				{
-					sql = " UPDATE Incomes SET deposit = "+ tf_Price.getText() + ", incomedate = STR_TO_DATE('" + date + "','%Y-%m-%d')" +", in_inform = '" + tf_Inform.getText() + "' WHERE incomeid =" + key;
-					System.out.println(sql);
-					stuDB.Excute(sql);
-				}
-			}
-			else 
-			{
-				if(Integer.parseInt(checkprice) > 0) //지출
-				{
-					int incomeid = Lastkey("Select * FROM Incomes order by incomeid", "Incomes.incomeid");
-					
-					sql = "DELETE FROM Banks WHERE bankid = '" + code + "'";
-					System.out.println(sql);
-					stuDB.Excute(sql);
-					
-					sql = "DELETE FROM Expenses WHERE expenseid = '" + key + "'";
-					System.out.println(sql);
-					stuDB.Excute(sql);
-					
-					sql = " INSERT INTO Incomes (incomeid,  deposit, incomedate, in_inform) VALUES(" + incomeid + "," + tf_Price.getText() + ","
-					  + "STR_TO_DATE('" + date + "','%Y-%m-%d'),'" + tf_Inform.getText() + "')";
-					System.out.println(sql);
-					stuDB.Excute(sql);
-					
-					sql = " INSERT INTO Banks (bankid, incomeid) VALUES(" + code + "," + incomeid + ")";
-					System.out.println(sql);
-					stuDB.Excute(sql);
-				}
-				else
-				{
-					sql = " UPDATE Expenses SET spend = "+ tf_Price.getText() + ", expensedate = STR_TO_DATE('" + date + "','%Y-%m-%d')" +", ex_inform = '" + tf_Inform.getText() + "' WHERE expenseid =" + code;
-					System.out.println(sql);
-					stuDB.Excute(sql);
-				}
-			}
+//			key = Foreignkey(code);
+//			checkkey = CheckTable(code);
+//			checkprice = tf_Price.getText();
+//			date = CheckDate(tf_Date.getText());
+//			if(checkkey.equals("Incomes")) //수입
+//			{
+//				if(Integer.parseInt(checkprice) < 0) 
+//				{
+//					int expenseid= Lastkey("Select * FROM Expenses order by expenseid", "Expenses.expenseid") + 1;
+//					
+//					sql = "DELETE FROM Banks WHERE bankid = '" + code + "'";
+//					System.out.println(sql);
+//					stuDB.Excute(sql);
+//					
+//					sql = "DELETE FROM Incomes WHERE incomeid = '" + key + "'";
+//					System.out.println(sql);
+//					stuDB.Excute(sql);
+//					
+//					sql = " INSERT INTO Expenses (expenseid, spend, expensedate, ex_inform) VALUES(" + expenseid + "," + tf_Price.getText() + ","
+//					  + "STR_TO_DATE('" + date + "','%Y-%m-%d'),'" + tf_Inform.getText() + "')";
+//					System.out.println(sql);
+//					stuDB.Excute(sql);
+//					
+//					sql = " INSERT INTO Banks (bankid, expenseid) VALUES(" + code + "," + expenseid + ")";
+//					System.out.println(sql);
+//					stuDB.Excute(sql);
+//				}
+//				else 
+//				{
+//					sql = " UPDATE Incomes SET deposit = "+ tf_Price.getText() + ", incomedate = STR_TO_DATE('" + date + "','%Y-%m-%d')" +", in_inform = '" + tf_Inform.getText() + "' WHERE incomeid =" + key;
+//					System.out.println(sql);
+//					stuDB.Excute(sql);
+//				}
+//			}
+//			else 
+//			{
+//				if(Integer.parseInt(checkprice) > 0) //지출
+//				{
+//					int incomeid = Lastkey("Select * FROM Incomes order by incomeid", "Incomes.incomeid") + 1;
+//					
+//					sql = "DELETE FROM Banks WHERE bankid = '" + code + "'";
+//					System.out.println(sql);
+//					stuDB.Excute(sql);
+//					
+//					sql = "DELETE FROM Expenses WHERE expenseid = '" + key + "'";
+//					System.out.println(sql);
+//					stuDB.Excute(sql);
+//					
+//					sql = " INSERT INTO Incomes (incomeid,  deposit, incomedate, in_inform) VALUES(" + incomeid + "," + tf_Price.getText() + ","
+//					  + "STR_TO_DATE('" + date + "','%Y-%m-%d'),'" + tf_Inform.getText() + "')";
+//					System.out.println(sql);
+//					stuDB.Excute(sql);
+//					
+//					sql = " INSERT INTO Banks (bankid, incomeid) VALUES(" + code + "," + incomeid + ")";
+//					System.out.println(sql);
+//					stuDB.Excute(sql);
+//				}
+//				else
+//				{
+//					sql = " UPDATE Expenses SET spend = "+ tf_Price.getText() + ", expensedate = STR_TO_DATE('" + date + "','%Y-%m-%d')" +", ex_inform = '" + tf_Inform.getText() + "' WHERE expenseid =" + code;
+//					System.out.println(sql);
+//					stuDB.Excute(sql);
+//				}
+//			}
 			balance();
 			LoadList();
 		}
@@ -622,22 +659,22 @@ public class DBA_Frame extends JFrame{
 				System.out.println("삭제할 셀이 선택되지 않았습니다.");
 				return;
 			}
-			code = table.getValueAt(selectedCol, 0).toString();
-			key = Foreignkey(code);
-			tablename = CheckTable(code);
-			
-			if(tablename.equals("Incomes"))
-				keyname = "incomeid";
-			else
-				keyname = "expenseid";
-			
-			sql = "DELETE FROM Banks WHERE bankid = " + code;
-			System.out.println("삭제 쿼리문 확인" + sql);
-			stuDB.Excute(sql);
-			
-			sql = "DELETE FROM " + tablename + " WHERE "+ keyname + " = " + key ;
-			System.out.println("삭제 쿼리문 확인" + sql);
-			stuDB.Excute(sql);
+//			code = table.getValueAt(selectedCol, 0).toString();
+//			key = Foreignkey(code);
+//			tablename = CheckTable(code);
+//			
+//			if(tablename.equals("Incomes"))
+//				keyname = "incomeid";
+//			else
+//				keyname = "expenseid";
+//			
+//			sql = "DELETE FROM Banks WHERE bankid = " + code;
+//			System.out.println("삭제 쿼리문 확인" + sql);
+//			stuDB.Excute(sql);
+//			
+//			sql = "DELETE FROM " + tablename + " WHERE "+ keyname + " = " + key ;
+//			System.out.println("삭제 쿼리문 확인" + sql);
+//			stuDB.Excute(sql);
 			
 			balance();
 			LoadList();

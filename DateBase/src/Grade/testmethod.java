@@ -4,18 +4,50 @@ public class testmethod {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String date1 = "230208";
-		String date2 = "20230208";
-		String date3 = "23/02/08";
-		String date4 = "2023.02.08";
+		String a[] = {"a", "b", "c", "d", "e"};
+		String b[] = {"A", "B", "C", "D", "E"};
 		
-		Test test = new Test();
-		test.CheckDate(date1);
-		test.CheckDate(date2);
-		test.CheckDate(date3);
-		test.CheckDate(date4);
+		Array change = new Array();
+		change.Print(a);
+		change.Print(b);
+		
+		change.ArraySort1(a);
+		change.ArraySort2(b);
+		
+		change.Print(a);
+		change.Print(b);
 	}
 
+}
+
+class Array{
+	public Array() {}
+	
+	public void ArraySort1(String data[]) {
+		int num = 1;
+		for(int i = 0; i < 5; i++)
+		{
+			data[i] = Integer.toString(num);
+			num++;
+		}
+	}
+	
+	public void ArraySort2(String data[]) {
+		int num = 5;
+		for(int i = 0; i < 5; i++)
+		{
+			data[i] = Integer.toString(num);
+			num--;
+		}
+	}
+	
+	public void Print(String data[]) {
+		for(int i = 0; i < 5; i++)
+		{
+			System.out.print(data[i] + " ");
+		}
+		System.out.print("\n");
+	}
 }
 
 class Test{
