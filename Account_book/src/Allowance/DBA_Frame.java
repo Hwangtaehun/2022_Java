@@ -23,21 +23,10 @@ public class DBA_Frame extends JFrame{
 		super("가계부");
 		stuDB = db;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
 		frame = this;
+		NewArray();
 		
-		int num;
-		String sql = "Select * From Manager";
-		num = Countkey(sql);
-		manModel = new String[num];
-		InputData(manModel, sql);
-		
-		sql = "Select * From Connection";
-		num = Countkey(sql);
-		conModel = new String[num];
-		InputData(conModel, sql);
-		
-		sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+		String sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
 			   + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
 		result = stuDB.getResultSet(sql);
 		
@@ -491,18 +480,32 @@ public class DBA_Frame extends JFrame{
 //		System.out.print("\n");
 	}
 	
-	public void comboxSetValueAt(String dataModel[], String name)
+	public void NewArray() 
 	{
-		if(name.equals("con")) {
+		int num;
+		String sql = "Select * From Manager";
+		num = Countkey(sql);
+		manModel = new String[num];
+		InputData(manModel, sql);
+		
+		sql = "Select * From Connection";
+		num = Countkey(sql);
+		conModel = new String[num];
+		InputData(conModel, sql);
+	}
+	
+	public void comboxSetValueAt(String tableName)
+	{
+		if(tableName.equals("Connection")) {
 			conBox.removeAllItems();
-			for (int i = 0; i < dataModel.length; i++) {
-				conBox.addItem(dataModel[i]);
+			for (int i = 0; i < conModel.length; i++) {
+				conBox.addItem(conModel[i]);
 			}
 		}
 		else {
 			manBox.removeAllItems();
-			for (int i = 0; i < dataModel.length; i++) {
-				manBox.addItem(dataModel[i]);
+			for (int i = 0; i < manModel.length; i++) {
+				manBox.addItem(manModel[i]);
 			}
 		}
 	}
@@ -560,8 +563,8 @@ public class DBA_Frame extends JFrame{
 				num = Countkey(sql);
 				dataModel = new String[num + 2];
 				InputData(dataModel, sql);
-				dataModel[num] = "수입 추가";
-				dataModel[num + 1] = "지출 추가";
+				dataModel[num] = "지출 추가";
+				dataModel[num + 1] = "수입 추가";
 				DBA_Dialog mandlg = new DBA_Dialog(stuDB, frame, "Manager", dataModel);
 				mandlg.setVisible(true);
 				break;
@@ -569,11 +572,8 @@ public class DBA_Frame extends JFrame{
 				System.out.println("거래처 테이블을 불러왔습니다.");
 				sql = "Select * From Connection Where conid like '%00'";
 				num = Countkey(sql);
-				dataModel = new String[num + 4];
-				dataModel[num] = "online 추가";
-				dataModel[num + 1] = "offline 추가";
-				dataModel[num + 2] = "country 추가";
-				dataModel[num + 3] = "family 추가";
+				dataModel = new String[num + 1];
+				dataModel[num] = "거래처 구분 추가";
 				InputData(dataModel, sql);
 				DBA_Dialog condlg = new DBA_Dialog(stuDB, frame, "Connection", dataModel);
 				condlg.setVisible(true);

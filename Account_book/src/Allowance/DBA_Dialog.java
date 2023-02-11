@@ -225,6 +225,12 @@ public class DBA_Dialog extends JDialog{
 		int temp = id/10000;
 		String number = Integer.toString(temp);
 		
+		if(select == 2)
+		{
+			number += "__00";
+			return number;
+		}
+		
 		temp = id%10000/1000;
 		number += Integer.toString(temp);
 		
@@ -246,6 +252,11 @@ public class DBA_Dialog extends JDialog{
 			number += "%";
 			return number;
 		}
+		else if(select == 3)
+		{
+			number += "00";
+			return number;
+		}
 		return "error";
 	}
 	
@@ -263,6 +274,52 @@ public class DBA_Dialog extends JDialog{
 		}
 		
 		dataList = new String[2][cnt];
+	}
+	
+	private int InsertId(String define) {
+		int id = 0;
+		String sql, superid;
+		
+		if(define.equals("지출 추가"))
+		{
+			sql = "Select manid From Manager Where manid like '1__00'";
+			id = Lastkey(sql, tableId) + 100;
+		}
+		else if(define.equals("수입 추가"))
+		{
+			sql = "Select manid From Manager Where manid like '2__00'";
+			id = Lastkey(sql, tableId) + 100;
+		}
+		else if(define.equals("거래처 구분 추가"))
+		{
+			sql = "Select conid From Connection Where conid like '%0000'";
+			id = Lastkey(sql, tableId) + 10000;
+		}
+		else if(define.equals("online")||define.equals("offline")||define.equals("country")||define.equals("family"))
+		{
+			sql = "Select * FROM " + tableName + " where title = " + define + " order by id";
+			id = Lastkey(sql, tableId);
+			superid = FindSuper(id, 2);
+			sql = "Select * FROM " + tableName + " where title = " + superid + " order by id";
+			id = Lastkey(sql, tableId) + 100;
+		}
+		else 
+		{
+			sql = "Select * FROM " + tableName + " where title = " + define + " order by id";
+			id = Lastkey(sql, tableId);
+			superid = FindSuper(id, 1);
+			sql = "Select * FROM " + tableName + " where title = " + superid + " order by id";
+			id = Lastkey(sql, tableId) + 1;
+		}
+		return id;
+	}
+	
+	private void comboxSetValueAt()
+	{
+		comboBox.removeAllItems();
+		for (int i = 0; i < dataModel.length; i++) {
+			comboBox.addItem(dataModel[i]);
+		}
 	}
 	
 	class tableListener implements ListSelectionListener{
@@ -312,23 +369,22 @@ public class DBA_Dialog extends JDialog{
 	class addButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String sql, superid;
+			String sql, define;
 			int id;
 			
 			if(tf_Name.getText().isEmpty()) {
 				System.out.println("이름이 입력되지 않았습니다.");
 				return;
 			}
-			sql = "Select * FROM " + tableName + " where = " + comboBox.getSelectedItem().toString() + " order by id";
-			id = Lastkey(sql, tableId);
-			superid = FindSuper(id, 1);
-			sql = "Select * FROM " + tableName + " where = " + superid + " order by id";
-			id = Lastkey(sql, tableId) + 1;
-			sql = " INSERT INTO" + tableName + "VALUES(" + id + "," + tf_Name.getText() + ")";
+			define = comboBox.getSelectedItem().toString();
+			id = InsertId(define);
+			sql = " INSERT INTO " + tableName + " VALUES(" + id + ", '" + tf_Name.getText() + "')";
 			System.out.println(sql);
 			stuDB.Excute(sql);
 			NewArray();
 			LoadList();
+			frame.NewArray();
+			frame.comboxSetValueAt(tableName);
 			setEnabledButton(true);
 		}
 	}
@@ -336,48 +392,52 @@ public class DBA_Dialog extends JDialog{
 	class updateButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String sql, code, title, superid; 
+			String sql, code, define, title, superid; 
 			int id;
 			if(selectedCol == -1) {
 				System.out.println("변경할 셀이 선택되지 않았습니다.");
 				return;
 			}
+			define = comboBox.getSelectedItem().toString();
 			code = table.getValueAt(selectedCol, 0).toString();
 			title = table.getValueAt(selectedCol, 1).toString();
-			if(title.equals(comboBox.getSelectedItem().toString())) {
+			if(title.equals(define)) {
 				id = Integer.parseInt(code);
 			}
 			else {
-				sql = "Select * FROM " + tableName + " where = " + comboBox.getSelectedItem().toString() + " order by id";
-				id = Lastkey(sql, tableId);
-				superid = FindSuper(id, 1);
-				sql = "Select * FROM " + tableName + " where = " + superid + " order by id";
-				id = Lastkey(sql, tableId) + 1;
+				id = InsertId(define);
 			}
-			
-			
-			sql = " UPDATE " + tableName + " SET " + tableId + " = " + id + ", title = " + tf_Name.getText() + " WHERE " + tableId + " = " + code;
+			sql = " UPDATE " + tableName + " SET " + tableId + " = " + id + ", title = '" + tf_Name.getText() + "' WHERE " + tableId + " = " + code;
 			System.out.println(sql);
 			stuDB.Excute(sql);
 			NewArray();
 			LoadList();
+			frame.NewArray();
+			frame.comboxSetValueAt(tableName);
 		}
 	}
 
 	class deleteButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String sql, code;
+			String sql, code, define;
 			if(selectedCol == -1) {
 				System.out.println("삭제할 셀이 선택되지 않았습니다.");
 				return;
 			}
 			code = table.getValueAt(selectedCol, 0).toString();
-			sql = "DELETE FROM" + tableName + "WHERE " + tableId +" = " + code;
+			define = FindSuper(Integer.parseInt(code), 3);
+//			if(code.equals(define)) {
+//				System.out.println("삭제할 수 없습니다.");
+//				return;
+//			}
+			sql = "DELETE FROM " + tableName + " WHERE " + tableId + " = " + code;
 			System.out.println("삭제 쿼리문 확인" + sql);
 			stuDB.Excute(sql);
 			NewArray();
 			LoadList();
+			frame.NewArray();
+			frame.comboxSetValueAt(tableName);
 		}
 	}
 	
@@ -436,16 +496,8 @@ public class DBA_Dialog extends JDialog{
 	class exitButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			stuDB.Close();
-			System.exit(0);
-		}
-	}
-	
-	public void comboxSetValueAt()
-	{
-		comboBox.removeAllItems();
-		for (int i = 0; i < dataModel.length; i++) {
-			comboBox.addItem(dataModel[i]);
+			setVisible(false);
+			dispose();
 		}
 	}
 }
