@@ -14,6 +14,7 @@ public class DBA_Frame extends JFrame{
 	private JTextField tf_Price, tf_Date, tf_Inform;
 	private JButton newBt, addBt, updateBt, deleteBt;
 	private String manModel[], conModel[];
+	private JMenuBar mb;
 	private JComboBox <String> manBox, conBox;
 	
 	public DBA_Frame() {}
@@ -21,14 +22,7 @@ public class DBA_Frame extends JFrame{
 		super();
 		stuDB = db;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		String sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
-				+ "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
-		result = stuDB.getResultSet(sql);
 		
-		initForm();
-	}
-	
-	void initForm() {
 		int num;
 		String sql = "Select * From Manager";
 		num = Countkey(sql);
@@ -40,6 +34,14 @@ public class DBA_Frame extends JFrame{
 		conModel = new String[num];
 		InputData(conModel, sql, "title");
 		
+		sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+			   + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
+		result = stuDB.getResultSet(sql);
+		
+		initForm();
+	}
+	
+	void initForm() {
 		Container cpane = getContentPane();
 		JPanel leftPanel = new JPanel();
 		JPanel centerPanel = new JPanel();
@@ -53,7 +55,7 @@ public class DBA_Frame extends JFrame{
 		gbc.weightx = 1;
 		gbc.weighty = 1;
 		setGrid(gbc, 0, 1, 1, 1);
-		label = new JLabel("     관  리  구  분   ");
+		label = new JLabel("     기  초  자  료   ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 1, 1, 1);
@@ -165,12 +167,25 @@ public class DBA_Frame extends JFrame{
 		JScrollPane scrollPane = new JScrollPane(table);
 		centerPanel.add(scrollPane);
 		
+		mb = new JMenuBar();
+		JMenu addMenu = new JMenu("테이블 추가");
+		JMenuItem[] menuItems = new JMenuItem[2];
+		String[] items = {"기초자료", "거래처"};
+		menuListener act = new menuListener();
+		
+		for(int i=0; i<menuItems.length; i++) {
+            menuItems[i] = new JMenuItem(items[i]); // 메뉴 아이템 컴포넌트 생성
+            menuItems[i].addActionListener(act); // 리스너 등록
+            addMenu.add(menuItems[i]);     
+        }
+		
+		mb.add(addMenu);
+		setJMenuBar(mb);
+		
 		cpane.add("West", leftPanel);
 		cpane.add("Center", centerPanel);
 		pack();
-		
 		LoadList();
-		
 		try {
 			result.first();
 		}catch(SQLException e) {
@@ -250,37 +265,22 @@ public class DBA_Frame extends JFrame{
 		try {
 			while(rs.next()) {
 				num++;
-				if(num != rs.getInt("Banks.bankid"))
+				man_id = rs.getInt("Manager.manid");
+				if(man_id > 20000)
+					tot += rs.getInt("Banks.price");
+				else
+					tot -= rs.getInt("Banks.price");
+				
+				sql = "UPDATE Banks Set balance = " + tot + " where id = " + rs.getString("Banks.id");
+				System.out.println(sql);
+				stuDB.Excute(sql);
+				
+				if(num != rs.getInt("Banks.id"))
 				{
-					man_id = rs.getInt("Manager.manid");
-					if(man_id > 20000)
-						tot += rs.getInt("Banks.price");
-					else
-						tot -= rs.getInt("Banks.price");
-					
-					sql = "UPDATE Banks Set balance = " + tot + " where bankid = " + rs.getString("Banks.bankid");
-					stuDB.Excute(sql);
-					sql = "UPDATE Banks Set bankid = " + num + " where bankid = " + rs.getString("Banks.bankid");
+					sql = "UPDATE Banks Set id = " + num + " where id = " + rs.getString("Banks.id");
+					System.out.println(sql);
 					stuDB.Excute(sql);
 				}
-				tot += rs.getInt("Incomes.deposit");
-				tot += rs.getInt("Expenses.spend");
-				sql = "UPDATE Banks Set balance = " + tot + " where bankid = " + rs.getString("Banks.bankid");
-				stuDB.Excute(sql);
-//				else 
-//				{
-//					if(rs.getInt("Banks.balance") == 0)
-//					{
-//						tot += rs.getInt("Incomes.deposit");
-//						tot += rs.getInt("Expenses.spend");
-//						sql = "UPDATE Banks Set balance = " + tot + " where bankid = " + rs.getString("Banks.bankid");
-//						stuDB.Excute(sql);
-//					}
-//					else 
-//					{
-//						tot = rs.getInt("Banks.balance");
-//					}
-//				}
 			}
 		} catch(SQLException e) {
 			e.printStackTrace();
@@ -334,9 +334,10 @@ public class DBA_Frame extends JFrame{
 	}
 	
 	private int Foreignkey(String table, String title) {
-		String sql  = "Select * FROM " + table + " WHERE bankid = " + title;
+		String sql  = "Select * FROM " + table + " WHERE title = '" + title + "'";
 		int num = 0;
 		
+		System.out.println(sql);
 		ResultSet rs = stuDB.getResultSet(sql);
 		try {
 			rs.next();
@@ -348,6 +349,7 @@ public class DBA_Frame extends JFrame{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println(num);
 		return num;
 	}
 	
@@ -539,11 +541,34 @@ public class DBA_Frame extends JFrame{
 		}
 	}
 	
+	class menuListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			String command = e.getActionCommand();
+			
+			switch(command) {
+			case "기초자료":
+				System.out.println("기초자료 테이블을 불러왔습니다.");
+				DBA_Dialog mandlg = new DBA_Dialog(stuDB, "Manager", manModel);
+				mandlg.setVisible(true);
+				break;
+			case "거래처":
+				System.out.println("거래처 테이블을 불러왔습니다.");
+				DBA_Dialog condlg = new DBA_Dialog(stuDB, "Connection", conModel);
+				condlg.setVisible(true);
+				break;
+			}	
+		}
+	}
+	
 	class newButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			conBox.setSelectedIndex(0);
 			tf_Price.setText(null);
 			tf_Date.setText(null);
+			manBox.setSelectedIndex(0);
 			tf_Inform.setText(null);
 			setEnabledButton(false);
 		}
@@ -552,18 +577,18 @@ public class DBA_Frame extends JFrame{
 	class addButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String sql, check, date;
-			int bankid, manid, conid;
+			String sql, date;
+			int id, manid, conid;
 			
 			if(tf_Price.getText().isEmpty()) {
 				System.out.println("번호기 입력되지 않았습니다.");
 				return;
 			}
-			bankid = Lastkey("Select * FROM Banks order by bankid", "Banks.bankid") + 1;
+			id = Lastkey("Select * FROM Banks order by id", "Banks.id") + 1;
 			manid = Foreignkey("Manager", manBox.getSelectedItem().toString());
 			conid = Foreignkey("Connection", conBox.getSelectedItem().toString());
 			date = CheckDate(tf_Date.getText());
-			sql = " INSERT INTO Banks VALUES(" + bankid + "," + manid + ","+ tf_Price.getText() + "," +"STR_TO_DATE('" + tf_Date.getText() + "','%Y-%m-%d')," + tf_Inform + "," + conid +", null)";
+			sql = " INSERT INTO Banks VALUES(" + id + "," + manid + ","+ tf_Price.getText() + "," +"STR_TO_DATE('" + date + "','%Y-%m-%d'), '" + tf_Inform.getText() + "'," + conid +", null)";
 			System.out.println(sql);
 			stuDB.Excute(sql);
 			
@@ -576,76 +601,20 @@ public class DBA_Frame extends JFrame{
 	class updateButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String sql, code, checkprice, checkkey, key, date;
+			String sql, code, date; 
+			int manid, conid;
 			if(selectedCol == -1) {
 				System.out.println("변경할 셀이 선택되지 않았습니다.");
 				return;
 			}
 			code = table.getValueAt(selectedCol, 0).toString();
-//			key = Foreignkey(code);
-//			checkkey = CheckTable(code);
-//			checkprice = tf_Price.getText();
-//			date = CheckDate(tf_Date.getText());
-//			if(checkkey.equals("Incomes")) //수입
-//			{
-//				if(Integer.parseInt(checkprice) < 0) 
-//				{
-//					int expenseid= Lastkey("Select * FROM Expenses order by expenseid", "Expenses.expenseid") + 1;
-//					
-//					sql = "DELETE FROM Banks WHERE bankid = '" + code + "'";
-//					System.out.println(sql);
-//					stuDB.Excute(sql);
-//					
-//					sql = "DELETE FROM Incomes WHERE incomeid = '" + key + "'";
-//					System.out.println(sql);
-//					stuDB.Excute(sql);
-//					
-//					sql = " INSERT INTO Expenses (expenseid, spend, expensedate, ex_inform) VALUES(" + expenseid + "," + tf_Price.getText() + ","
-//					  + "STR_TO_DATE('" + date + "','%Y-%m-%d'),'" + tf_Inform.getText() + "')";
-//					System.out.println(sql);
-//					stuDB.Excute(sql);
-//					
-//					sql = " INSERT INTO Banks (bankid, expenseid) VALUES(" + code + "," + expenseid + ")";
-//					System.out.println(sql);
-//					stuDB.Excute(sql);
-//				}
-//				else 
-//				{
-//					sql = " UPDATE Incomes SET deposit = "+ tf_Price.getText() + ", incomedate = STR_TO_DATE('" + date + "','%Y-%m-%d')" +", in_inform = '" + tf_Inform.getText() + "' WHERE incomeid =" + key;
-//					System.out.println(sql);
-//					stuDB.Excute(sql);
-//				}
-//			}
-//			else 
-//			{
-//				if(Integer.parseInt(checkprice) > 0) //지출
-//				{
-//					int incomeid = Lastkey("Select * FROM Incomes order by incomeid", "Incomes.incomeid") + 1;
-//					
-//					sql = "DELETE FROM Banks WHERE bankid = '" + code + "'";
-//					System.out.println(sql);
-//					stuDB.Excute(sql);
-//					
-//					sql = "DELETE FROM Expenses WHERE expenseid = '" + key + "'";
-//					System.out.println(sql);
-//					stuDB.Excute(sql);
-//					
-//					sql = " INSERT INTO Incomes (incomeid,  deposit, incomedate, in_inform) VALUES(" + incomeid + "," + tf_Price.getText() + ","
-//					  + "STR_TO_DATE('" + date + "','%Y-%m-%d'),'" + tf_Inform.getText() + "')";
-//					System.out.println(sql);
-//					stuDB.Excute(sql);
-//					
-//					sql = " INSERT INTO Banks (bankid, incomeid) VALUES(" + code + "," + incomeid + ")";
-//					System.out.println(sql);
-//					stuDB.Excute(sql);
-//				}
-//				else
-//				{
-//					sql = " UPDATE Expenses SET spend = "+ tf_Price.getText() + ", expensedate = STR_TO_DATE('" + date + "','%Y-%m-%d')" +", ex_inform = '" + tf_Inform.getText() + "' WHERE expenseid =" + code;
-//					System.out.println(sql);
-//					stuDB.Excute(sql);
-//				}
-//			}
+			date = CheckDate(tf_Date.getText());
+			manid = Foreignkey("Manager", manBox.getSelectedItem().toString());
+			conid = Foreignkey("Connection", conBox.getSelectedItem().toString());
+			
+			sql = " UPDATE Banks SET manid = " + manid + ", price = " + tf_Price.getText() + ", date = STR_TO_DATE('" + date + "','%Y-%m-%d'), inform = '" + tf_Inform.getText() + "', conid = " + conid + " WHERE id =" + code;
+			System.out.println(sql);
+			stuDB.Excute(sql);
 			balance();
 			LoadList();
 		}
@@ -654,28 +623,15 @@ public class DBA_Frame extends JFrame{
 	class deleteButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String sql, code, key, tablename, keyname;
+			String sql, code;
 			if(selectedCol == -1) {
 				System.out.println("삭제할 셀이 선택되지 않았습니다.");
 				return;
 			}
-//			code = table.getValueAt(selectedCol, 0).toString();
-//			key = Foreignkey(code);
-//			tablename = CheckTable(code);
-//			
-//			if(tablename.equals("Incomes"))
-//				keyname = "incomeid";
-//			else
-//				keyname = "expenseid";
-//			
-//			sql = "DELETE FROM Banks WHERE bankid = " + code;
-//			System.out.println("삭제 쿼리문 확인" + sql);
-//			stuDB.Excute(sql);
-//			
-//			sql = "DELETE FROM " + tablename + " WHERE "+ keyname + " = " + key ;
-//			System.out.println("삭제 쿼리문 확인" + sql);
-//			stuDB.Excute(sql);
-			
+			code = table.getValueAt(selectedCol, 0).toString();
+			sql = "DELETE FROM Banks WHERE id = " + code;
+			System.out.println("삭제 쿼리문 확인" + sql);
+			stuDB.Excute(sql);
 			balance();
 			LoadList();
 		}

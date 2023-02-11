@@ -4,18 +4,10 @@ public class testmethod {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String a[] = {"a", "b", "c", "d", "e"};
-		String b[] = {"A", "B", "C", "D", "E"};
-		
-		Array change = new Array();
-		change.Print(a);
-		change.Print(b);
-		
-		change.ArraySort1(a);
-		change.ArraySort2(b);
-		
-		change.Print(a);
-		change.Print(b);
+		int num = 12345;
+		Test test = new Test();
+		String result = test.FindSuperTitle(num);
+		System.out.println(result);
 	}
 
 }
@@ -158,5 +150,23 @@ class Test{
 		    } catch (NumberFormatException ex) {
 		      return false;
 		    }
+	}
+	
+	public String FindSuperTitle(int id)
+	{
+		
+		int temp = id/10000;
+		String number = Integer.toString(temp);
+		
+		temp = id%10000/1000;
+		number += Integer.toString(temp);
+		
+		temp = id%10000%1000/100;
+		number += Integer.toString(temp);
+		
+		number += "00";
+		
+		
+		return number;
 	}
 }
