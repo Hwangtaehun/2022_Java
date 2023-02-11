@@ -6,6 +6,7 @@ import javax.swing.event.*;
 import java.sql.*;
 
 public class DBA_Frame extends JFrame{
+	private DBA_Frame frame;
 	private DBA_DAO stuDB;
 	private DBA_TableMode tablemodel;
 	private ResultSet result;
@@ -19,20 +20,22 @@ public class DBA_Frame extends JFrame{
 	
 	public DBA_Frame() {}
 	public DBA_Frame(DBA_DAO db) {
-		super();
+		super("가계부");
 		stuDB = db;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		frame = this;
 		
 		int num;
 		String sql = "Select * From Manager";
 		num = Countkey(sql);
 		manModel = new String[num];
-		InputData(manModel, sql, "title");
+		InputData(manModel, sql);
 		
 		sql = "Select * From Connection";
 		num = Countkey(sql);
 		conModel = new String[num];
-		InputData(conModel, sql, "title");
+		InputData(conModel, sql);
 		
 		sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
 			   + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
@@ -466,14 +469,14 @@ public class DBA_Frame extends JFrame{
 		    }
 	}
 	
-	private void InputData(String dataModel[], String sql, String id) {
+	private void InputData(String dataModel[], String sql) {
 		int num = 0;
 		ResultSet rs = stuDB.getResultSet(sql);
 		
 		try {
 			while(rs.next())
 			{
-				dataModel[num] = rs.getString(id);
+				dataModel[num] = rs.getString("title");
 				num++;
 			}
 		} catch (SQLException e) {
@@ -546,16 +549,33 @@ public class DBA_Frame extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			String command = e.getActionCommand();
+			String sql;
+			int num;
+			String dataModel[];
 			
 			switch(command) {
 			case "기초자료":
 				System.out.println("기초자료 테이블을 불러왔습니다.");
-				DBA_Dialog mandlg = new DBA_Dialog(stuDB, "Manager", manModel);
+				sql = "Select * From Manager Where manid like '%00'";
+				num = Countkey(sql);
+				dataModel = new String[num + 2];
+				InputData(dataModel, sql);
+				dataModel[num] = "수입 추가";
+				dataModel[num + 1] = "지출 추가";
+				DBA_Dialog mandlg = new DBA_Dialog(stuDB, frame, "Manager", dataModel);
 				mandlg.setVisible(true);
 				break;
 			case "거래처":
 				System.out.println("거래처 테이블을 불러왔습니다.");
-				DBA_Dialog condlg = new DBA_Dialog(stuDB, "Connection", conModel);
+				sql = "Select * From Connection Where conid like '%00'";
+				num = Countkey(sql);
+				dataModel = new String[num + 4];
+				dataModel[num] = "online 추가";
+				dataModel[num + 1] = "offline 추가";
+				dataModel[num + 2] = "country 추가";
+				dataModel[num + 3] = "family 추가";
+				InputData(dataModel, sql);
+				DBA_Dialog condlg = new DBA_Dialog(stuDB, frame, "Connection", dataModel);
 				condlg.setVisible(true);
 				break;
 			}	

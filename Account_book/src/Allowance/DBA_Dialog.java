@@ -10,20 +10,21 @@ public class DBA_Dialog extends JDialog{
 	private DBA_DAO stuDB;
 	private JTable table;
 	private String tableName, tableId;
-	private int dataCount, selectedCol, num;
+	private int dataCount, selectedCol, cnt;
 	private ResultSet result;
-	private JComboBox <String> combobox;
-	private String dataModel[];
+	private JComboBox <String> comboBox;
+	private String dataModel[], dataList[][];
 	private JButton newBt, addBt, updateBt, deleteBt;
 	private JTextField tf_Name;
 	private String titleName;
+	private DBA_Frame frame;
 	
 	public DBA_Dialog() {}
-	public DBA_Dialog(DBA_DAO stuDB, String tableName, String dataModel[]) {
+	public DBA_Dialog(DBA_DAO stuDB, DBA_Frame frame, String tableName, String dataModel[]) {
 		this.stuDB = stuDB;
 		this.tableName = tableName;
 		this.dataModel = dataModel;
-		this.result = result;
+		this.frame = frame;
 		
 		if(tableName.equals("Manager"))
 		{
@@ -35,12 +36,12 @@ public class DBA_Dialog extends JDialog{
 			tableId = "conid";
 			titleName = "거 래 처";
 		}
-		
+		NewArray();
 		initform();
 	}
 	
 	void initform()
-	{
+	{	
 		Container cpane = getContentPane();
 		JPanel leftPanel = new JPanel();
 		JPanel centerPanel = new JPanel();
@@ -58,10 +59,10 @@ public class DBA_Dialog extends JDialog{
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 2, 1, 1);
-		combobox = new JComboBox<String>(new DefaultComboBoxModel<String>(dataModel));
-		combobox.addItemListener(new comboBoxListener());
-		gbl.setConstraints(combobox, gbc);
-		leftPanel.add(combobox);
+		comboBox = new JComboBox<String>(new DefaultComboBoxModel<String>(dataModel));
+		comboBox.addItemListener(new comboBoxListener());
+		gbl.setConstraints(comboBox, gbc);
+		leftPanel.add(comboBox);
 		setGrid(gbc, 0, 4, 1, 1);
 		label = new JLabel("     제  목          ");
 		gbl.setConstraints(label, gbc);
@@ -184,6 +185,9 @@ public class DBA_Dialog extends JDialog{
 		try {
 			for(dataCount = 0; result.next(); dataCount++) {
 				inputTable(dataCount, result.getInt(tableId), result.getString("title"));
+				dataList[0][dataCount] = Integer.toString(result.getInt(tableId));
+				dataList[1][dataCount] = result.getString("title");
+				//System.out.println(dataList[0][dataCount]);
 			}
 			repaint();
 		} catch (SQLException e) {
@@ -193,11 +197,9 @@ public class DBA_Dialog extends JDialog{
 	
 	private void MoveData() {
 		try {
-//			String superid = null;
-//			int id = result.getInt(tableId);
-//			superid = FindSuper(id , 0);
 			String title = result.getString("title");
-			combobox.setSelectedItem(title);
+			String supertitle = FindSuper(result.getInt(tableId), 0);
+			comboBox.setSelectedItem(supertitle);
 			tf_Name.setText(title);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -218,7 +220,7 @@ public class DBA_Dialog extends JDialog{
 		return num;
 	}
 	
-	private String FindSuper(int id, int num)
+	private String FindSuper(int id, int select)
 	{
 		int temp = id/10000;
 		String number = Integer.toString(temp);
@@ -229,29 +231,38 @@ public class DBA_Dialog extends JDialog{
 		temp = id%10000%1000/100;
 		number += Integer.toString(temp);
 		
-		if(num == 0)
+		if(select == 0)
 		{
 			number += "00";
-			
-			String sql = "Select * From " + tableName + " Where " + tableId + " = " + number;
-			System.out.println(sql);
-			ResultSet rs = stuDB.getResultSet(sql);
-			try {
-				rs.next();
-				String title = rs.getString("title");
-				System.out.println(title);
-				return title;
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			for(int i = 0; i < cnt; i++) {				
+				if(dataList[0][i].equals(number))
+				{
+					return dataList[1][i];
+				}
 			}
 		}
-		else if(num == 1)
+		else if(select == 1)
 		{
 			number += "%";
 			return number;
 		}
 		return "error";
+	}
+	
+	private void NewArray() {
+		cnt = 0;
+		String sql = "Select * From " + tableName;
+		ResultSet rs = stuDB.getResultSet(sql);
+		try {
+			while(rs.next()) 
+			{
+				cnt++;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		dataList = new String[2][cnt];
 	}
 	
 	class tableListener implements ListSelectionListener{
@@ -267,7 +278,8 @@ public class DBA_Dialog extends JDialog{
 				if(selectedCol >= dataCount)
 					System.out.println("data is Empty");
 				else {
-					combobox.setSelectedItem(table.getValueAt(selectedCol, 0).toString());
+					String supertitle = FindSuper((int)table.getValueAt(selectedCol, 0), 0);
+					comboBox.setSelectedItem(supertitle);
 					tf_Name.setText(table.getValueAt(selectedCol, 1).toString());
 					try {
 						result.absolute(selectedCol + 1);
@@ -291,7 +303,7 @@ public class DBA_Dialog extends JDialog{
 	class newButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			combobox.setSelectedIndex(0);
+			comboBox.setSelectedIndex(0);
 			tf_Name.setText(null);
 			setEnabledButton(false);
 		}
@@ -307,7 +319,7 @@ public class DBA_Dialog extends JDialog{
 				System.out.println("이름이 입력되지 않았습니다.");
 				return;
 			}
-			sql = "Select * FROM " + tableName + " where = " + combobox.getSelectedItem().toString() + " order by id";
+			sql = "Select * FROM " + tableName + " where = " + comboBox.getSelectedItem().toString() + " order by id";
 			id = Lastkey(sql, tableId);
 			superid = FindSuper(id, 1);
 			sql = "Select * FROM " + tableName + " where = " + superid + " order by id";
@@ -315,6 +327,8 @@ public class DBA_Dialog extends JDialog{
 			sql = " INSERT INTO" + tableName + "VALUES(" + id + "," + tf_Name.getText() + ")";
 			System.out.println(sql);
 			stuDB.Excute(sql);
+			NewArray();
+			LoadList();
 			setEnabledButton(true);
 		}
 	}
@@ -330,11 +344,11 @@ public class DBA_Dialog extends JDialog{
 			}
 			code = table.getValueAt(selectedCol, 0).toString();
 			title = table.getValueAt(selectedCol, 1).toString();
-			if(title.equals(combobox.getSelectedItem().toString())) {
+			if(title.equals(comboBox.getSelectedItem().toString())) {
 				id = Integer.parseInt(code);
 			}
 			else {
-				sql = "Select * FROM " + tableName + " where = " + combobox.getSelectedItem().toString() + " order by id";
+				sql = "Select * FROM " + tableName + " where = " + comboBox.getSelectedItem().toString() + " order by id";
 				id = Lastkey(sql, tableId);
 				superid = FindSuper(id, 1);
 				sql = "Select * FROM " + tableName + " where = " + superid + " order by id";
@@ -345,6 +359,8 @@ public class DBA_Dialog extends JDialog{
 			sql = " UPDATE " + tableName + " SET " + tableId + " = " + id + ", title = " + tf_Name.getText() + " WHERE " + tableId + " = " + code;
 			System.out.println(sql);
 			stuDB.Excute(sql);
+			NewArray();
+			LoadList();
 		}
 	}
 
@@ -360,6 +376,8 @@ public class DBA_Dialog extends JDialog{
 			sql = "DELETE FROM" + tableName + "WHERE " + tableId +" = " + code;
 			System.out.println("삭제 쿼리문 확인" + sql);
 			stuDB.Excute(sql);
+			NewArray();
+			LoadList();
 		}
 	}
 	
@@ -420,6 +438,14 @@ public class DBA_Dialog extends JDialog{
 		public void actionPerformed(ActionEvent e) {
 			stuDB.Close();
 			System.exit(0);
+		}
+	}
+	
+	public void comboxSetValueAt()
+	{
+		comboBox.removeAllItems();
+		for (int i = 0; i < dataModel.length; i++) {
+			comboBox.addItem(dataModel[i]);
 		}
 	}
 }
