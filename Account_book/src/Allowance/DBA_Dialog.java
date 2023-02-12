@@ -18,6 +18,7 @@ public class DBA_Dialog extends JDialog{
 	private JTextField tf_Name;
 	private String titleName;
 	private DBA_Frame frame;
+	private int dataid[];
 	
 	public DBA_Dialog() {}
 	public DBA_Dialog(DBA_DAO stuDB, DBA_Frame frame, String tableName, String dataModel[]) {
@@ -36,6 +37,7 @@ public class DBA_Dialog extends JDialog{
 			tableId = "conid";
 			titleName = "거 래 처";
 		}
+		
 		NewArray();
 		initform();
 	}
@@ -260,6 +262,10 @@ public class DBA_Dialog extends JDialog{
 		return "error";
 	}
 	
+	private void IdSort() {
+		
+	}
+	
 	private void NewArray() {
 		cnt = 0;
 		String sql = "Select * From " + tableName;
@@ -297,25 +303,66 @@ public class DBA_Dialog extends JDialog{
 		}
 		else if(define.equals("online")||define.equals("offline")||define.equals("country")||define.equals("family"))
 		{
-			sql = "Select * FROM " + tableName + " where title = " + define + " order by id";
+			sql = "Select * FROM " + tableName + " WHERE title = '" + define + "' order by " + tableId;
+			System.out.println(sql);
 			id = Lastkey(sql, tableId);
 			superid = FindSuper(id, 2);
-			sql = "Select * FROM " + tableName + " where title = " + superid + " order by id";
+			sql = "Select * FROM " + tableName + " WHERE " + tableId + " like '" + superid + "' order by " + tableId;
+			System.out.println(sql);
 			id = Lastkey(sql, tableId) + 100;
 		}
 		else 
 		{
-			sql = "Select * FROM " + tableName + " where title = " + define + " order by id";
+			sql = "Select * FROM " + tableName + " WHERE title = '" + define + "' order by " + tableId;
+			System.out.println(sql);
 			id = Lastkey(sql, tableId);
 			superid = FindSuper(id, 1);
-			sql = "Select * FROM " + tableName + " where title = " + superid + " order by id";
+			sql = "Select * FROM " + tableName + " WHERE " + tableId + " like '" + superid + "' order by " + tableId;
+			System.out.println(sql);
 			id = Lastkey(sql, tableId) + 1;
 		}
 		return id;
 	}
 	
+	private int Countkey(String sql) {
+		int num = 0;
+		ResultSet rs = stuDB.getResultSet(sql);
+		try {
+			while(rs.next()) 
+			{
+				num++;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return num;
+	}
+	
+	private void InputData(String dataModel[], String sql) {
+		int num = 0;
+		ResultSet rs = stuDB.getResultSet(sql);
+		
+		try {
+			while(rs.next())
+			{
+				dataModel[num] = rs.getString("title");
+				num++;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	private void comboxSetValueAt()
 	{
+		int cnt = 0;
+		String sql = "Select * FROM " + tableName;
+		cnt = Countkey(sql);
+		dataModel = new String[cnt];
+		InputData(dataModel, sql);
+		
 		comboBox.removeAllItems();
 		for (int i = 0; i < dataModel.length; i++) {
 			comboBox.addItem(dataModel[i]);
@@ -383,16 +430,17 @@ public class DBA_Dialog extends JDialog{
 			stuDB.Excute(sql);
 			NewArray();
 			LoadList();
+			comboxSetValueAt();
+			setEnabledButton(true);
 			frame.NewArray();
 			frame.comboxSetValueAt(tableName);
-			setEnabledButton(true);
 		}
 	}
 
 	class updateButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String sql, code, define, title, superid; 
+			String sql, code, define, title, superid, supertitle; 
 			int id;
 			if(selectedCol == -1) {
 				System.out.println("변경할 셀이 선택되지 않았습니다.");
@@ -401,7 +449,9 @@ public class DBA_Dialog extends JDialog{
 			define = comboBox.getSelectedItem().toString();
 			code = table.getValueAt(selectedCol, 0).toString();
 			title = table.getValueAt(selectedCol, 1).toString();
-			if(title.equals(define)) {
+			supertitle = FindSuper(Integer.parseInt(code), 0);
+			
+			if(supertitle.equals(define)) {
 				id = Integer.parseInt(code);
 			}
 			else {
@@ -412,6 +462,7 @@ public class DBA_Dialog extends JDialog{
 			stuDB.Excute(sql);
 			NewArray();
 			LoadList();
+			comboxSetValueAt();
 			frame.NewArray();
 			frame.comboxSetValueAt(tableName);
 		}
@@ -436,6 +487,7 @@ public class DBA_Dialog extends JDialog{
 			stuDB.Excute(sql);
 			NewArray();
 			LoadList();
+			comboxSetValueAt();
 			frame.NewArray();
 			frame.comboxSetValueAt(tableName);
 		}
@@ -496,6 +548,7 @@ public class DBA_Dialog extends JDialog{
 	class exitButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			frame.initialization();
 			setVisible(false);
 			dispose();
 		}

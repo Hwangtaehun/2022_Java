@@ -50,7 +50,7 @@ class DdlTest{
 //			smt.execute("use test");
 //			smt.execute("CREATE TABLE Manager ( manid INTEGER PRIMARY KEY, title VARCHAR(30))");
 //			smt.execute("CREATE TABLE Connection ( conid INTEGER PRIMARY KEY, title VARCHAR(30))");
-//			smt.execute("CREATE TABLE Banks ( id INTEGER PRIMARY KEY, manid INTEGER, price INTEGER, date DATE, inform VARCHAR(50), conid INTEGER, balance  INTEGER, FOREIGN KEY (manid) REFERENCES Manager(manid), FOREIGN KEY (conid) REFERENCES Connection(conid))");
+//			smt.execute("CREATE TABLE Banks ( id INTEGER PRIMARY KEY, manid INTEGER, price INTEGER, date DATE, conid INTEGER, inform VARCHAR(50), balance  INTEGER, FOREIGN KEY (manid) REFERENCES Manager(manid), FOREIGN KEY (conid) REFERENCES Connection(conid))");
 //			printData(rs, 1);
 			
 //			sql = "INSERT INTO Manager VALUES(10100, 'food')";
@@ -181,9 +181,9 @@ class DdlTest{
 //			sql = "INSERT INTO Connection VALUES(40000, 'other people')";
 //			smt.executeUpdate(sql);
 //			
-//			sql = "INSERT INTO Banks VALUES(1, 20100, 50000, STR_TO_DATE('2023-01-01','%Y-%m-%d'), 'bonus money', 40000, 50000)";
+//			sql = "INSERT INTO Banks VALUES(1, 20301, 50000, STR_TO_DATE('2023-01-01','%Y-%m-%d'), 40000, 'bonus money', 50000)";
 //			smt.executeUpdate(sql);
-//			sql = "INSERT INTO Banks VALUES(2, 10602, 1000, STR_TO_DATE('2023-01-02','%Y-%m-%d'), 'rent', 10000, null)";
+//			sql = "INSERT INTO Banks VALUES(2, 10602, 1000, STR_TO_DATE('2023-01-02','%Y-%m-%d'), 10300, 'rent', null)";
 //			smt.executeUpdate(sql);
 			
 			printAllData();
@@ -230,10 +230,23 @@ class DdlTest{
 			con_title = rs.getString("Connection.title");
 			inform = rs.getString("Banks.inform");
 			balance = rs.getInt("Banks.balance");
-			System.out.println("¹øÈ£ " + id + "\t" + "°ü¸®±¸ºÐ " + man_title);
-			System.out.println("±Ý¾× " + price + "\t" + "³¯Â¥ " + date);
-			System.out.println("°Å·¡Ã³ " + con_title + "\t" + "³»¿ë " + inform);
-			System.out.println("ÀÜ°í " + balance);
+			System.out.println("ë²ˆí˜¸ " + id + "\t" + "ê´€ë¦¬êµ¬ë¶„ " + man_title);
+			System.out.println("ê¸ˆì•¡ " + price + "\t" + "ë‚ ì§œ " + date);
+			System.out.println("ê±°ëž˜ì²˜ " + con_title + "\t" + "ë‚´ìš© " + inform);
+			System.out.println("ìž”ê³  " + balance);
+		}
+	}
+	
+	public void findId() throws SQLException{
+		ResultSet rs;
+		int id, price, balance;
+		String sql, man_title, con_title, inform;
+		Date date;
+		sql = "Select * FROM Manager WHERE title like 'bonus'";
+		rs = smt.executeQuery(sql);
+		while(rs.next()) {
+			id = rs.getInt("Manager.manid");
+			inform = rs.getString("Manager.title");
 		}
 	}
 }

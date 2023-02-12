@@ -510,6 +510,19 @@ public class DBA_Frame extends JFrame{
 		}
 	}
 	
+	public void initialization()
+	{
+		String sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+				   + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
+		result = stuDB.getResultSet(sql);
+		try {
+			result.first();
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		MoveData();
+	}
+	
 	class tableListener implements ListSelectionListener{
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
@@ -608,7 +621,7 @@ public class DBA_Frame extends JFrame{
 			manid = Foreignkey("Manager", manBox.getSelectedItem().toString());
 			conid = Foreignkey("Connection", conBox.getSelectedItem().toString());
 			date = CheckDate(tf_Date.getText());
-			sql = " INSERT INTO Banks VALUES(" + id + "," + manid + ","+ tf_Price.getText() + "," +"STR_TO_DATE('" + date + "','%Y-%m-%d'), '" + tf_Inform.getText() + "'," + conid +", null)";
+			sql = " INSERT INTO Banks VALUES(" + id + "," + manid + ","+ tf_Price.getText() + "," +"STR_TO_DATE('" + date + "','%Y-%m-%d'), " + conid + ", '" + tf_Inform.getText() + "', null)";
 			System.out.println(sql);
 			stuDB.Excute(sql);
 			
