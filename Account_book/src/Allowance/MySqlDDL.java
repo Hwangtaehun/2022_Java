@@ -185,6 +185,11 @@ class DdlTest{
 //			smt.executeUpdate(sql);
 //			sql = "INSERT INTO Banks VALUES(2, 10602, 1000, STR_TO_DATE('2023-01-02','%Y-%m-%d'), 10300, 'rent', null)";
 //			smt.executeUpdate(sql);
+//			
+//			sql = "INSERT INTO Manager VALUES(999999, 'null')";
+//			smt.executeUpdate(sql);
+//			sql = "INSERT INTO Connection VALUES(999999, 'null')";
+//			smt.executeUpdate(sql);
 			
 			printAllData();
 			

@@ -221,7 +221,7 @@ public class DBA_Frame extends JFrame{
 		table.setValueAt(null, row, 6);
 	}
 	
-	private void LoadList() {
+	public void LoadList() {
 		String sql;
 		if(sw == 1)
 		{
@@ -258,7 +258,10 @@ public class DBA_Frame extends JFrame{
 			while(rs.next()) {
 				num++;
 				man_id = rs.getInt("Manager.manid");
-				if(man_id > 20000)
+				
+				if(man_id == 999999)
+					tot += 0;
+				else if(man_id > 20000)
 					tot += rs.getInt("Banks.price");
 				else
 					tot -= rs.getInt("Banks.price");
@@ -614,12 +617,19 @@ public class DBA_Frame extends JFrame{
 			int id, manid, conid;
 			
 			if(tf_Price.getText().isEmpty()) {
-				System.out.println("번호기 입력되지 않았습니다.");
+				System.out.println("번호가 입력되지 않았습니다.");
 				return;
 			}
+			
 			id = Lastkey("Select * FROM Banks order by id", "Banks.id") + 1;
 			manid = Foreignkey("Manager", manBox.getSelectedItem().toString());
 			conid = Foreignkey("Connection", conBox.getSelectedItem().toString());
+			
+			if(manid == 999999 || conid == 999999) {
+				System.out.println("'null'은 입력이 불가능합니다.");
+				return;
+			}
+			
 			date = CheckDate(tf_Date.getText());
 			sql = " INSERT INTO Banks VALUES(" + id + "," + manid + ","+ tf_Price.getText() + "," +"STR_TO_DATE('" + date + "','%Y-%m-%d'), " + conid + ", '" + tf_Inform.getText() + "', null)";
 			System.out.println(sql);
@@ -644,6 +654,14 @@ public class DBA_Frame extends JFrame{
 			date = CheckDate(tf_Date.getText());
 			manid = Foreignkey("Manager", manBox.getSelectedItem().toString());
 			conid = Foreignkey("Connection", conBox.getSelectedItem().toString());
+			
+			if(manid == 999999 || conid == 999999) {
+				System.out.println("'null'은 입력이 불가능합니다.");
+				sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+					+ "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
+				result = stuDB.getResultSet(sql);
+				return;
+			}
 			
 			sql = " UPDATE Banks SET manid = " + manid + ", price = " + tf_Price.getText() + ", date = STR_TO_DATE('" + date + "','%Y-%m-%d'), inform = '" + tf_Inform.getText() + "', conid = " + conid + " WHERE id =" + code;
 			System.out.println(sql);

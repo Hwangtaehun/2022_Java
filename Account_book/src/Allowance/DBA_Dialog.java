@@ -18,7 +18,6 @@ public class DBA_Dialog extends JDialog{
 	private JTextField tf_Name;
 	private String titleName;
 	private DBA_Frame frame;
-	private int dataid[];
 	
 	public DBA_Dialog() {}
 	public DBA_Dialog(DBA_DAO stuDB, DBA_Frame frame, String tableName, String dataModel[]) {
@@ -237,6 +236,11 @@ public class DBA_Dialog extends JDialog{
 			number += "0000";
 			return number;
 		}
+		else if(select == 5)
+		{
+			number += "%";
+			return number;
+		}
 		
 		temp = id%10000/1000;
 		number += Integer.toString(temp);
@@ -267,7 +271,7 @@ public class DBA_Dialog extends JDialog{
 		return "error";
 	}
 	
-	private void IdSort() {
+	private void SortID() {
 		int i, j, k;
 		int cnt = 0;
 		int size_frist = 0;
@@ -278,7 +282,7 @@ public class DBA_Dialog extends JDialog{
 		int thrid_temp[] = null;
 		String sql;
 		ResultSet rs;
-		String changeid, originid, secondstring = null, thridstring;
+		String changeid, originid, secondstring = null, thridstring, cntstring;
 		
 		if(tableName.equals("Manager"))
 		{
@@ -329,8 +333,8 @@ public class DBA_Dialog extends JDialog{
 				{
 					secondstring = Integer.toString(second_temp[j]);
 				}
-				sql = "Select " + tableId +" From " + tableName + " Where " + tableId +" like '" 
-					+ first_temp[i] + second_temp[j] +"__'";
+				sql = "Select " + tableId + " From " + tableName + " Where " + tableId +" like '" 
+					+ first_temp[i] + secondstring + "__'";
 				System.out.println(sql);
 				size_thrid = Countkey(sql);
 				thrid_temp = new int[size_second];
@@ -345,12 +349,58 @@ public class DBA_Dialog extends JDialog{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}
-			for(k = 0; k < size_thrid; k++)
-			{
-				if(cnt != thrid_temp[k])
+				for(k = 0; k < size_thrid; k++)
 				{
-					String cntstring;
+					if(cnt != thrid_temp[k])
+					{
+						if(cnt < 10)
+						{
+							cntstring = "0" + Integer.toString(cnt);
+						}
+						else 
+						{
+							cntstring = Integer.toString(cnt);
+						}
+						if(thrid_temp[k] < 10)
+						{
+							thridstring = "0" + Integer.toString(thrid_temp[k]);
+						}
+						else
+						{
+							thridstring = Integer.toString(thrid_temp[k]);
+						}
+						changeid = Integer.toString(first_temp[i]) + secondstring + cntstring;
+						originid = Integer.toString(first_temp[i]) + secondstring + thridstring;
+						sql = "UPDATE " + tableName + " SET " + tableId + " = " + changeid + " WHERE " + tableId + " = " + originid;
+						rs = stuDB.getResultSet(sql);
+					}
+					cnt++;
+				}
+				if(tableName.equals("Manager")) {
+					cnt = 1;
+				}
+				else {
+					cnt = 0;
+				}
+				
+				sql = "Select " + tableId + " From " + tableName + " Where " + tableId +" like '" 
+						+ first_temp[i] + secondstring +"__'";
+				System.out.println(sql);
+				size_thrid = Countkey(sql);
+				thrid_temp = new int[size_second];
+				rs = stuDB.getResultSet(sql);
+				try {
+					for(k = 0; rs.next(); k++)
+					{
+						int temp = rs.getInt(tableId)%100;
+						thrid_temp[k] = temp;
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if(cnt != second_temp[j])
+				{
 					if(cnt < 10)
 					{
 						cntstring = "0" + Integer.toString(cnt);
@@ -359,24 +409,71 @@ public class DBA_Dialog extends JDialog{
 					{
 						cntstring = Integer.toString(cnt);
 					}
-					if(thrid_temp[k] < 10)
+					for(k = 0; k < size_thrid; k++) 
 					{
-						thridstring = "0" + Integer.toString(thrid_temp[k]);
+						if(thrid_temp[k] < 10)
+						{
+							thridstring = "0" + Integer.toString(thrid_temp[k]);
+						}
+						else
+						{
+							thridstring = Integer.toString(thrid_temp[k]);
+						}
+						changeid = Integer.toString(first_temp[i]) + cntstring + thridstring;
+						originid = Integer.toString(first_temp[i]) + secondstring + thridstring;
+						sql = "UPDATE " + tableName + " SET " + tableId + " = " + changeid + " WHERE " + tableId + " = " + originid;
+						rs = stuDB.getResultSet(sql);
 					}
-					else
-					{
-						thridstring = Integer.toString(thrid_temp[k]);
-					}
-					changeid = Integer.toString(first_temp[i]) + secondstring + cntstring;
-					originid = Integer.toString(first_temp[i]) + secondstring + thridstring;
-					sql = "UPDATE " + tableName + " SET " + tableId + " = " + changeid + " WHERE " + tableId + " = " + originid;
-					rs = stuDB.getResultSet(sql);
 				}
 				cnt++;
 			}
+			cnt = 1;
+			sql = "Select " + tableId +" From " + tableName + " Where " + tableId +" like '" + first_temp[i] + "__00'";
+			System.out.println(sql);
+			size_second = Countkey(sql);
+			second_temp = new int[size_second];
+			rs = stuDB.getResultSet(sql);
+			try {
+				for(j = 0; rs.next(); j++)
+				{
+					int temp = rs.getInt(tableId)%10000/100;
+					second_temp[j] = temp;
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(cnt != first_temp[i]) 
+			{
+				cntstring = Integer.toString(cnt);
+				for(j = 0; j < size_second; j++) {
+					if(second_temp[j] < 10)
+					{
+						secondstring = "0" + Integer.toString(second_temp[j]);
+					}
+					else
+					{
+						secondstring = Integer.toString(second_temp[j]);
+					}
+					for(k = 0; k < size_thrid; k++) 
+					{
+						if(thrid_temp[k] < 10)
+						{
+							thridstring = "0" + Integer.toString(thrid_temp[k]);
+						}
+						else
+						{
+							thridstring = Integer.toString(thrid_temp[k]);
+						}
+						changeid = cntstring + secondstring + thridstring;
+						originid = Integer.toString(first_temp[i]) + secondstring + thridstring;
+						sql = "UPDATE " + tableName + " SET " + tableId + " = " + changeid + " WHERE " + tableId + " = " + originid;
+						rs = stuDB.getResultSet(sql);
+					}
+				}
+			}
+			cnt++;
 		}
-		
-		
 	}
 	
 	private void NewArray() {
@@ -452,14 +549,24 @@ public class DBA_Dialog extends JDialog{
 		return num;
 	}
 	
-	private void InputData(String dataModel[], String sql) {
+	private void InputData(String dataModel[], String sql, int selectnum) {
 		int num = 0;
+		String attribut = "error";
 		ResultSet rs = stuDB.getResultSet(sql);
+		
+		if(selectnum == 0)
+		{
+			attribut = "title";
+		}
+		else
+		{
+			attribut = tableId;
+		}
 		
 		try {
 			while(rs.next())
 			{
-				dataModel[num] = rs.getString("title");
+				dataModel[num] = rs.getString(attribut);
 				num++;
 			}
 		} catch (SQLException e) {
@@ -474,7 +581,7 @@ public class DBA_Dialog extends JDialog{
 		String sql = "Select * FROM " + tableName;
 		cnt = Countkey(sql);
 		dataModel = new String[cnt];
-		InputData(dataModel, sql);
+		InputData(dataModel, sql, 0);
 		
 		comboBox.removeAllItems();
 		for (int i = 0; i < dataModel.length; i++) {
@@ -569,45 +676,87 @@ public class DBA_Dialog extends JDialog{
 			else {
 				id = InsertId(define);
 			}
+			sql = " UPDATE Banks SET " + tableId + " = 999999 WHERE " + tableId + " = " + code;
+			System.out.println(sql);
+			stuDB.Excute(sql);
 			sql = " UPDATE " + tableName + " SET " + tableId + " = " + id + ", title = '" + tf_Name.getText() + "' WHERE " + tableId + " = " + code;
 			System.out.println(sql);
 			stuDB.Excute(sql);
+			SortID();
 			NewArray();
 			LoadList();
 			comboxSetValueAt();
 			frame.NewArray();
 			frame.comboxSetValueAt(tableName);
+			frame.LoadList();
 		}
 	}
 
 	class deleteButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String sql, code, define;
+			String sql, code, first_define, second_define, superid;
+			String dataArray[];
+			int size = 0, i = 0;
+			
 			if(selectedCol == -1) {
 				System.out.println("삭제할 셀이 선택되지 않았습니다.");
 				return;
 			}
+			
 			code = table.getValueAt(selectedCol, 0).toString();
-			define = FindSuper(Integer.parseInt(code), 4);
-			if(code.equals(define)) {
-				System.out.println("삭제할 수 없습니다.");
-				return;
+			first_define = FindSuper(Integer.parseInt(code), 4);
+			second_define = FindSuper(Integer.parseInt(code), 3);
+			
+			if(code.equals(first_define)) {
+				superid = FindSuper(Integer.parseInt(code), 5);
+				sql = "Select " + tableId + " FROM " + tableName + " WHERE like '" + superid + "'";
+				size = Countkey(sql);
+				dataArray = new String[size];
+				InputData(dataArray, sql, 1);
+				
+				for(i = 0; i < size; i++)
+				{
+					superid = dataArray[i];
+					sql = "UPDATE Banks SET " + tableId + " = 999999 WHERE " + tableId + " = " + superid;
+					System.out.println(sql);
+					stuDB.Excute(sql);
+					sql = "DELETE FROM " + tableName + " WHERE " + tableId + " = " + superid;
+					System.out.println(sql);
+					stuDB.Excute(sql);
+				}
+			}
+			else if(code.equals(second_define)) {
+				superid = FindSuper(Integer.parseInt(code), 1);
+				sql = "Select " + tableId + " FROM " + tableName + " WHERE like '" + superid + "'";
+				size = Countkey(sql);
+				dataArray = new String[size];
+				InputData(dataArray, sql, 1);
+				
+				for(i = 0; i < size; i++)
+				{
+					superid = dataArray[i];
+					sql = "UPDATE Banks SET " + tableId + " = 999999 WHERE " + tableId + " = " + superid;
+					System.out.println(sql);
+					stuDB.Excute(sql);
+					sql = "DELETE FROM " + tableName + " WHERE " + tableId + " = " + superid;
+					System.out.println(sql);
+					stuDB.Excute(sql);
+				}
+			}
+			else {
+				sql = "DELETE FROM " + tableName + " WHERE " + tableId + " = " + code;
+				System.out.println(sql);
+				stuDB.Excute(sql);
 			}
 			
-			define = FindSuper(Integer.parseInt(code), 3);
-			if(code.equals(define)) {
-				System.out.println("삭제할 수 없습니다.");
-				return;
-			}
-			sql = "DELETE FROM " + tableName + " WHERE " + tableId + " = " + code;
-			System.out.println("삭제 쿼리문 확인" + sql);
-			stuDB.Excute(sql);
+			SortID();
 			NewArray();
 			LoadList();
 			comboxSetValueAt();
 			frame.NewArray();
 			frame.comboxSetValueAt(tableName);
+			frame.LoadList();
 		}
 	}
 	
