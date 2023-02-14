@@ -13,7 +13,7 @@ public class DBA_Dialog extends JDialog{
 	private int dataCount, selectedCol, cnt;
 	private ResultSet result;
 	private JComboBox <String> comboBox;
-	private String dataModel[], dataList[][];
+	private String dataModel[], dataList[][], dataSuperList[];
 	private JButton newBt, addBt, updateBt, deleteBt;
 	private JTextField tf_Name;
 	private String titleName;
@@ -185,10 +185,12 @@ public class DBA_Dialog extends JDialog{
 		}
 		try {
 			for(dataCount = 0; result.next(); dataCount++) {
-				inputTable(dataCount, result.getInt(tableId), result.getString("title"));
-				dataList[0][dataCount] = Integer.toString(result.getInt(tableId));
-				dataList[1][dataCount] = result.getString("title");
-				//System.out.println(dataList[0][dataCount]);
+				if(result.getInt(tableId) != 999999){
+					inputTable(dataCount, result.getInt(tableId), result.getString("title"));
+					dataList[0][dataCount] = Integer.toString(result.getInt(tableId));
+					dataList[1][dataCount] = result.getString("title");
+					//System.out.println(dataList[0][dataCount]);
+				}
 			}
 			repaint();
 		} catch (SQLException e) {
@@ -310,7 +312,7 @@ public class DBA_Dialog extends JDialog{
 		}
 		for(i = 0; i < size_frist; i++) {
 			sql = "Select " + tableId +" From " + tableName + " Where " + tableId +" like '" + first_temp[i] + "__00'";
-			System.out.println(sql);
+			System.out.println("Select i: " + sql);
 			size_second = Countkey(sql);
 			second_temp = new int[size_second];
 			rs = stuDB.getResultSet(sql);
@@ -325,6 +327,9 @@ public class DBA_Dialog extends JDialog{
 				e.printStackTrace();
 			}
 			for(j = 0; j < size_second; j++) {
+				System.out.println(second_temp[j]);
+			}
+			for(j = 0; j < size_second; j++) {
 				if(second_temp[j] < 10)
 				{
 					secondstring = "0" + Integer.toString(second_temp[j]);
@@ -335,7 +340,7 @@ public class DBA_Dialog extends JDialog{
 				}
 				sql = "Select " + tableId + " From " + tableName + " Where " + tableId +" like '" 
 					+ first_temp[i] + secondstring + "__'";
-				System.out.println(sql);
+				System.out.println("Select j: " + sql);
 				size_thrid = Countkey(sql);
 				thrid_temp = new int[size_second];
 				rs = stuDB.getResultSet(sql);
@@ -348,6 +353,13 @@ public class DBA_Dialog extends JDialog{
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				}
+				
+				if(tableName.equals("Manager")) {
+					cnt = 1;
+				}
+				else {
+					cnt = 0;
 				}
 				for(k = 0; k < size_thrid; k++)
 				{
@@ -372,7 +384,8 @@ public class DBA_Dialog extends JDialog{
 						changeid = Integer.toString(first_temp[i]) + secondstring + cntstring;
 						originid = Integer.toString(first_temp[i]) + secondstring + thridstring;
 						sql = "UPDATE " + tableName + " SET " + tableId + " = " + changeid + " WHERE " + tableId + " = " + originid;
-						rs = stuDB.getResultSet(sql);
+						System.out.println("UPDATE j: " + sql);
+						stuDB.Excute(sql);
 					}
 					cnt++;
 				}
@@ -385,9 +398,9 @@ public class DBA_Dialog extends JDialog{
 				
 				sql = "Select " + tableId + " From " + tableName + " Where " + tableId +" like '" 
 						+ first_temp[i] + secondstring +"__'";
-				System.out.println(sql);
+				System.out.println("Select k: " + sql);
 				size_thrid = Countkey(sql);
-				thrid_temp = new int[size_second];
+				thrid_temp = new int[size_thrid];
 				rs = stuDB.getResultSet(sql);
 				try {
 					for(k = 0; rs.next(); k++)
@@ -422,14 +435,15 @@ public class DBA_Dialog extends JDialog{
 						changeid = Integer.toString(first_temp[i]) + cntstring + thridstring;
 						originid = Integer.toString(first_temp[i]) + secondstring + thridstring;
 						sql = "UPDATE " + tableName + " SET " + tableId + " = " + changeid + " WHERE " + tableId + " = " + originid;
-						rs = stuDB.getResultSet(sql);
+						System.out.println("UPDATE k: " + sql);
+						stuDB.Excute(sql);
 					}
 				}
 				cnt++;
 			}
 			cnt = 1;
 			sql = "Select " + tableId +" From " + tableName + " Where " + tableId +" like '" + first_temp[i] + "__00'";
-			System.out.println(sql);
+			System.out.println("Select j-1: " + sql);
 			size_second = Countkey(sql);
 			second_temp = new int[size_second];
 			rs = stuDB.getResultSet(sql);
@@ -468,7 +482,8 @@ public class DBA_Dialog extends JDialog{
 						changeid = cntstring + secondstring + thridstring;
 						originid = Integer.toString(first_temp[i]) + secondstring + thridstring;
 						sql = "UPDATE " + tableName + " SET " + tableId + " = " + changeid + " WHERE " + tableId + " = " + originid;
-						rs = stuDB.getResultSet(sql);
+						System.out.println("Select k-1: " + sql);
+						stuDB.Excute(sql);
 					}
 				}
 			}
@@ -478,6 +493,7 @@ public class DBA_Dialog extends JDialog{
 	
 	private void NewArray() {
 		cnt = 0;
+		int cnt_temp;
 		String sql = "Select * From " + tableName;
 		ResultSet rs = stuDB.getResultSet(sql);
 		try {
@@ -490,6 +506,11 @@ public class DBA_Dialog extends JDialog{
 		}
 		
 		dataList = new String[2][cnt];
+		
+		sql = "Select title From Connection Where conid like '%0000'";
+		cnt_temp = Countkey(sql);
+		dataSuperList = new String[cnt_temp];
+		InputData(dataSuperList, sql, 0);
 	}
 	
 	private int InsertId(String define) {
@@ -511,7 +532,7 @@ public class DBA_Dialog extends JDialog{
 			sql = "Select conid From Connection Where conid like '%0000'";
 			id = Lastkey(sql, tableId) + 10000;
 		}
-		else if(define.equals("online")||define.equals("offline")||define.equals("country")||define.equals("family"))
+		else if(equalTitle(define))
 		{
 			sql = "Select * FROM " + tableName + " WHERE title = '" + define + "' order by " + tableId;
 			System.out.println(sql);
@@ -558,9 +579,14 @@ public class DBA_Dialog extends JDialog{
 		{
 			attribut = "title";
 		}
-		else
+		else if(selectnum == 1)
 		{
 			attribut = tableId;
+		}
+		else
+		{
+			System.out.println("error");
+			return;
 		}
 		
 		try {
@@ -575,18 +601,61 @@ public class DBA_Dialog extends JDialog{
 		}
 	}
 	
+	private void ExtraInputData(String dataModel[], int cnt)
+	{
+		if(tableName.equals("Manager"))
+		{
+			dataModel[cnt - 2] = "지출 추가";
+			dataModel[cnt - 1] = "수입 추가";
+		}
+		else
+		{
+			dataModel[cnt - 1] = "거래처 구분 추가";
+		}
+	}
+	
 	private void comboxSetValueAt()
 	{
 		int cnt = 0;
-		String sql = "Select * FROM " + tableName;
+		String sql = "Select * From " + tableName + " Where " + tableId + " like '%00'";
 		cnt = Countkey(sql);
+		
+		if(tableName.equals("Manager"))
+			cnt += 2;
+		else
+			cnt += 1;
+		
 		dataModel = new String[cnt];
 		InputData(dataModel, sql, 0);
+		ExtraInputData(dataModel, cnt);
 		
 		comboBox.removeAllItems();
 		for (int i = 0; i < dataModel.length; i++) {
 			comboBox.addItem(dataModel[i]);
 		}
+	}
+	
+	private boolean equalTitle(String title) {
+		for(int i = 0; i < dataSuperList.length; i++) {
+			if(dataSuperList[i].equals(title))
+			{
+				System.out.println("내용 확인" + dataSuperList[i]);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private void initialization()
+	{
+		String sql = "Select * FROM " + tableName;
+		result = stuDB.getResultSet(sql);
+		try {
+			result.first();
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		MoveData();
 	}
 	
 	class tableListener implements ListSelectionListener{
@@ -654,6 +723,7 @@ public class DBA_Dialog extends JDialog{
 			setEnabledButton(true);
 			frame.NewArray();
 			frame.comboxSetValueAt(tableName);
+			initialization();
 		}
 	}
 
@@ -689,6 +759,7 @@ public class DBA_Dialog extends JDialog{
 			frame.NewArray();
 			frame.comboxSetValueAt(tableName);
 			frame.LoadList();
+			initialization();
 		}
 	}
 
@@ -710,7 +781,7 @@ public class DBA_Dialog extends JDialog{
 			
 			if(code.equals(first_define)) {
 				superid = FindSuper(Integer.parseInt(code), 5);
-				sql = "Select " + tableId + " FROM " + tableName + " WHERE like '" + superid + "'";
+				sql = "Select " + tableId + " FROM " + tableName + " WHERE like " + superid;
 				size = Countkey(sql);
 				dataArray = new String[size];
 				InputData(dataArray, sql, 1);
@@ -728,7 +799,7 @@ public class DBA_Dialog extends JDialog{
 			}
 			else if(code.equals(second_define)) {
 				superid = FindSuper(Integer.parseInt(code), 1);
-				sql = "Select " + tableId + " FROM " + tableName + " WHERE like '" + superid + "'";
+				sql = "Select " + tableId + " FROM " + tableName + " WHERE like " + superid;
 				size = Countkey(sql);
 				dataArray = new String[size];
 				InputData(dataArray, sql, 1);
@@ -745,6 +816,9 @@ public class DBA_Dialog extends JDialog{
 				}
 			}
 			else {
+				sql = "UPDATE Banks SET " + tableId + " = 999999 WHERE " + tableId + " = " + code;
+				System.out.println(sql);
+				stuDB.Excute(sql);
 				sql = "DELETE FROM " + tableName + " WHERE " + tableId + " = " + code;
 				System.out.println(sql);
 				stuDB.Excute(sql);
@@ -757,6 +831,7 @@ public class DBA_Dialog extends JDialog{
 			frame.NewArray();
 			frame.comboxSetValueAt(tableName);
 			frame.LoadList();
+			initialization();
 		}
 	}
 	
