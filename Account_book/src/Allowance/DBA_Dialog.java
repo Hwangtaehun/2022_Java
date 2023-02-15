@@ -7,34 +7,34 @@ import java.sql.*;
 
 public class DBA_Dialog extends JDialog{
 	private DBA_TableMode tablemodel;
+	private DBA_Frame frame;
 	private DBA_DAO stuDB;
-	private JTable table;
-	private String tableName, tableId;
-	private int dataCount, selectedCol, cnt;
-	private ResultSet result;
 	private JComboBox <String> comboBox;
-	private String dataModel[], dataList[][], dataSuperList[];
 	private JButton newBt, addBt, updateBt, deleteBt;
 	private JTextField tf_Name;
-	private String titleName;
-	private DBA_Frame frame;
+	private JTable table;
+	private String tableName, tableId, titleName;
+	private String dataModel[], dataList[][], dataSuperList[];
+	private int dataCount, selectedCol, cnt;
+	private ResultSet result;
 	
 	public DBA_Dialog() {}
-	public DBA_Dialog(DBA_DAO stuDB, DBA_Frame frame, String tableName, String dataModel[]) {
-		this.stuDB = stuDB;
+	public DBA_Dialog(DBA_Frame frame, String titleName, boolean modal, String tableName, String dataModel[]) {
+		super(frame, titleName, modal);
 		this.tableName = tableName;
 		this.dataModel = dataModel;
 		this.frame = frame;
+		stuDB = new DBA_DAO();
 		
 		if(tableName.equals("Manager"))
 		{
 			tableId = "manid";
-			titleName = "기 초 자 료";
+			this.titleName = "기 초 자 료";
 		}
 		else
 		{
 			tableId = "conid";
-			titleName = "거 래 처";
+			this.titleName = "거 래 처";
 		}
 		
 		NewArray();
@@ -65,7 +65,7 @@ public class DBA_Dialog extends JDialog{
 		gbl.setConstraints(comboBox, gbc);
 		leftPanel.add(comboBox);
 		setGrid(gbc, 0, 4, 1, 1);
-		label = new JLabel("     제  목          ");
+		label = new JLabel("         제  목      ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 4, 1, 1);
@@ -271,224 +271,6 @@ public class DBA_Dialog extends JDialog{
 			return number;
 		}
 		return "error";
-	}
-	
-	private void SortID() {
-		int i, j, k;
-		int cnt = 0;
-		int size_frist = 0;
-		int size_second = 0;
-		int size_thrid = 0;
-		int first_temp[];
-		int second_temp[];
-		int thrid_temp[] = null;
-		String sql;
-		ResultSet rs;
-		String changeid, originid, secondstring = null, thridstring, cntstring;
-		
-		if(tableName.equals("Manager"))
-		{
-			first_temp = new int[2];
-			first_temp[0] = 1;
-			first_temp[1] = 2;
-			size_frist = 2;
-		}
-		else {
-			sql = "Select " + tableId +" From " + tableName + " Where " + tableId +" like '_0000'";
-			System.out.println(sql);
-			size_frist = Countkey(sql);
-			first_temp = new int[size_frist];
-			rs = stuDB.getResultSet(sql);
-			try {
-				for(i = 0; rs.next(); i++)
-				{
-					int temp = rs.getInt(tableId)/10000;
-					first_temp[i] = temp;
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		for(i = 0; i < size_frist; i++) {
-			sql = "Select " + tableId +" From " + tableName + " Where " + tableId +" like '" + first_temp[i] + "__00'";
-			System.out.println("Select i: " + sql);
-			size_second = Countkey(sql);
-			second_temp = new int[size_second];
-			rs = stuDB.getResultSet(sql);
-			try {
-				for(j = 0; rs.next(); j++)
-				{
-					int temp = rs.getInt(tableId)%10000/100;
-					second_temp[j] = temp;
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			for(j = 0; j < size_second; j++) {
-				System.out.println(second_temp[j]);
-			}
-			for(j = 0; j < size_second; j++) {
-				if(second_temp[j] < 10)
-				{
-					secondstring = "0" + Integer.toString(second_temp[j]);
-				}
-				else
-				{
-					secondstring = Integer.toString(second_temp[j]);
-				}
-				sql = "Select " + tableId + " From " + tableName + " Where " + tableId +" like '" 
-					+ first_temp[i] + secondstring + "__'";
-				System.out.println("Select j: " + sql);
-				size_thrid = Countkey(sql);
-				thrid_temp = new int[size_second];
-				rs = stuDB.getResultSet(sql);
-				try {
-					for(k = 0; rs.next(); k++)
-					{
-						int temp = rs.getInt(tableId)%100;
-						thrid_temp[k] = temp;
-					}
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				if(tableName.equals("Manager")) {
-					cnt = 1;
-				}
-				else {
-					cnt = 0;
-				}
-				for(k = 0; k < size_thrid; k++)
-				{
-					if(cnt != thrid_temp[k])
-					{
-						if(cnt < 10)
-						{
-							cntstring = "0" + Integer.toString(cnt);
-						}
-						else 
-						{
-							cntstring = Integer.toString(cnt);
-						}
-						if(thrid_temp[k] < 10)
-						{
-							thridstring = "0" + Integer.toString(thrid_temp[k]);
-						}
-						else
-						{
-							thridstring = Integer.toString(thrid_temp[k]);
-						}
-						changeid = Integer.toString(first_temp[i]) + secondstring + cntstring;
-						originid = Integer.toString(first_temp[i]) + secondstring + thridstring;
-						sql = "UPDATE " + tableName + " SET " + tableId + " = " + changeid + " WHERE " + tableId + " = " + originid;
-						System.out.println("UPDATE j: " + sql);
-						stuDB.Excute(sql);
-					}
-					cnt++;
-				}
-				if(tableName.equals("Manager")) {
-					cnt = 1;
-				}
-				else {
-					cnt = 0;
-				}
-				
-				sql = "Select " + tableId + " From " + tableName + " Where " + tableId +" like '" 
-						+ first_temp[i] + secondstring +"__'";
-				System.out.println("Select k: " + sql);
-				size_thrid = Countkey(sql);
-				thrid_temp = new int[size_thrid];
-				rs = stuDB.getResultSet(sql);
-				try {
-					for(k = 0; rs.next(); k++)
-					{
-						int temp = rs.getInt(tableId)%100;
-						thrid_temp[k] = temp;
-					}
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				if(cnt != second_temp[j])
-				{
-					if(cnt < 10)
-					{
-						cntstring = "0" + Integer.toString(cnt);
-					}
-					else 
-					{
-						cntstring = Integer.toString(cnt);
-					}
-					for(k = 0; k < size_thrid; k++) 
-					{
-						if(thrid_temp[k] < 10)
-						{
-							thridstring = "0" + Integer.toString(thrid_temp[k]);
-						}
-						else
-						{
-							thridstring = Integer.toString(thrid_temp[k]);
-						}
-						changeid = Integer.toString(first_temp[i]) + cntstring + thridstring;
-						originid = Integer.toString(first_temp[i]) + secondstring + thridstring;
-						sql = "UPDATE " + tableName + " SET " + tableId + " = " + changeid + " WHERE " + tableId + " = " + originid;
-						System.out.println("UPDATE k: " + sql);
-						stuDB.Excute(sql);
-					}
-				}
-				cnt++;
-			}
-			cnt = 1;
-			sql = "Select " + tableId +" From " + tableName + " Where " + tableId +" like '" + first_temp[i] + "__00'";
-			System.out.println("Select j-1: " + sql);
-			size_second = Countkey(sql);
-			second_temp = new int[size_second];
-			rs = stuDB.getResultSet(sql);
-			try {
-				for(j = 0; rs.next(); j++)
-				{
-					int temp = rs.getInt(tableId)%10000/100;
-					second_temp[j] = temp;
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if(cnt != first_temp[i]) 
-			{
-				cntstring = Integer.toString(cnt);
-				for(j = 0; j < size_second; j++) {
-					if(second_temp[j] < 10)
-					{
-						secondstring = "0" + Integer.toString(second_temp[j]);
-					}
-					else
-					{
-						secondstring = Integer.toString(second_temp[j]);
-					}
-					for(k = 0; k < size_thrid; k++) 
-					{
-						if(thrid_temp[k] < 10)
-						{
-							thridstring = "0" + Integer.toString(thrid_temp[k]);
-						}
-						else
-						{
-							thridstring = Integer.toString(thrid_temp[k]);
-						}
-						changeid = cntstring + secondstring + thridstring;
-						originid = Integer.toString(first_temp[i]) + secondstring + thridstring;
-						sql = "UPDATE " + tableName + " SET " + tableId + " = " + changeid + " WHERE " + tableId + " = " + originid;
-						System.out.println("Select k-1: " + sql);
-						stuDB.Excute(sql);
-					}
-				}
-			}
-			cnt++;
-		}
 	}
 	
 	private void NewArray() {
@@ -723,6 +505,7 @@ public class DBA_Dialog extends JDialog{
 			setEnabledButton(true);
 			frame.NewArray();
 			frame.comboxSetValueAt(tableName);
+			frame.initialization();
 			initialization();
 		}
 	}
@@ -752,7 +535,6 @@ public class DBA_Dialog extends JDialog{
 			sql = " UPDATE " + tableName + " SET " + tableId + " = " + id + ", title = '" + tf_Name.getText() + "' WHERE " + tableId + " = " + code;
 			System.out.println(sql);
 			stuDB.Excute(sql);
-			SortID();
 			NewArray();
 			LoadList();
 			comboxSetValueAt();
@@ -823,8 +605,6 @@ public class DBA_Dialog extends JDialog{
 				System.out.println(sql);
 				stuDB.Excute(sql);
 			}
-			
-			SortID();
 			NewArray();
 			LoadList();
 			comboxSetValueAt();
@@ -890,7 +670,6 @@ public class DBA_Dialog extends JDialog{
 	class exitButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			frame.initialization();
 			setVisible(false);
 			dispose();
 		}

@@ -16,7 +16,7 @@ public class DBA_Frame extends JFrame{
 	private JButton newBt, addBt, updateBt, deleteBt;
 	private String manModel[], conModel[];
 	private JMenuBar mb;
-	private JComboBox <String> manBox, conBox;
+	public JComboBox <String> manBox, conBox;
 	
 	public DBA_Frame() {}
 	public DBA_Frame(DBA_DAO db) {
@@ -160,15 +160,17 @@ public class DBA_Frame extends JFrame{
 		centerPanel.add(scrollPane);
 		
 		mb = new JMenuBar();
-		JMenu addMenu = new JMenu("테이블 추가");
-		JMenuItem[] menuItems = new JMenuItem[2];
-		String[] items = {"기초자료", "거래처"};
+		JMenu addMenu = new JMenu("매뉴");
+		JMenuItem[] menuItems = new JMenuItem[3];
+		String[] items = {"기초자료", "거래처", "속성별 잔액"};
 		menuListener act = new menuListener();
 		
 		for(int i=0; i<menuItems.length; i++) {
             menuItems[i] = new JMenuItem(items[i]); // 메뉴 아이템 컴포넌트 생성
             menuItems[i].addActionListener(act); // 리스너 등록
             addMenu.add(menuItems[i]);     
+            if(i==1)
+            	addMenu.addSeparator();
         }
 		
 		mb.add(addMenu);
@@ -177,6 +179,7 @@ public class DBA_Frame extends JFrame{
 		cpane.add("West", leftPanel);
 		cpane.add("Center", centerPanel);
 		pack();
+		balance();
 		LoadList();
 		try {
 			result.first();
@@ -221,20 +224,27 @@ public class DBA_Frame extends JFrame{
 		table.setValueAt(null, row, 6);
 	}
 	
-	public void LoadList() {
-		String sql;
+	private String SortSQL() {
+		String sql = null;
 		if(sw == 1)
 		{
-			sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
-			      + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
-				result = stuDB.getResultSet(sql);
+			sql = "Select Banks.id, Manager.manid, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+			      + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid "
+				  + "order by Banks.id";
 		}
 		else
 		{
-			sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
-				   + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
-				result = stuDB.getResultSet(sql);
+			sql = "Select Banks.id, Manager.manid, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+				   + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid "
+				   + "order by Banks.date";
 		}
+		
+		return sql;
+	}
+	
+	public void LoadList() {
+		String sql = SortSQL();
+		result = stuDB.getResultSet(sql);
 		
 		for(int i = 0; i < dataCount; i++) {
 			removeTableRow(i);
@@ -251,12 +261,11 @@ public class DBA_Frame extends JFrame{
 	}
 	
 	private void balance() {
-		int num = 0, tot = 0, man_id =0;
-		String sql = "Select Banks.id, Manager.manid, Banks.price, Banks.balance From Banks left join Manager on Banks.manid = Manager.manid";
+		int tot = 0, man_id =0;
+		String sql = SortSQL();
 		ResultSet rs = stuDB.getResultSet(sql);
 		try {
 			while(rs.next()) {
-				num++;
 				man_id = rs.getInt("Manager.manid");
 				
 				if(man_id == 999999)
@@ -269,13 +278,6 @@ public class DBA_Frame extends JFrame{
 				sql = "UPDATE Banks Set balance = " + tot + " where id = " + rs.getString("Banks.id");
 				System.out.println(sql);
 				stuDB.Excute(sql);
-				
-				if(num != rs.getInt("Banks.id"))
-				{
-					sql = "UPDATE Banks Set id = " + num + " where id = " + rs.getString("Banks.id");
-					System.out.println(sql);
-					stuDB.Excute(sql);
-				}
 			}
 		} catch(SQLException e) {
 			e.printStackTrace();
@@ -348,15 +350,13 @@ public class DBA_Frame extends JFrame{
 		return num;
 	}
 	
-	private String CheckDate(String date) {
-		String year = null, month = null, day = null, fianl = null;
+	private String ConvertDate(String date) {
+		String year = null, month = null, day = null, finish = null;
 		String[] array_word;
-		boolean number = false;
 		int count = date.length();
 		array_word = date.split("");
 		
-		number = ExistNumber(date);
-		if(number) {
+		if(ExistNumber(date)) {
 			if(count == 8)
 			{
 				for(int i = 0; i < 4; i++) {
@@ -397,9 +397,10 @@ public class DBA_Frame extends JFrame{
 						day += array_word[i];
 				}
 			}
-			else {
-				fianl = "error";
-				return fianl;
+			else 
+			{
+				System.out.println("날짜형식이 잘못 되었습니다. 다시한번 확인해보세요.");
+				return "error";
 			}
 		}
 		else {
@@ -443,13 +444,79 @@ public class DBA_Frame extends JFrame{
 						day += array_word[i];
 				}
 			}
-			else {
-				fianl = "error";
-				return fianl;
+			else 
+			{
+				System.out.println("날짜형식이 잘못 되었습니다. 다시한번 확인해보세요.");
+				return "error";
 			}
 		}
-		fianl = year + "-" + month + "-" + day;
-		return fianl;
+		
+		if(!Checkdate(year, month, day))
+		{
+			System.out.println("날짜형식이 잘못 되었습니다.");
+			return "error";
+		}
+			
+		
+		finish = year + "-" + month + "-" + day;
+		return finish;
+	}
+	
+	private boolean leapyearCheck(String str_year) {
+		int year = Integer.parseInt(str_year);
+		if((year / 4 == 0 && year / 100 != 0) || year / 400 == 0) {
+			return true;	
+		}
+		else {
+			return false;
+		}
+	}
+	
+	private boolean Checkdate(String str_year, String str_month, String str_day) {
+		int month = Integer.parseInt(str_month);
+		int day = Integer.parseInt(str_day);
+		if(month >= 1 && month <= 12) {
+			if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+				if(day < 1 || day > 31) 
+				{
+					System.out.println("일부분이 잘못되었습니다. 1~31까지에 있는 숫자를 입력해주세요.");
+					return false;
+				}
+				else
+					return true;
+			}else if(month == 4 || month == 6 || month == 9 || month == 11) {
+				if(day < 1 || day > 30)
+				{
+					System.out.println("일부분이 잘못되었습니다. 1~30까지에 있는 숫자를 입력해주세요.");
+					return false;
+				}
+				else
+					return true;
+			}else if(month == 2) {
+				if(leapyearCheck(str_year)) {
+					if(day < 1 || day > 29)
+					{
+						System.out.println("일부분이 잘못되었습니다. 윤달이므로 1~29까지에 있는 숫자를 입력해주세요.");
+						return false;
+					}
+					else
+						return true;
+				}else if(!leapyearCheck(str_year)){
+					if(day < 1 || day > 28)
+					{
+						System.out.println("일부분이 잘못되었습니다. 평달이므로 1~28까지에 있는 숫자를 입력해주세요.");
+						return false;
+					}
+					else
+						return true;
+				}
+			}
+		}else
+		{
+			System.out.println("달부분이 잘못되었습니다. 1~12까지에 있는 숫자를 입력해주세요.");
+			return false;
+		}
+		return true;
 	}
 	
 	private boolean ExistNumber(String date) {
@@ -515,8 +582,7 @@ public class DBA_Frame extends JFrame{
 	
 	public void initialization()
 	{
-		String sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
-				   + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
+		String sql = SortSQL();
 		result = stuDB.getResultSet(sql);
 		try {
 			result.first();
@@ -574,25 +640,28 @@ public class DBA_Frame extends JFrame{
 			
 			switch(command) {
 			case "기초자료":
-				System.out.println("기초자료 테이블을 불러왔습니다.");
 				sql = "Select * From Manager Where manid like '%00'";
 				num = Countkey(sql);
 				dataModel = new String[num + 2];
 				InputData(dataModel, sql);
 				dataModel[num] = "지출 추가";
 				dataModel[num + 1] = "수입 추가";
-				DBA_Dialog mandlg = new DBA_Dialog(stuDB, frame, "Manager", dataModel);
+				DBA_Dialog mandlg = new DBA_Dialog(frame, command, false, "Manager", dataModel);
 				mandlg.setVisible(true);
 				break;
 			case "거래처":
-				System.out.println("거래처 테이블을 불러왔습니다.");
 				sql = "Select * From Connection Where conid like '%00'";
 				num = Countkey(sql);
 				dataModel = new String[num + 1];
 				dataModel[num] = "거래처 구분 추가";
 				InputData(dataModel, sql);
-				DBA_Dialog condlg = new DBA_Dialog(stuDB, frame, "Connection", dataModel);
+				DBA_Dialog condlg = new DBA_Dialog(frame, command, false, "Connection", dataModel);
 				condlg.setVisible(true);
+				break;
+			case "속성별 잔액":
+				System.out.println("속성별 잔액 대화상자 실행");
+				DBA_Dialog2 balanceDlg = new DBA_Dialog2(frame, command, false);
+				balanceDlg.setVisible(true);
 				break;
 			}	
 		}
@@ -630,7 +699,7 @@ public class DBA_Frame extends JFrame{
 				return;
 			}
 			
-			date = CheckDate(tf_Date.getText());
+			date = ConvertDate(tf_Date.getText());
 			sql = " INSERT INTO Banks VALUES(" + id + "," + manid + ","+ tf_Price.getText() + "," +"STR_TO_DATE('" + date + "','%Y-%m-%d'), " + conid + ", '" + tf_Inform.getText() + "', null)";
 			System.out.println(sql);
 			stuDB.Excute(sql);
@@ -651,7 +720,7 @@ public class DBA_Frame extends JFrame{
 				return;
 			}
 			code = table.getValueAt(selectedCol, 0).toString();
-			date = CheckDate(tf_Date.getText());
+			date = ConvertDate(tf_Date.getText());
 			manid = Foreignkey("Manager", manBox.getSelectedItem().toString());
 			conid = Foreignkey("Connection", conBox.getSelectedItem().toString());
 			
@@ -756,5 +825,3 @@ public class DBA_Frame extends JFrame{
 		}
 	}
 }
-
-
