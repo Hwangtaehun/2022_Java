@@ -6,6 +6,8 @@ import javax.swing.event.*;
 
 import Allowance.DBA_Dialog.comboBoxListener;
 import Allowance.DBA_Dialog.tableListener;
+import Allowance.DBA_Frame.FirstButtonListener;
+import Allowance.DBA_Frame.PreviousButtonListener;
 
 import java.sql.*;
 
@@ -15,35 +17,38 @@ public class DBA_Dialog2 extends JDialog{
 	private DBA_Frame frame;
 	private JComboBox <String> manBox, conBox, yearBox, monthBox, dayBox;
 	private JTable table;
-	private JButton newBt, addBt, updateBt, deleteBt;
+	private JButton searchBt;
 	private JTextField tf_Balance;
-	private String tableName, tableId, titleName;
+	private JCheckBox manchk, conchk, datechk;
+	private String manName, conName;
 	private int dataCount, selectedCol, cnt, year, month, day;
 	private String yearModel[], monthModel[], dayModel[];
+	private boolean manbool, conbool, datebool;
 	private ResultSet result;
 	
 	public DBA_Dialog2() {}
 	public DBA_Dialog2(DBA_Frame frame, String titleName, boolean modal)
 	{
 		super(frame, titleName, modal);
-		manBox = frame.manBox;
-		conBox = frame.conBox;
+		this.frame = frame;
 		stuDB = new DBA_DAO();
+		
 		year = 2023;
 		month = 1;
 		day = 1;
+		manbool = true;
+		conbool = false;
+		datebool = false;
+		
 		yearModel = new String[201];
 		for(int i = 0; i < 201; i++)
 		{
 			yearModel[i] = Integer.toString(i + 1900);
 		}
-		for(int i = 0; i < 201; i++)
-		{
-			System.out.println(yearModel[i]);
-		}
 		
 		initialDate();
 		initform();
+		comboboxSetEnable();
 	}
 	
 	void initform()
@@ -65,6 +70,8 @@ public class DBA_Dialog2 extends JDialog{
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 1, 1, 1);
+		manBox = new JComboBox<String>(new DefaultComboBoxModel<String>(frame.manModel));
+		manBox.addItemListener(new manBoxListener());
 		gbl.setConstraints(manBox, gbc);
 		leftPanel.add(manBox);
 		setGrid(gbc, 0, 2, 1, 1);
@@ -72,44 +79,75 @@ public class DBA_Dialog2 extends JDialog{
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 2, 1, 1);
+		conBox = new JComboBox<String>(new DefaultComboBoxModel<String>(frame.conModel));
+		conBox.addItemListener(new conBoxListener());
 		gbl.setConstraints(conBox, gbc);
 		leftPanel.add(conBox);
-		setGrid(gbc, 1, 3, 1, 1);
-		label = new JLabel("        날  짜         ");
+		setGrid(gbc, 0, 3, 1, 1);
+		label = new JLabel("    날  짜");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
+		setGrid(gbc, 1, 3, 1, 1);
+		manchk = new JCheckBox("기초자료", manbool);
+		manchk.addItemListener(new checkBoxListener());
+		gbl.setConstraints(manchk, gbc);
+		leftPanel.add(manchk);
 		setGrid(gbc, 0, 4, 1, 1);
+		conchk = new JCheckBox("거래처", conbool);
+		conchk.addItemListener(new checkBoxListener());
+		gbl.setConstraints(conchk, gbc);
+		leftPanel.add(conchk);
+		setGrid(gbc, 1, 4, 1, 1);
+		datechk = new JCheckBox("날짜", datebool);
+		datechk.addItemListener(new checkBoxListener());
+		gbl.setConstraints(datechk, gbc);
+		leftPanel.add(datechk);
+		setGrid(gbc, 0, 5, 1, 1);
 		label = new JLabel("        년");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc, 1, 4, 1, 1);
+		setGrid(gbc, 1, 5, 1, 1);
 		yearBox = new JComboBox<String>(new DefaultComboBoxModel<String>(yearModel));
 		yearBox.addItemListener(new yearBoxListener());
 		yearBox.setSelectedItem(year);
 		gbl.setConstraints(yearBox, gbc);
 		leftPanel.add(yearBox);
-		setGrid(gbc, 0, 5, 1, 1);
+		setGrid(gbc, 0, 6, 1, 1);
 		label = new JLabel("        월");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc, 1, 5, 1, 1);
+		setGrid(gbc, 1, 6, 1, 1);
 		monthBox = new JComboBox<String>(new DefaultComboBoxModel<String>(monthModel));
 		monthBox.addItemListener(new yearBoxListener());
 		monthBox.setSelectedItem(month);
 		gbl.setConstraints(monthBox, gbc);
 		leftPanel.add(monthBox);
-		setGrid(gbc, 0, 6, 1, 1);
+		setGrid(gbc, 0, 7, 1, 1);
 		label = new JLabel("        일");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc, 1, 6, 1, 1);
+		setGrid(gbc, 1, 7, 1, 1);
 		dayBox = new JComboBox<String>(new DefaultComboBoxModel<String>(dayModel));
 		dayBox.addItemListener(new yearBoxListener());
 		dayBox.setSelectedItem(day);
 		gbl.setConstraints(dayBox, gbc);
 		leftPanel.add(dayBox);
+		setGrid(gbc, 0, 8, 1, 1);
+		label = new JLabel(" ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc, 0, 9, 1, 1);
+		searchBt = new JButton("검색");
+		searchBt.addActionListener(new searchButtonListener());
+		gbl.setConstraints(searchBt, gbc);
+		leftPanel.add(searchBt);
+		setGrid(gbc, 1, 9, 1, 1);
+		bt = new JButton("종료");
+		bt.addActionListener(new exitButtonListener());
+		gbl.setConstraints(bt, gbc);
+		leftPanel.add(bt);
 		
-		String columnName[] = {"번호", "관리구분", "금액", "날짜", "거래처", "내용", "잔액"};
+		String columnName[] = {"관리구분", "금액", "날짜", "거래처", "내용", "잔액"};
 		tablemodel = new DBA_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
 		
@@ -295,10 +333,42 @@ public class DBA_Dialog2 extends JDialog{
 		}
 	}
 	
+	private void comboboxSetEnable() {
+		manBox.setEnabled(manbool);
+		conBox.setEnabled(conbool);
+		yearBox.setEnabled(datebool);
+		monthBox.setEnabled(datebool);
+		dayBox.setEnabled(datebool);
+	}
+	
+	class manBoxListener implements ItemListener{
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			// TODO Auto-generated method stub
+			if(e.getStateChange() == ItemEvent.SELECTED) {
+				manName = e.getItem().toString();
+			}
+		}
+	}
+	
+	class conBoxListener implements ItemListener{
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			// TODO Auto-generated method stub
+			if(e.getStateChange() == ItemEvent.SELECTED) {
+				conName = e.getItem().toString();
+			}
+		}
+	}
+	
 	class yearBoxListener implements ItemListener{
 		@Override
 		public void itemStateChanged(ItemEvent e) {
 			// TODO Auto-generated method stub
+			if(e.getStateChange() == ItemEvent.SELECTED) {
+				year = Integer.parseInt(e.getItem().toString());
+				initialDate();
+			}
 		}
 	}
 	
@@ -306,6 +376,10 @@ public class DBA_Dialog2 extends JDialog{
 		@Override
 		public void itemStateChanged(ItemEvent e) {
 			// TODO Auto-generated method stub
+			if(e.getStateChange() == ItemEvent.SELECTED) {
+				month = Integer.parseInt(e.getItem().toString());
+				initialDate();
+			}
 		}
 	}
 	
@@ -313,6 +387,67 @@ public class DBA_Dialog2 extends JDialog{
 		@Override
 		public void itemStateChanged(ItemEvent e) {
 			// TODO Auto-generated method stub
+			if(e.getStateChange() == ItemEvent.SELECTED) {
+				day = Integer.parseInt(e.getItem().toString());
+				initialDate();
+			}
+		}
+	}
+	
+	class checkBoxListener implements ItemListener{
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			// TODO Auto-generated method stub
+			if(e.getStateChange() == ItemEvent.SELECTED) {
+				System.out.println(((JCheckBox)e.getSource()).getText() + " 선택됨");
+				String command = ((JCheckBox)e.getSource()).getText();
+				switch(command)
+				{
+				case "기초자료":
+					manbool = true;
+					break;
+				case "거래처":
+					conbool = true;
+					break;
+				case "날짜":
+					datebool = true;
+					break;
+				}
+			}
+			else {
+				System.out.println(((JCheckBox)e.getSource()).getText() + " 해제됨");
+				String command = ((JCheckBox)e.getSource()).getText();
+				switch(command)
+				{
+				case "기초자료":
+					manbool = false;
+					break;
+				case "거래처":
+					conbool = false;
+					break;
+				case "날짜":
+					datebool = false;
+					break;
+				}
+			}
+			comboboxSetEnable();
+		}
+	}
+	
+	class searchButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
+	class exitButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			setVisible(false);
+			dispose();
 		}
 	}
 }

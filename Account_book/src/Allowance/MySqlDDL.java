@@ -13,13 +13,13 @@ class DdlTest{
 	Statement smt;
 	
 	public DdlTest() {
-		String url = "jdbc:mysql://192.168.1.30:3306/testdb";
-		//String url = "jdbc:mysql://localhost:3306/madang";
+		//String url = "jdbc:mysql://192.168.1.30:3306/testdb";
+		String url = "jdbc:mysql://localhost:3306/madang";
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			con = DriverManager.getConnection(url, "sj002", "sj4321"); 
-			//con = DriverManager.getConnection(url, "madang", "madang"); 
+			//con = DriverManager.getConnection(url, "sj002", "sj4321"); 
+			con = DriverManager.getConnection(url, "madang", "madang"); 
 			smt = con.createStatement();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block

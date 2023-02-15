@@ -14,9 +14,9 @@ public class DBA_Frame extends JFrame{
 	private int dataCount, selectedCol, sw = 1;
 	private JTextField tf_Price, tf_Date, tf_Inform;
 	private JButton newBt, addBt, updateBt, deleteBt;
-	private String manModel[], conModel[];
+	public String manModel[], conModel[];
 	private JMenuBar mb;
-	public JComboBox <String> manBox, conBox;
+	private JComboBox <String> manBox, conBox;
 	
 	public DBA_Frame() {}
 	public DBA_Frame(DBA_DAO db) {
