@@ -63,7 +63,7 @@ INSERT INTO Manager VALUES(10700, 'tax');
 INSERT INTO Manager VALUES(10800, 'insurance');
 INSERT INTO Manager VALUES(10801, 'actual insurance');
 INSERT INTO Manager VALUES(10802, 'whole life insurance');
-INSERT INTO Manager VALUES(10800, 'cancer insurance');
+INSERT INTO Manager VALUES(10803, 'cancer insurance');
 INSERT INTO Manager VALUES(10900, 'raise');
 INSERT INTO Manager VALUES(10901, 'guide');
 INSERT INTO Manager VALUES(10902, 'raise hospital');
@@ -77,13 +77,15 @@ INSERT INTO Manager VALUES(20200, 'insurance payback');
 INSERT INTO Manager VALUES(20300, 'bonus');
 INSERT INTO Manager VALUES(20301, 'allowance');
 INSERT INTO Manager VALUES(20302, 'company bonus');
+INSERT INTO Manager VALUES(999999, 'null');
 
 INSERT INTO Connection VALUES(10000, 'online');
 INSERT INTO Connection VALUES(10100, 'openmarket');
 INSERT INTO Connection VALUES(10200, 'socialcommerce');
-INSERT INTO Connection VALUES(10300, 'secondhand');
-INSERT INTO Connection VALUES(10400, 'online synthesis mall');
-INSERT INTO Connection VALUES(10500, 'online wholesale');
+INSERT INTO Connection VALUES(10300, 'portal site');
+INSERT INTO Connection VALUES(10400, 'secondhand');
+INSERT INTO Connection VALUES(10500, 'online synthesis mall');
+INSERT INTO Connection VALUES(10600, 'online wholesale');
 INSERT INTO Connection VALUES(20000, 'offline');
 INSERT INTO Connection VALUES(20100, 'wholesale');
 INSERT INTO Connection VALUES(20200, 'retailsales');
@@ -94,6 +96,7 @@ INSERT INTO Connection VALUES(30000, 'country');
 INSERT INTO Connection VALUES(30100, 'national');
 INSERT INTO Connection VALUES(30200, 'local');
 INSERT INTO Connection VALUES(40000, 'family');
+INSERT INTO Connection VALUES(999999, 'null');
 
-INSERT INTO Banks VALUES(1, 20100, 50000, STR_TO_DATE('2023-01-01','%Y-%m-%d'), 40000, 'bonus money', null)
-INSERT INTO Banks VALUES(2, 10602, 1000, STR_TO_DATE('2023-01-02','%Y-%m-%d'), 10000, 'rent', null);
+INSERT INTO Banks VALUES(1, 20301, 50000, STR_TO_DATE('2023-01-01','%Y-%m-%d'), 40000, 'bonus money', 50000);
+INSERT INTO Banks VALUES(2, 10602, 1000, STR_TO_DATE('2023-01-02','%Y-%m-%d'), 10300, 'rent', null);
