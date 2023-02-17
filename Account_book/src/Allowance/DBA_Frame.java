@@ -160,20 +160,32 @@ public class DBA_Frame extends JFrame{
 		centerPanel.add(scrollPane);
 		
 		mb = new JMenuBar();
-		JMenu addMenu = new JMenu("매뉴");
-		JMenuItem[] menuItems = new JMenuItem[3];
-		String[] items = {"기초자료", "거래처", "속성별 잔액"};
+		JMenu addMenu = new JMenu("추가");
+		JMenuItem[] menuItems = new JMenuItem[2];
+		String[] items = {"기초자료 추가", "거래처 추가"};
 		menuListener act = new menuListener();
 		
 		for(int i=0; i<menuItems.length; i++) {
             menuItems[i] = new JMenuItem(items[i]); // 메뉴 아이템 컴포넌트 생성
             menuItems[i].addActionListener(act); // 리스너 등록
             addMenu.add(menuItems[i]);     
-            if(i==1)
-            	addMenu.addSeparator();
+        }
+		
+		JMenu sortMenu = new JMenu("검색");
+		menuItems = new JMenuItem[3];
+		items = new String[3];
+		items[0] = "기초자료 검색";
+		items[1] = "거래처 검색";
+		items[2] = "날짜 검색";
+		
+		for(int i=0; i<menuItems.length; i++) {
+            menuItems[i] = new JMenuItem(items[i]);
+            menuItems[i].addActionListener(act);
+            sortMenu.add(menuItems[i]);     
         }
 		
 		mb.add(addMenu);
+		mb.add(sortMenu);
 		setJMenuBar(mb);
 		
 		cpane.add("West", leftPanel);
@@ -639,29 +651,35 @@ public class DBA_Frame extends JFrame{
 			String dataModel[];
 			
 			switch(command) {
-			case "기초자료":
+			case "기초자료 추가":
 				sql = "Select * From Manager Where manid like '%00'";
 				num = Countkey(sql);
 				dataModel = new String[num + 2];
 				InputData(dataModel, sql);
 				dataModel[num] = "지출 추가";
 				dataModel[num + 1] = "수입 추가";
-				DBA_Dialog mandlg = new DBA_Dialog(frame, command, false, "Manager", dataModel);
-				mandlg.setVisible(true);
+				DBA_Dialog manadd_dlg = new DBA_Dialog(frame, command, false, "Manager", dataModel);
+				manadd_dlg.setVisible(true);
 				break;
-			case "거래처":
+			case "거래처 추가":
 				sql = "Select * From Connection Where conid like '%00'";
 				num = Countkey(sql);
 				dataModel = new String[num + 1];
 				dataModel[num] = "거래처 구분 추가";
 				InputData(dataModel, sql);
-				DBA_Dialog condlg = new DBA_Dialog(frame, command, false, "Connection", dataModel);
-				condlg.setVisible(true);
+				DBA_Dialog conadd_dlg = new DBA_Dialog(frame, command, false, "Connection", dataModel);
+				conadd_dlg.setVisible(true);
 				break;
-			case "속성별 잔액":
-				System.out.println("속성별 잔액 대화상자 실행");
-				DBA_Dialog2 balanceDlg = new DBA_Dialog2(frame, command, false);
-				balanceDlg.setVisible(true);
+			case "기초자료 검색":
+				System.out.println("기초자료 검색 대화상자 실행");
+				DBA_Dialog2 mansearch_Dlg = new DBA_Dialog2(frame, command, false);
+				mansearch_Dlg.setVisible(true);
+				break;
+			case "거래처 검색":
+				System.out.println("거래처 검색 대화상자 실행");
+				break;
+			case "날짜 검색":
+				System.out.println("날짜 검색 대화상자 실행");
 				break;
 			}	
 		}
