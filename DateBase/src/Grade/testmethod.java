@@ -4,41 +4,32 @@ public class testmethod {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		int num = 12345;
-		Test test = new Test();
-		String result = test.FindSuperTitle(num);
-		System.out.println(result);
+		String date = "2023-01-02";
+		Array array = new Array();
+		array.dateSeparate(date);
 	}
 
 }
 
 class Array{
+	private int year, month, day;
+	
 	public Array() {}
 	
-	public void ArraySort1(String data[]) {
-		int num = 1;
-		for(int i = 0; i < 5; i++)
-		{
-			data[i] = Integer.toString(num);
-			num++;
+	public void dateSeparate(String date) {
+		String date_array[] = date.split("-");
+		
+		for(int i = 0; i < date_array.length; i++) {
+			System.out.println(date_array[i]);
 		}
-	}
-	
-	public void ArraySort2(String data[]) {
-		int num = 5;
-		for(int i = 0; i < 5; i++)
-		{
-			data[i] = Integer.toString(num);
-			num--;
-		}
-	}
-	
-	public void Print(String data[]) {
-		for(int i = 0; i < 5; i++)
-		{
-			System.out.print(data[i] + " ");
-		}
-		System.out.print("\n");
+		
+		year = Integer.parseInt(date_array[0]);
+		month = Integer.parseInt(date_array[1]);
+		day = Integer.parseInt(date_array[2]);
+		
+		System.out.println(year);
+		System.out.println(month);
+		System.out.println(day);
 	}
 }
 

@@ -3,6 +3,10 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
+
+import Allowance.DBA_Frame.comboBoxListener;
+import Allowance.DBA_Frame.tableListener;
+
 import java.sql.*;
 import java.time.*;
 
@@ -15,10 +19,10 @@ public class DBA_Dialog2 extends JDialog{
 	private JButton searchBt, updateBt, deleteBt;
 	private JTextField tf_Price, tf_Date, tf_Inform;
 	private JCheckBox manchk, conchk, datechk;
-	private String manName, conName, mainSQL, tableName, tableID;
+	private String manName, conName, dlgName, mainSQL;
 	private int dataCount, selectedCol, cnt, year, month, day;
 	private String yearModel[], monthModel[], dayModel[];
-	private boolean yearbool, monthbool, daybool;
+	private boolean monthbool, daybool;
 	private ResultSet result;
 	
 	public DBA_Dialog2() {}
@@ -32,19 +36,32 @@ public class DBA_Dialog2 extends JDialog{
 		year = now.getYear();
 		month = now.getMonthValue();
 		day = now.getDayOfMonth();
-		yearbool = true;
-		monthbool = true;
-		daybool = true;
+		monthbool = false;
+		daybool = false;
 		
 		yearModel = new String[201];
 		for(int i = 0; i < 201; i++)
 		{
 			yearModel[i] = Integer.toString(i + 1900);
 		}
-		
 		initialDate();
-		initform_man();
-		comboboxSetEnable();
+		
+		mainSQL = "Select Banks.id, Manager.manid, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+				   + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid "
+				   + "order by Banks.date";
+		
+		if(titleName.equals("기초자료 검색")) {
+			dlgName = "man";
+			initform_man();
+		}
+		else if(titleName.equals("거래처 검색")) {
+			dlgName = "con";
+			initform_con();
+		}
+		else if(titleName.equals("날짜 검색")) {
+			dlgName = "date";
+			initform_date();	
+		}
 	}
 	
 	void initform_man()
@@ -52,13 +69,6 @@ public class DBA_Dialog2 extends JDialog{
 		Container cpane = getContentPane();
 		JPanel leftPanel = new JPanel();
 		JPanel centerPanel = new JPanel();
-		JPanel manPanel = new JPanel();
-		JPanel conPanel = new JPanel();
-		JPanel checkPanel = new JPanel();
-		JPanel datePanel = new JPanel();
-		JPanel yearPanel = new JPanel();
-		JPanel monthPanel = new JPanel();
-		JPanel dayPanel = new JPanel();
 		JLabel label;
 		JButton bt;
 		selectedCol = -1;
@@ -78,54 +88,38 @@ public class DBA_Dialog2 extends JDialog{
 		gbl.setConstraints(manBox, gbc);
 		leftPanel.add(manBox);
 		setGrid(gbc, 0, 2, 1, 1);
-		label = new JLabel("     거  래  처     ");
+		label = new JLabel("     금  액         ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 2, 1, 1);
+		tf_Price = new JTextField(10);
+		gbl.setConstraints(tf_Price, gbc);
+		leftPanel.add(tf_Price);
+		setGrid(gbc, 0, 3, 1, 1);
+		label = new JLabel("     날  짜         ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc, 1, 3, 1, 1);
+		tf_Date = new JTextField(5);
+		gbl.setConstraints(tf_Date, gbc);
+		leftPanel.add(tf_Date);
+		setGrid(gbc, 0, 4, 1, 1);
+		label = new JLabel("     거  래  처     ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc, 1, 4, 1, 1);
 		conBox = new JComboBox<String>(new DefaultComboBoxModel<String>(frame.conModel));
 		conBox.addItemListener(new conBoxListener());
 		gbl.setConstraints(conBox, gbc);
 		leftPanel.add(conBox);
-		setGrid(gbc, 1, 3, 1, 1);
-		manchk = new JCheckBox("기초자료", yearbool);
-		manchk.addItemListener(new checkBoxListener());
-		checkPanel.add("West", manchk);
-		conchk = new JCheckBox("거래처", monthbool);
-		conchk.addItemListener(new checkBoxListener());
-		checkPanel.add("Center", conchk);
-		datechk = new JCheckBox("날짜", daybool);
-		datechk.addItemListener(new checkBoxListener());
-		checkPanel.add("East", datechk);
-		gbl.setConstraints(checkPanel, gbc);
-		leftPanel.add(checkPanel);
-		setGrid(gbc, 0, 4, 1, 1);
-		label = new JLabel("         날  짜");
+		setGrid(gbc, 0, 5, 1, 1);
+		label = new JLabel("     내  용          ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc, 1, 4, 1, 1);
-		label = new JLabel("년");
-		yearPanel.add("West", label);
-		yearBox = new JComboBox<String>(new DefaultComboBoxModel<String>(yearModel));
-		yearBox.addItemListener(new yearBoxListener());
-		yearBox.setSelectedItem(Integer.toString(year));
-		yearPanel.add("East", yearBox);
-		label = new JLabel("월");
-		monthPanel.add("West", label);
-		monthBox = new JComboBox<String>(new DefaultComboBoxModel<String>(monthModel));
-		monthBox.addItemListener(new yearBoxListener());
-		monthBox.setSelectedItem(Integer.toString(month));
-		monthPanel.add("Esat", monthBox);
-		label = new JLabel("일");
-		dayPanel.add("West", label);
-		dayBox = new JComboBox<String>(new DefaultComboBoxModel<String>(dayModel));
-		dayBox.addItemListener(new yearBoxListener());
-		dayBox.setSelectedItem(Integer.toString(day));
-		dayPanel.add("East", dayBox);
-		datePanel.add("West", yearPanel);
-		datePanel.add("Center", monthPanel);
-		datePanel.add("East", dayPanel);
-		gbl.setConstraints(datePanel, gbc);
-		leftPanel.add(datePanel);
+		setGrid(gbc, 1, 5, 1, 1);
+		tf_Inform = new JTextField(5);
+		gbl.setConstraints(tf_Inform, gbc);
+		leftPanel.add(tf_Inform);
 		setGrid(gbc, 0, 7, 1, 1);
 		label = new JLabel(" ");
 		gbl.setConstraints(label, gbc);
@@ -161,6 +155,7 @@ public class DBA_Dialog2 extends JDialog{
 		table = new JTable(tablemodel);
 		
 		table.setPreferredScrollableViewportSize(new Dimension(530, 14*16));
+		table.getSelectionModel().addListSelectionListener(new tableListener());
 		JScrollPane scrollPane = new JScrollPane(table);
 		centerPanel.add(scrollPane);
 		
@@ -173,6 +168,7 @@ public class DBA_Dialog2 extends JDialog{
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}
+		MoveData();
 	}
 	
 	void initform_con()
@@ -180,13 +176,6 @@ public class DBA_Dialog2 extends JDialog{
 		Container cpane = getContentPane();
 		JPanel leftPanel = new JPanel();
 		JPanel centerPanel = new JPanel();
-		JPanel manPanel = new JPanel();
-		JPanel conPanel = new JPanel();
-		JPanel checkPanel = new JPanel();
-		JPanel datePanel = new JPanel();
-		JPanel yearPanel = new JPanel();
-		JPanel monthPanel = new JPanel();
-		JPanel dayPanel = new JPanel();
 		JLabel label;
 		JButton bt;
 		selectedCol = -1;
@@ -197,63 +186,47 @@ public class DBA_Dialog2 extends JDialog{
 		gbc.weightx = 1;
 		gbc.weighty = 1;
 		setGrid(gbc, 0, 0, 1, 1);
-		label = new JLabel("     기  초  자  료   ");
-		gbl.setConstraints(label, gbc);
-		leftPanel.add(label);
-		setGrid(gbc, 1, 0, 1, 1);
-		manBox = new JComboBox<String>(new DefaultComboBoxModel<String>(frame.manModel));
-		manBox.addItemListener(new manBoxListener());
-		gbl.setConstraints(manBox, gbc);
-		leftPanel.add(manBox);
-		setGrid(gbc, 0, 2, 1, 1);
 		label = new JLabel("     거  래  처     ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc, 1, 2, 1, 1);
+		setGrid(gbc, 1, 0, 1, 1);
 		conBox = new JComboBox<String>(new DefaultComboBoxModel<String>(frame.conModel));
 		conBox.addItemListener(new conBoxListener());
 		gbl.setConstraints(conBox, gbc);
 		leftPanel.add(conBox);
+		setGrid(gbc, 0, 2, 1, 1);
+		label = new JLabel("     금  액         ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc, 1, 2, 1, 1);
+		tf_Price = new JTextField(10);
+		gbl.setConstraints(tf_Price, gbc);
+		leftPanel.add(tf_Price);
+		setGrid(gbc, 0, 3, 1, 1);
+		label = new JLabel("     날  짜         ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
 		setGrid(gbc, 1, 3, 1, 1);
-		manchk = new JCheckBox("기초자료", yearbool);
-		manchk.addItemListener(new checkBoxListener());
-		checkPanel.add("West", manchk);
-		conchk = new JCheckBox("거래처", monthbool);
-		conchk.addItemListener(new checkBoxListener());
-		checkPanel.add("Center", conchk);
-		datechk = new JCheckBox("날짜", daybool);
-		datechk.addItemListener(new checkBoxListener());
-		checkPanel.add("East", datechk);
-		gbl.setConstraints(checkPanel, gbc);
-		leftPanel.add(checkPanel);
+		tf_Date = new JTextField(5);
+		gbl.setConstraints(tf_Date, gbc);
+		leftPanel.add(tf_Date);
 		setGrid(gbc, 0, 4, 1, 1);
-		label = new JLabel("         날  짜");
+		label = new JLabel("     기  초  자  료   ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 4, 1, 1);
-		label = new JLabel("년");
-		yearPanel.add("West", label);
-		yearBox = new JComboBox<String>(new DefaultComboBoxModel<String>(yearModel));
-		yearBox.addItemListener(new yearBoxListener());
-		yearBox.setSelectedItem(Integer.toString(year));
-		yearPanel.add("East", yearBox);
-		label = new JLabel("월");
-		monthPanel.add("West", label);
-		monthBox = new JComboBox<String>(new DefaultComboBoxModel<String>(monthModel));
-		monthBox.addItemListener(new yearBoxListener());
-		monthBox.setSelectedItem(Integer.toString(month));
-		monthPanel.add("Esat", monthBox);
-		label = new JLabel("일");
-		dayPanel.add("West", label);
-		dayBox = new JComboBox<String>(new DefaultComboBoxModel<String>(dayModel));
-		dayBox.addItemListener(new yearBoxListener());
-		dayBox.setSelectedItem(Integer.toString(day));
-		dayPanel.add("East", dayBox);
-		datePanel.add("West", yearPanel);
-		datePanel.add("Center", monthPanel);
-		datePanel.add("East", dayPanel);
-		gbl.setConstraints(datePanel, gbc);
-		leftPanel.add(datePanel);
+		manBox = new JComboBox<String>(new DefaultComboBoxModel<String>(frame.manModel));
+		manBox.addItemListener(new manBoxListener());
+		gbl.setConstraints(manBox, gbc);
+		leftPanel.add(manBox);
+		setGrid(gbc, 0, 5, 1, 1);
+		label = new JLabel("     내  용          ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc, 1, 5, 1, 1);
+		tf_Inform = new JTextField(5);
+		gbl.setConstraints(tf_Inform, gbc);
+		leftPanel.add(tf_Inform);
 		setGrid(gbc, 0, 7, 1, 1);
 		label = new JLabel(" ");
 		gbl.setConstraints(label, gbc);
@@ -289,6 +262,7 @@ public class DBA_Dialog2 extends JDialog{
 		table = new JTable(tablemodel);
 		
 		table.setPreferredScrollableViewportSize(new Dimension(530, 14*16));
+		table.getSelectionModel().addListSelectionListener(new tableListener());
 		JScrollPane scrollPane = new JScrollPane(table);
 		centerPanel.add(scrollPane);
 		
@@ -301,6 +275,7 @@ public class DBA_Dialog2 extends JDialog{
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}
+		MoveData();
 	}
 	
 	void initform_date()
@@ -308,8 +283,6 @@ public class DBA_Dialog2 extends JDialog{
 		Container cpane = getContentPane();
 		JPanel leftPanel = new JPanel();
 		JPanel centerPanel = new JPanel();
-		JPanel manPanel = new JPanel();
-		JPanel conPanel = new JPanel();
 		JPanel checkPanel = new JPanel();
 		JPanel datePanel = new JPanel();
 		JPanel yearPanel = new JPanel();
@@ -325,40 +298,23 @@ public class DBA_Dialog2 extends JDialog{
 		gbc.weightx = 1;
 		gbc.weighty = 1;
 		setGrid(gbc, 0, 0, 1, 1);
-		label = new JLabel("     기  초  자  료   ");
+		label = new JLabel("         날  짜  선  택");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 0, 1, 1);
-		manBox = new JComboBox<String>(new DefaultComboBoxModel<String>(frame.manModel));
-		manBox.addItemListener(new manBoxListener());
-		gbl.setConstraints(manBox, gbc);
-		leftPanel.add(manBox);
-		setGrid(gbc, 0, 2, 1, 1);
-		label = new JLabel("     거  래  처     ");
-		gbl.setConstraints(label, gbc);
-		leftPanel.add(label);
-		setGrid(gbc, 1, 2, 1, 1);
-		conBox = new JComboBox<String>(new DefaultComboBoxModel<String>(frame.conModel));
-		conBox.addItemListener(new conBoxListener());
-		gbl.setConstraints(conBox, gbc);
-		leftPanel.add(conBox);
-		setGrid(gbc, 1, 3, 1, 1);
-		manchk = new JCheckBox("년", yearbool);
-		manchk.addItemListener(new checkBoxListener());
-		checkPanel.add("West", manchk);
-		conchk = new JCheckBox("일", monthbool);
+		conchk = new JCheckBox("월", monthbool);
 		conchk.addItemListener(new checkBoxListener());
-		checkPanel.add("Center", conchk);
-		datechk = new JCheckBox("월", daybool);
+		checkPanel.add("West", conchk);
+		datechk = new JCheckBox("일", daybool);
 		datechk.addItemListener(new checkBoxListener());
 		checkPanel.add("East", datechk);
 		gbl.setConstraints(checkPanel, gbc);
 		leftPanel.add(checkPanel);
-		setGrid(gbc, 0, 4, 1, 1);
+		setGrid(gbc, 0, 1, 1, 1);
 		label = new JLabel("         날  짜");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc, 1, 4, 1, 1);
+		setGrid(gbc, 1, 1, 1, 1);
 		label = new JLabel("년");
 		yearPanel.add("West", label);
 		yearBox = new JComboBox<String>(new DefaultComboBoxModel<String>(yearModel));
@@ -370,7 +326,7 @@ public class DBA_Dialog2 extends JDialog{
 		monthBox = new JComboBox<String>(new DefaultComboBoxModel<String>(monthModel));
 		monthBox.addItemListener(new yearBoxListener());
 		monthBox.setSelectedItem(Integer.toString(month));
-		monthPanel.add("Esat", monthBox);
+		monthPanel.add("East", monthBox);
 		label = new JLabel("일");
 		dayPanel.add("West", label);
 		dayBox = new JComboBox<String>(new DefaultComboBoxModel<String>(dayModel));
@@ -382,14 +338,40 @@ public class DBA_Dialog2 extends JDialog{
 		datePanel.add("East", dayPanel);
 		gbl.setConstraints(datePanel, gbc);
 		leftPanel.add(datePanel);
-		setGrid(gbc, 0, 7, 1, 1);
-		label = new JLabel(" ");
+		setGrid(gbc, 0, 3, 1, 1);
+		label = new JLabel("     기  초  자  료   ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc, 0, 8, 1, 1);
-		label = new JLabel(" ");
+		setGrid(gbc, 1, 3, 1, 1);
+		manBox = new JComboBox<String>(new DefaultComboBoxModel<String>(frame.manModel));
+		manBox.addItemListener(new manBoxListener());
+		gbl.setConstraints(manBox, gbc);
+		leftPanel.add(manBox);
+		setGrid(gbc, 0, 4, 1, 1);
+		label = new JLabel("     금  액         ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
+		setGrid(gbc, 1, 4, 1, 1);
+		tf_Price = new JTextField(10);
+		gbl.setConstraints(tf_Price, gbc);
+		leftPanel.add(tf_Price);
+		setGrid(gbc, 0, 5, 1, 1);
+		label = new JLabel("     거  래  처     ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc, 1, 5, 1, 1);
+		conBox = new JComboBox<String>(new DefaultComboBoxModel<String>(frame.conModel));
+		conBox.addItemListener(new conBoxListener());
+		gbl.setConstraints(conBox, gbc);
+		leftPanel.add(conBox);
+		setGrid(gbc, 0, 6, 1, 1);
+		label = new JLabel("     내  용          ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc, 1, 6, 1, 1);
+		tf_Inform = new JTextField(5);
+		gbl.setConstraints(tf_Inform, gbc);
+		leftPanel.add(tf_Inform);
 
 		setGrid(gbc, 3, 0, 1, 1);
 		updateBt = new JButton("수정");
@@ -417,6 +399,7 @@ public class DBA_Dialog2 extends JDialog{
 		table = new JTable(tablemodel);
 		
 		table.setPreferredScrollableViewportSize(new Dimension(530, 14*16));
+		table.getSelectionModel().addListSelectionListener(new tableListener());
 		JScrollPane scrollPane = new JScrollPane(table);
 		centerPanel.add(scrollPane);
 		
@@ -429,6 +412,24 @@ public class DBA_Dialog2 extends JDialog{
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}
+		MoveData();
+		comboboxSetEnable();
+	}
+	
+	void setEnabled_man(boolean bool) {
+		manBox.setEnabled(!bool);
+		tf_Price.setEnabled(bool);
+		tf_Date.setEnabled(bool);
+		conBox.setEnabled(bool);
+		tf_Inform.setEnabled(bool);
+	}
+	
+	void setEnabled_con(boolean bool) {
+		conBox.setEnabled(!bool);
+		manBox.setEnabled(bool);
+		tf_Price.setEnabled(bool);
+		tf_Date.setEnabled(bool);
+		tf_Inform.setEnabled(bool);
 	}
 	
 	private void setGrid(GridBagConstraints gbc, int dx, int dy, int width, int height) {
@@ -511,9 +512,18 @@ public class DBA_Dialog2 extends JDialog{
 			String inform = result.getString("Banks.inform");
 			manBox.setSelectedItem(manager);
 			tf_Price.setText(price);
-			tf_Date.setText(date);
 			conBox.setSelectedItem(connection);
 			tf_Inform.setText(inform);
+			
+			if(dlgName.equals("date")) {
+				dateSeparate(date);
+				yearBox.setSelectedItem(Integer.toString(year));
+				monthBox.setSelectedItem(Integer.toString(month));
+				dayBox.setSelectedItem(Integer.toString(day));
+			}
+			else {
+				tf_Date.setText(date);
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}	
@@ -615,11 +625,15 @@ public class DBA_Dialog2 extends JDialog{
 		}
 	}
 	
+	private void dateSeparate(String date) {
+		String date_array[] = date.split("-");
+		year = Integer.parseInt(date_array[0]);
+		month = Integer.parseInt(date_array[1]);
+		day = Integer.parseInt(date_array[2]);
+	}
+	
 	private void comboboxSetEnable() {
-		manBox.setEnabled(yearbool);
-		conBox.setEnabled(monthbool);
-		yearBox.setEnabled(daybool);
-		monthBox.setEnabled(daybool);
+		monthBox.setEnabled(monthbool);
 		dayBox.setEnabled(daybool);
 	}
 	
@@ -636,9 +650,19 @@ public class DBA_Dialog2 extends JDialog{
 				if(selectedCol >= dataCount)
 					System.out.println("data is Empty");
 				else {
+					
 					manBox.setSelectedItem(table.getValueAt(selectedCol, 1).toString());
 					tf_Price.setText(table.getValueAt(selectedCol, 2).toString());
-					tf_Date.setText(table.getValueAt(selectedCol, 3).toString());
+					if(dlgName.equals("date")) {
+						String temp = table.getValueAt(selectedCol, 3).toString();
+						dateSeparate(temp);
+						yearBox.setSelectedItem(Integer.toString(year));
+						monthBox.setSelectedItem(Integer.toString(month));
+						dayBox.setSelectedItem(Integer.toString(day));
+					}
+					else {
+						tf_Date.setText(table.getValueAt(selectedCol, 3).toString());
+					}
 					conBox.setSelectedItem(table.getValueAt(selectedCol, 4).toString());
 					tf_Inform.setText(table.getValueAt(selectedCol, 5).toString());
 					try {
@@ -711,33 +735,28 @@ public class DBA_Dialog2 extends JDialog{
 		public void itemStateChanged(ItemEvent e) {
 			// TODO Auto-generated method stub
 			if(e.getStateChange() == ItemEvent.SELECTED) {
-				System.out.println(((JCheckBox)e.getSource()).getText() + " 선택됨");
+				//System.out.println(((JCheckBox)e.getSource()).getText() + " 선택됨");
 				String command = ((JCheckBox)e.getSource()).getText();
 				switch(command)
 				{
-				case "기초자료":
-					yearbool = true;
-					break;
-				case "거래처":
+				case "월":
 					monthbool = true;
 					break;
-				case "날짜":
-					daybool = true;
+				case "일":
+					if(monthbool) {
+						daybool = true;
+					}
 					break;
 				}
 			}
 			else {
-				System.out.println(((JCheckBox)e.getSource()).getText() + " 해제됨");
+				//System.out.println(((JCheckBox)e.getSource()).getText() + " 해제됨");
 				String command = ((JCheckBox)e.getSource()).getText();
 				switch(command)
 				{
-				case "기초자료":
-					yearbool = false;
-					break;
-				case "거래처":
+				case "월":
 					monthbool = false;
-					break;
-				case "날짜":
+				case "일":
 					daybool = false;
 					break;
 				}
@@ -750,6 +769,41 @@ public class DBA_Dialog2 extends JDialog{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
+			String str_month, str_day;
+			if(month < 0) {
+				str_month = "0" + Integer.toString(month);
+			}
+			else {
+				str_month = Integer.toString(month);
+			}
+			if(day < 0) {
+				str_day = "0" + Integer.toString(day);
+			}
+			else {
+				str_day = Integer.toString(day);
+			}
+			
+			if(dlgName.equals("man")) {
+				mainSQL = "Select Banks.id, Manager.manid, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+						+ "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid "
+						+ "Where Manager.title like '" + manName +"'"   
+						+ "order by Banks.date";
+			}
+			else if(dlgName.equals("con")) {
+				mainSQL = "Select Banks.id, Manager.manid, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+						+ "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid "
+						+ "Where Connection.title like '" + conName +"'"   
+						+ "order by Banks.date";
+			}
+			else if(dlgName.equals("date")) {
+				if(monthbool) {
+					mainSQL = "Select Banks.id, Manager.manid, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+							+ "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid "
+							+ "Where Banks.date BETWEEN '" + year + "-" + str_month + "-01' AND '" + year + "-" + str_month + "-31'"   
+							+ "order by Banks.date";
+				}
+			}
+			
 			LoadList();
 			Balance();
 		}

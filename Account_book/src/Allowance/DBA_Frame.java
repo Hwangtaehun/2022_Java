@@ -677,9 +677,13 @@ public class DBA_Frame extends JFrame{
 				break;
 			case "거래처 검색":
 				System.out.println("거래처 검색 대화상자 실행");
+				DBA_Dialog2 consearch_Dlg = new DBA_Dialog2(frame, command, false);
+				consearch_Dlg.setVisible(true);
 				break;
 			case "날짜 검색":
 				System.out.println("날짜 검색 대화상자 실행");
+				DBA_Dialog2 datesearch_Dlg = new DBA_Dialog2(frame, command, false);
+				datesearch_Dlg.setVisible(true);
 				break;
 			}	
 		}
