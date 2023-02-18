@@ -27,7 +27,7 @@ public class DBA_Frame extends JFrame{
 		NewArray();
 		
 		String sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
-			   + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
+				   + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
 		result = stuDB.getResultSet(sql);
 		
 		initForm();
@@ -160,9 +160,9 @@ public class DBA_Frame extends JFrame{
 		centerPanel.add(scrollPane);
 		
 		mb = new JMenuBar();
-		JMenu addMenu = new JMenu("추가");
+		JMenu addMenu = new JMenu("테이블 관리");
 		JMenuItem[] menuItems = new JMenuItem[2];
-		String[] items = {"기초자료 추가", "거래처 추가"};
+		String[] items = {"기초자료 관리", "거래처 관리"};
 		menuListener act = new menuListener();
 		
 		for(int i=0; i<menuItems.length; i++) {
@@ -346,6 +346,10 @@ public class DBA_Frame extends JFrame{
 		String sql  = "Select * FROM " + table + " WHERE title = '" + title + "'";
 		int num = 0;
 		
+		if(title.equals("지출") || title.equals("수입")) {
+			return num;
+		}
+		
 		System.out.println(sql);
 		ResultSet rs = stuDB.getResultSet(sql);
 		try {
@@ -362,7 +366,7 @@ public class DBA_Frame extends JFrame{
 		return num;
 	}
 	
-	private String ConvertDate(String date) {
+	public String ConvertDate(String date) {
 		String year = null, month = null, day = null, finish = null;
 		String[] array_word;
 		int count = date.length();
@@ -544,29 +548,34 @@ public class DBA_Frame extends JFrame{
 		int num = 0;
 		ResultSet rs = stuDB.getResultSet(sql);
 		
+		if(sql.equals("Select * From Manager")) {
+			dataModel[num] = "지출";
+			num++;
+		}
 		try {
 			while(rs.next())
 			{
 				dataModel[num] = rs.getString("title");
 				num++;
+				
+				if(sql.equals("Select * From Manager")) {
+					if(rs.getInt("manid") == 20100) {
+						dataModel[num] = "수입";
+						num++;
+					}
+				}
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-//		for(int i = 0; i < dataModel.length; i++)
-//		{
-//			System.out.println(dataModel[i]);
-//		}
-//		System.out.print("\n");
 	}
 	
 	public void NewArray() 
 	{
 		int num;
 		String sql = "Select * From Manager";
-		num = Countkey(sql);
+		num = Countkey(sql) + 2;
 		manModel = new String[num];
 		InputData(manModel, sql);
 		
@@ -651,7 +660,7 @@ public class DBA_Frame extends JFrame{
 			String dataModel[];
 			
 			switch(command) {
-			case "기초자료 추가":
+			case "기초자료 관리":
 				sql = "Select * From Manager Where manid like '%00'";
 				num = Countkey(sql);
 				dataModel = new String[num + 2];
@@ -661,7 +670,7 @@ public class DBA_Frame extends JFrame{
 				DBA_Dialog manadd_dlg = new DBA_Dialog(frame, command, false, "Manager", dataModel);
 				manadd_dlg.setVisible(true);
 				break;
-			case "거래처 추가":
+			case "거래처 관리":
 				sql = "Select * From Connection Where conid like '%00'";
 				num = Countkey(sql);
 				dataModel = new String[num + 1];
@@ -717,7 +726,11 @@ public class DBA_Frame extends JFrame{
 			conid = Foreignkey("Connection", conBox.getSelectedItem().toString());
 			
 			if(manid == 999999 || conid == 999999) {
-				System.out.println("'null'은 입력이 불가능합니다.");
+				System.out.println("'null'은  사용이 불가능합니다.");
+				return;
+			}
+			else if(manid == 0 || conid == 0) {
+				System.out.println("분류 표기여서 사용이 불가능합니다.");
 				return;
 			}
 			
@@ -747,7 +760,14 @@ public class DBA_Frame extends JFrame{
 			conid = Foreignkey("Connection", conBox.getSelectedItem().toString());
 			
 			if(manid == 999999 || conid == 999999) {
-				System.out.println("'null'은 입력이 불가능합니다.");
+				System.out.println("'null'은 사용이 불가능합니다.");
+				sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+					+ "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
+				result = stuDB.getResultSet(sql);
+				return;
+			}
+			else if(manid == 0 || conid == 0) {
+				System.out.println("분류 표기여서 사용이 불가능합니다.");
 				sql = "Select Banks.id, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
 					+ "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid";
 				result = stuDB.getResultSet(sql);
@@ -835,6 +855,7 @@ public class DBA_Frame extends JFrame{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			sw *= -1;
+			balance();
 			LoadList();
 		}
 	}

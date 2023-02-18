@@ -223,7 +223,7 @@ public class DBA_Dialog extends JDialog{
 		return num;
 	}
 	
-	private String FindSuper(int id, int select)
+	public String FindSuper(int id, int select)
 	{
 		int temp = id/10000;
 		String number = Integer.toString(temp);

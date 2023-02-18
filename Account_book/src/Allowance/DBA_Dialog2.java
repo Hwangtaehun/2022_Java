@@ -3,10 +3,6 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-
-import Allowance.DBA_Frame.comboBoxListener;
-import Allowance.DBA_Frame.tableListener;
-
 import java.sql.*;
 import java.time.*;
 
@@ -131,12 +127,12 @@ public class DBA_Dialog2 extends JDialog{
 
 		setGrid(gbc, 3, 0, 1, 1);
 		updateBt = new JButton("수정");
-		//updateBt.addActionListener(new updateButtonListener());
+		updateBt.addActionListener(new updateButtonListener());
 		gbl.setConstraints(updateBt, gbc);
 		leftPanel.add(updateBt);
 		setGrid(gbc, 3, 1, 1, 1);
 		deleteBt = new JButton("삭제");
-		//deleteBt.addActionListener(new deleteButtonListener());
+		deleteBt.addActionListener(new deleteButtonListener());
 		gbl.setConstraints(deleteBt, gbc);
 		leftPanel.add(deleteBt);
 		setGrid(gbc, 3, 3, 1, 1);
@@ -169,6 +165,7 @@ public class DBA_Dialog2 extends JDialog{
 			e.printStackTrace();
 		}
 		MoveData();
+		setEnabled_man(false);
 	}
 	
 	void initform_con()
@@ -238,12 +235,12 @@ public class DBA_Dialog2 extends JDialog{
 
 		setGrid(gbc, 3, 0, 1, 1);
 		updateBt = new JButton("수정");
-		//updateBt.addActionListener(new updateButtonListener());
+		updateBt.addActionListener(new updateButtonListener());
 		gbl.setConstraints(updateBt, gbc);
 		leftPanel.add(updateBt);
 		setGrid(gbc, 3, 1, 1, 1);
 		deleteBt = new JButton("삭제");
-		//deleteBt.addActionListener(new deleteButtonListener());
+		deleteBt.addActionListener(new deleteButtonListener());
 		gbl.setConstraints(deleteBt, gbc);
 		leftPanel.add(deleteBt);
 		setGrid(gbc, 3, 3, 1, 1);
@@ -276,6 +273,7 @@ public class DBA_Dialog2 extends JDialog{
 			e.printStackTrace();
 		}
 		MoveData();
+		setEnabled_con(false);
 	}
 	
 	void initform_date()
@@ -298,7 +296,7 @@ public class DBA_Dialog2 extends JDialog{
 		gbc.weightx = 1;
 		gbc.weighty = 1;
 		setGrid(gbc, 0, 0, 1, 1);
-		label = new JLabel("         날  짜  선  택");
+		label = new JLabel("     날  짜  선  택");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 0, 1, 1);
@@ -311,7 +309,7 @@ public class DBA_Dialog2 extends JDialog{
 		gbl.setConstraints(checkPanel, gbc);
 		leftPanel.add(checkPanel);
 		setGrid(gbc, 0, 1, 1, 1);
-		label = new JLabel("         날  짜");
+		label = new JLabel("     날  짜");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 1, 1, 1);
@@ -324,13 +322,13 @@ public class DBA_Dialog2 extends JDialog{
 		label = new JLabel("월");
 		monthPanel.add("West", label);
 		monthBox = new JComboBox<String>(new DefaultComboBoxModel<String>(monthModel));
-		monthBox.addItemListener(new yearBoxListener());
+		monthBox.addItemListener(new monthBoxListener());
 		monthBox.setSelectedItem(Integer.toString(month));
 		monthPanel.add("East", monthBox);
 		label = new JLabel("일");
 		dayPanel.add("West", label);
 		dayBox = new JComboBox<String>(new DefaultComboBoxModel<String>(dayModel));
-		dayBox.addItemListener(new yearBoxListener());
+		dayBox.addItemListener(new dayBoxListener());
 		dayBox.setSelectedItem(Integer.toString(day));
 		dayPanel.add("East", dayBox);
 		datePanel.add("West", yearPanel);
@@ -375,12 +373,12 @@ public class DBA_Dialog2 extends JDialog{
 
 		setGrid(gbc, 3, 0, 1, 1);
 		updateBt = new JButton("수정");
-		//updateBt.addActionListener(new updateButtonListener());
+		updateBt.addActionListener(new updateButtonListener());
 		gbl.setConstraints(updateBt, gbc);
 		leftPanel.add(updateBt);
 		setGrid(gbc, 3, 1, 1, 1);
 		deleteBt = new JButton("삭제");
-		//deleteBt.addActionListener(new deleteButtonListener());
+		deleteBt.addActionListener(new deleteButtonListener());
 		gbl.setConstraints(deleteBt, gbc);
 		leftPanel.add(deleteBt);
 		setGrid(gbc, 3, 3, 1, 1);
@@ -414,6 +412,7 @@ public class DBA_Dialog2 extends JDialog{
 		}
 		MoveData();
 		comboboxSetEnable();
+		setEnabled_date(false);
 	}
 	
 	void setEnabled_man(boolean bool) {
@@ -429,6 +428,16 @@ public class DBA_Dialog2 extends JDialog{
 		manBox.setEnabled(bool);
 		tf_Price.setEnabled(bool);
 		tf_Date.setEnabled(bool);
+		tf_Inform.setEnabled(bool);
+	}
+	
+	void setEnabled_date(boolean bool) {
+		yearBox.setEditable(!bool);
+		monthBox.setEditable(!bool);
+		dayBox.setEditable(!bool);
+		conBox.setEnabled(bool);
+		manBox.setEnabled(bool);
+		tf_Price.setEnabled(bool);
 		tf_Inform.setEnabled(bool);
 	}
 	
@@ -460,9 +469,7 @@ public class DBA_Dialog2 extends JDialog{
 	}
 	
 	private void LoadList() {
-		mainSQL = "Select Banks.id, Manager.manid, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
-				   + "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid "
-				   + "order by Banks.date";
+		System.out.println(mainSQL);
 		result = stuDB.getResultSet(mainSQL);
 		
 		for(int i = 0; i < dataCount; i++) {
@@ -503,6 +510,17 @@ public class DBA_Dialog2 extends JDialog{
 		}
 	}
 	
+	private void initialization()
+	{
+		result = stuDB.getResultSet(mainSQL);
+		try {
+			result.first();
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		MoveData();
+	}
+	
 	private void MoveData() {
 		try {
 			String manager = result.getString("Manager.title");
@@ -529,54 +547,44 @@ public class DBA_Dialog2 extends JDialog{
 		}	
 	}
 	
-	private String FindSuper(int id, int select, String dataList[][])
-	{
-		int temp = id/10000;
-		String number = Integer.toString(temp);
+	private String ConvertDate() {
+		String finish = null;
 		
-		if(select == 2)
-		{
-			number += "__00";
-			return number;
+		finish = Integer.toString(year) + "-";
+		if(month < 10) {
+			finish += "0" + Integer.toString(month) + "-";
 		}
-		else if(select == 4)
-		{
-			number += "0000";
-			return number;
+		else {
+			finish += Integer.toString(month) + "-";
 		}
-		else if(select == 5)
-		{
-			number += "%";
-			return number;
+		if(day < 10) {
+			finish += "0" + Integer.toString(day);
 		}
+		else {
+			finish += Integer.toString(day);
+		}
+				
+		return finish;
+	}
+	
+	private int Foreignkey(String table, String title) {
+		String sql  = "Select * FROM " + table + " WHERE title = '" + title + "'";
+		int num = 0;
 		
-		temp = id%10000/1000;
-		number += Integer.toString(temp);
-		
-		temp = id%10000%1000/100;
-		number += Integer.toString(temp);
-		
-		if(select == 0)
-		{
-			number += "00";
-			for(int i = 0; i < cnt; i++) {				
-				if(dataList[0][i].equals(number))
-				{
-					return dataList[1][i];
-				}
-			}
+		System.out.println(sql);
+		ResultSet rs = stuDB.getResultSet(sql);
+		try {
+			rs.next();
+			if(table.equals("Manager"))
+				num = rs.getInt("manid");
+			else
+				num = rs.getInt("conid");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		else if(select == 1)
-		{
-			number += "%";
-			return number;
-		}
-		else if(select == 3)
-		{
-			number += "00";
-			return number;
-		}
-		return "error";
+		System.out.println(num);
+		return num;
 	}
 	
 	private boolean leapyearCheck(int year) {
@@ -703,6 +711,7 @@ public class DBA_Dialog2 extends JDialog{
 			// TODO Auto-generated method stub
 			if(e.getStateChange() == ItemEvent.SELECTED) {
 				year = Integer.parseInt(e.getItem().toString());
+				System.out.println("yearBox: " + year);
 				initialDate();
 			}
 		}
@@ -765,18 +774,81 @@ public class DBA_Dialog2 extends JDialog{
 		}
 	}
 	
+	class updateButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String sql, code, date; 
+			int manid, conid;
+			if(selectedCol == -1) {
+				System.out.println("변경할 셀이 선택되지 않았습니다.");
+				return;
+			}
+			
+			code = table.getValueAt(selectedCol, 0).toString();
+			manid = Foreignkey("Manager", manBox.getSelectedItem().toString());
+			conid = Foreignkey("Connection", conBox.getSelectedItem().toString());
+			
+			if(manid == 999999 || conid == 999999) {
+				System.out.println("'null'은 입력이 불가능합니다.");
+				result = stuDB.getResultSet(mainSQL);
+				return;
+			}
+			else if(manid == 0 || conid == 0) {
+				System.out.println("분류 표기여서 입력이 불가능합니다.");
+				result = stuDB.getResultSet(mainSQL);
+				return;
+			}
+			
+			if(dlgName.equals("date")) {
+				date = ConvertDate();
+			}
+			else {
+				date = frame.ConvertDate(tf_Date.getText());
+			}
+			sql = " UPDATE Banks SET manid = " + manid + ", price = " + tf_Price.getText() + ", date = STR_TO_DATE('" + date + "','%Y-%m-%d'), inform = '" + tf_Inform.getText() + "', conid = " + conid + " WHERE id =" + code;
+			System.out.println(sql);
+			stuDB.Excute(sql);
+			Balance();
+			LoadList();
+			frame.LoadList();
+			frame.initialization();
+		}
+	}
+
+	class deleteButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String sql, code;
+			if(selectedCol == -1) {
+				System.out.println("삭제할 셀이 선택되지 않았습니다.");
+				return;
+			}
+			code = table.getValueAt(selectedCol, 0).toString();
+			sql = "DELETE FROM Banks WHERE id = " + code;
+			System.out.println("삭제 쿼리문 확인" + sql);
+			stuDB.Excute(sql);
+			Balance();
+			LoadList();
+			frame.LoadList();
+			frame.initialization();
+		}
+	}
+	
 	class searchButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
+			DBA_Dialog findsuper = new DBA_Dialog();
 			String str_month, str_day;
-			if(month < 0) {
+			int id;
+			
+			if(month < 10) {
 				str_month = "0" + Integer.toString(month);
 			}
 			else {
 				str_month = Integer.toString(month);
 			}
-			if(day < 0) {
+			if(day < 10) {
 				str_day = "0" + Integer.toString(day);
 			}
 			else {
@@ -784,28 +856,45 @@ public class DBA_Dialog2 extends JDialog{
 			}
 			
 			if(dlgName.equals("man")) {
+				id = Foreignkey("Manager", manBox.getSelectedItem().toString());
+				findsuper.FindSuper(id, 1);
 				mainSQL = "Select Banks.id, Manager.manid, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
 						+ "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid "
-						+ "Where Manager.title like '" + manName +"'"   
+						+ "Where Manager.title like '" + manName +"' "   
 						+ "order by Banks.date";
+				setEnabled_man(true);
 			}
 			else if(dlgName.equals("con")) {
 				mainSQL = "Select Banks.id, Manager.manid, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
 						+ "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid "
-						+ "Where Connection.title like '" + conName +"'"   
+						+ "Where Connection.title like '" + conName +"' "   
 						+ "order by Banks.date";
+				setEnabled_con(true);
 			}
 			else if(dlgName.equals("date")) {
-				if(monthbool) {
+				if(daybool) {
 					mainSQL = "Select Banks.id, Manager.manid, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
 							+ "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid "
-							+ "Where Banks.date BETWEEN '" + year + "-" + str_month + "-01' AND '" + year + "-" + str_month + "-31'"   
+							+ "Where Banks.date like '" + year + "-" + str_month + "-" + str_day + "' "   
 							+ "order by Banks.date";
 				}
+				else if(monthbool) {
+					mainSQL = "Select Banks.id, Manager.manid, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+							+ "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid "
+							+ "Where Banks.date BETWEEN '" + year + "-" + str_month + "-01' AND '" + year + "-" + str_month + "-31' "   
+							+ "order by Banks.date";
+				}
+				else {
+					mainSQL = "Select Banks.id, Manager.manid, Manager.title, Banks.price, Banks.date, Connection.title, Banks.inform, Banks.balance "
+							+ "From Banks left join Manager on Banks.manid = Manager.manid left join Connection on Banks.conid = Connection.conid "
+							+ "Where Banks.date BETWEEN '" + year + "-01-01' AND '" + year + "-12-31' "   
+							+ "order by Banks.date";
+				}
+				setEnabled_date(true);
 			}
-			
-			LoadList();
 			Balance();
+			LoadList();
+			initialization();
 		}
 	}
 	
