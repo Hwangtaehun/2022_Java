@@ -18,7 +18,7 @@ class DdlTest{
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			//con = DriverManager.getConnection(url, "sj002", "sj4321"); 
+			//con = DriverManager.getConnection(url, "sj002", "sj4321");
 			con = DriverManager.getConnection(url, "madang", "madang"); 
 			smt = con.createStatement();
 		} catch (ClassNotFoundException e) {
