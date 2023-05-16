@@ -22,7 +22,7 @@ public class LbDB_DAO {
 	}
 	
 	public void printMetaData(String tableName) {
-		ResultSet rs = getResultSet("select * from " + tableName);
+		ResultSet rs = getResultSet("select * from " + tableName + " LIMIT 1");
 		ResultSetMetaData meta;
 		try {
 			meta = rs.getMetaData();
