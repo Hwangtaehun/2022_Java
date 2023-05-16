@@ -8,7 +8,8 @@ import java.sql.*;
 public class LbDB_Login_Dialog extends JDialog implements WindowListener{
 	private LbDB_DAO logDB;
 	private Client logCL;
-	private JTextField tf_Id, tf_Pw;
+	private JTextField tf_Id;
+	private JPasswordField tf_Pw;
 	
 	LbDB_Login_Dialog() {}
 	LbDB_Login_Dialog(LbDB_DAO db, Client cl){
@@ -48,7 +49,7 @@ public class LbDB_Login_Dialog extends JDialog implements WindowListener{
 		gbl.setConstraints(label, gbc);
 		centerPanel.add(label);
 		setGrid(gbc, 1, 1, 1, 1);
-		tf_Pw = new JTextField(5);
+		tf_Pw = new JPasswordField(5);
 		gbl.setConstraints(tf_Pw, gbc);
 		centerPanel.add(tf_Pw);
 		
@@ -58,7 +59,7 @@ public class LbDB_Login_Dialog extends JDialog implements WindowListener{
 		bt_Login.addActionListener(new logbuttonListener());
 		southPanel.add(bt_Login);
 		setGrid(gbc, 1,0,1,1);
-		bt_singup = new JButton("가입");
+		bt_singup = new JButton("회원 가입");
 		bt_singup.addActionListener(new registerbuttonListener());
 		southPanel.add(bt_singup);
 		
@@ -104,6 +105,8 @@ public class LbDB_Login_Dialog extends JDialog implements WindowListener{
 				}
 				else {
 					logCL.insertnum(Integer.parseInt(pk), Integer.parseInt(state));
+					setVisible(false);
+					dispose();
 				}
 			}
 		}	
@@ -113,7 +116,8 @@ public class LbDB_Login_Dialog extends JDialog implements WindowListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			
+			LbDB_Signup_Dialog signup = new LbDB_Signup_Dialog(logDB);
+			signup.setVisible(true);
 		}
 	}
 
