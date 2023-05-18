@@ -20,17 +20,17 @@ class Addresstool{
 		String word = str.trim();
 		main = word.split(" ");
 		print();
-		sido = "";
-		sigungu = "";
-		eupmyun = "";
-		doro = "";
-		dong = "";
+		sido = "%";
+		sigungu = "%";
+		eupmyun = "%";
+		doro = "%";
+		dong = "%";
 		dong_at = "dong_hj";
-		ri = "";
-		buildno1 = "";
-		buildno2 = "";
-		jibun1 = "";
-		jibun2 = "";
+		ri = "%";
+		buildno1 = "%";
+		buildno2 = "%";
+		jibun1 = "%";
+		jibun2 = "%";
 		sort();
 	}
 	
@@ -41,7 +41,8 @@ class Addresstool{
 	}
 	
 	public void print2() {
-		System.out.print(sido + sigungu + eupmyun + dong + ri + doro);
+		System.out.println(sido + sigungu + eupmyun + dong + ri + doro);
+		System.out.println("건물본번" + buildno1 + "건물부번" + buildno2 + "지번본번" + jibun1 + "지번부번" + jibun2);
 	}
 	
 	private void sort() {
@@ -56,9 +57,9 @@ class Addresstool{
 				}
 			}
 		}
-		i = 0;
 		
-		if(!sido.isEmpty()) {
+		i = 0;
+		if(!sido.equals("%")) {
 			i++;
 		}
 		
@@ -67,7 +68,7 @@ class Addresstool{
 		dong(main[i]);
 		ri(main[i]);
 		
-		if(dong.isEmpty() && ri.isEmpty()) {
+		if(dong.equals("%") && ri.equals("%")) {
 			doro(main[i]);
 		}
 		
@@ -77,15 +78,15 @@ class Addresstool{
 		sqlresearch(sigungu, main[i]);
 		sqlresearch(eupmyun, main[i]);
 		
-		if(eupmyun.isEmpty()) {
+		if(eupmyun.equals("%")) {
 			sqlresearch(dong, main[i]);
-			if(!dong.isEmpty()) {
+			if(!dong.equals("%")) {
 				
 			}
 		}
 		else {
 			sqlresearch(ri, main[i]);
-			if(!ri.isEmpty()) {
+			if(!ri.equals("%")) {
 				
 			}
 		}*/
@@ -119,7 +120,7 @@ class Addresstool{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			if(dong.length() > 4 || dong.isEmpty()) {
+			if(dong.length() > 4 || dong.equals("%")) {
 				sql = "SELECT DISTINCT `dong` FROM `address` WHERE `dong` LIKE '" + str + "%'";
 				rs = db.getResultSet(sql);
 				try {
@@ -154,16 +155,16 @@ class Addresstool{
 			}
 		}
 		
-		if(!sigungu.isEmpty()) {
+		if(!sigungu.equals("%")) {
 			i++;
 		}
-		else if(!eupmyun.isEmpty()) {
+		else if(!eupmyun.equals("%")) {
 			i++;
 		}
-		else if(!dong.isEmpty()) {
+		else if(!dong.equals("%")) {
 			i++;
 		}
-		else if(!ri.isEmpty()) {
+		else if(!ri.equals("%")) {
 			i++;
 		}
 	}
@@ -194,7 +195,7 @@ class Addresstool{
 			e.printStackTrace();
 		}
 		
-		if(!sigungu.isEmpty()) {
+		if(!sigungu.equals("%")) {
 			i++;
 		}
 	}
@@ -211,7 +212,7 @@ class Addresstool{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(!eupmyun.isEmpty()) {
+		if(!eupmyun.equals("%")) {
 			i++;
 		}
 	}
@@ -228,7 +229,7 @@ class Addresstool{
 			e.printStackTrace();
 		}
 		
-		if(dong.length() > 4 || dong.isEmpty()) {
+		if(dong.length() > 4 || dong.equals("%")) {
 			sql = "SELECT DISTINCT `dong` FROM `address` WHERE `dong` LIKE '" + str + "%'";
 			rs = db.getResultSet(sql);
 			try {
@@ -239,11 +240,11 @@ class Addresstool{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			if(!dong.isEmpty()) {
+			if(!dong.equals("%")) {
 				dong_at = "dong";
 			}
 		}
-		if(!dong.isEmpty()) {
+		if(!dong.equals("%")) {
 			i++;
 		}
 	}
@@ -260,7 +261,7 @@ class Addresstool{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(!ri.isEmpty()) {
+		if(!ri.equals("%")) {
 			i++;
 		}
 	}
@@ -278,15 +279,16 @@ class Addresstool{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(!doro.isEmpty()) {
+		if(!doro.equals("%")) {
 			i++;
 		}
 	}
 	
 	private void number(String str) {
+		print2();
 		String word[];
 		word = str.split("-");
-		if(doro.isEmpty()) {
+		if(doro.equals("%")) {
 			if(word.length == 2) {
 				jibun1 = word[0];
 				jibun2 = word[1];
@@ -311,7 +313,7 @@ public class Print {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		DB_DAO db = new DB_DAO();
-		String address = "경북 군위 마시리 1215";
+		String address = "율량동 1569";
 		Addresstool ad = new Addresstool(address, db);
 		System.out.println("\n" + "시도: " + ad.sido + ", 시군구: " + ad.sigungu +", 읍면: " + ad.eupmyun + 
 						   ", 동: " + ad.dong + ", 리: " + ad.ri + ", 도로명: " + ad.doro + 

@@ -27,17 +27,17 @@ class Addresstool{
 		String word = str.trim();
 		main = word.split(" ");
 		//print();
-		sido = "";
-		sigungu = "";
-		eupmyun = "";
-		doro = "";
-		dong = "";
+		sido = "%";
+		sigungu = "%";
+		eupmyun = "%";
+		doro = "%";
+		dong = "%";
 		dong_at = "dong_hj";
-		ri = "";
-		buildno1 = "";
-		buildno2 = "";
-		jibun1 = "";
-		jibun2 = "";
+		ri = "%";
+		buildno1 = "%";
+		buildno2 = "%";
+		jibun1 = "%";
+		jibun2 = "%";
 		sort();
 	}
 	
@@ -65,7 +65,7 @@ class Addresstool{
 		}
 		
 		i = 0;
-		if(!sido.isEmpty()) {
+		if(!sido.equals("%")) {
 			i++;
 		}
 		
@@ -74,7 +74,7 @@ class Addresstool{
 		dong(main[i]);
 		ri(main[i]);
 		
-		if(dong.isEmpty() && ri.isEmpty()) {
+		if(dong.equals("%") && ri.equals("%")) {
 			doro(main[i]);
 		}
 		
@@ -106,7 +106,7 @@ class Addresstool{
 			e.printStackTrace();
 		}
 		
-		if(!sigungu.isEmpty()) {
+		if(!sigungu.equals("%")) {
 			i++;
 		}
 	}
@@ -123,7 +123,7 @@ class Addresstool{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(!eupmyun.isEmpty()) {
+		if(!eupmyun.equals("%")) {
 			i++;
 		}
 	}
@@ -139,7 +139,7 @@ class Addresstool{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(dong.length() > 4 || dong.isEmpty()) {
+		if(dong.length() > 4 || dong.equals("%")) {
 			sql = "SELECT DISTINCT `dong` FROM `address` WHERE `dong` LIKE '" + str + "%'";
 			rs = db.getResultSet(sql);
 			try {
@@ -151,7 +151,7 @@ class Addresstool{
 				e.printStackTrace();
 			}
 		}
-		if(!dong.isEmpty()) {
+		if(!dong.equals("%")) {
 			i++;
 		}
 	}
@@ -168,7 +168,7 @@ class Addresstool{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(!ri.isEmpty()) {
+		if(!ri.equals("%")) {
 			i++;
 		}
 	}
@@ -187,7 +187,7 @@ class Addresstool{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(!doro.isEmpty()) {
+		if(!doro.equals("%")) {
 			i++;
 		}
 	}
@@ -195,7 +195,7 @@ class Addresstool{
 	private void number(String str) {
 		String word[];
 		word = str.split("-");
-		if(doro.isEmpty()) {
+		if(doro.equals("%")) {
 			if(word.length == 2) {
 				jibun1 = word[0];
 				jibun2 = word[1];
