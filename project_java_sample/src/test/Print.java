@@ -1,11 +1,4 @@
-package libraryDB;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-
-import test.DB_DAO;
-
+package test;
 import java.sql.*;
 
 class Addresstool{
@@ -26,7 +19,7 @@ class Addresstool{
 		this.db = db;
 		String word = str.trim();
 		main = word.split(" ");
-		//print();
+		print();
 		sido = "";
 		sigungu = "";
 		eupmyun = "";
@@ -63,8 +56,8 @@ class Addresstool{
 				}
 			}
 		}
-		
 		i = 0;
+		
 		if(!sido.isEmpty()) {
 			i++;
 		}
@@ -79,7 +72,102 @@ class Addresstool{
 		}
 		
 		number(main[i]);
+		
+		/*
+		sqlresearch(sigungu, main[i]);
+		sqlresearch(eupmyun, main[i]);
+		
+		if(eupmyun.isEmpty()) {
+			sqlresearch(dong, main[i]);
+			if(!dong.isEmpty()) {
+				
+			}
+		}
+		else {
+			sqlresearch(ri, main[i]);
+			if(!ri.isEmpty()) {
+				
+			}
+		}*/
 	}
+	
+	/*
+	private void sqlresearch(String name, String str) {
+		ResultSet rs;
+		String word = str;
+		if(name.equals("sigungu")) {
+			for(int j = 0; j < sigungusp.length; j++) {
+				if(str.equals(sigungusp[j])) {
+					if(j > 10) {
+						int num = j % 11;
+						word = sigungusp[num];
+					}
+					i++;
+					word += " " + main[i];
+				}
+			}
+		}
+		
+		if(name.equals("dong")) {
+			String sql = "SELECT DISTINCT `dong_hj` FROM `address` WHERE `dong_hj` LIKE '" + str + "%'";
+			rs = db.getResultSet(sql);
+			try {
+				while(rs.next()) {
+					dong = rs.getString("dong_hj");
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(dong.length() > 4 || dong.isEmpty()) {
+				sql = "SELECT DISTINCT `dong` FROM `address` WHERE `dong` LIKE '" + str + "%'";
+				rs = db.getResultSet(sql);
+				try {
+					while(rs.next()) {
+						dong = rs.getString("dong");
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		else {
+			String sql = "SELECT DISTINCT `" + name + "` FROM `address` WHERE `" + name + "` LIKE '" + word + "%'";
+			rs = db.getResultSet(sql);
+			
+			try {
+				while(rs.next()) {
+					if(name.equals("sigungu")) {
+						sigungu = rs.getString("sigungu");
+					}
+					else if(name.equals("eupmyun")) {
+						eupmyun = rs.getString("eupmyun");
+					}
+					else if(name.equals("ri")) {
+						ri = rs.getString("ri");
+					}
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		if(!sigungu.isEmpty()) {
+			i++;
+		}
+		else if(!eupmyun.isEmpty()) {
+			i++;
+		}
+		else if(!dong.isEmpty()) {
+			i++;
+		}
+		else if(!ri.isEmpty()) {
+			i++;
+		}
+	}
+	*/
 	
 	private void sigungu(String str) {
 		String word = str;
@@ -139,6 +227,7 @@ class Addresstool{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		if(dong.length() > 4 || dong.isEmpty()) {
 			sql = "SELECT DISTINCT `dong` FROM `address` WHERE `dong` LIKE '" + str + "%'";
 			rs = db.getResultSet(sql);
@@ -149,6 +238,9 @@ class Addresstool{
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+			if(!dong.isEmpty()) {
+				dong_at = "dong";
 			}
 		}
 		if(!dong.isEmpty()) {
@@ -172,7 +264,6 @@ class Addresstool{
 			i++;
 		}
 	}
-	
 	
 	private void doro(String str) {
 		String sql = "SELECT DISTINCT `doro` FROM `address` WHERE `doro` LIKE '" + str + "%'";
@@ -216,65 +307,14 @@ class Addresstool{
 	}
 }
 
-
-/*https://qh5944.tistory.com/44*/
-
-public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
-	private LbDB_DAO db;
-	private JTextField tf_zipcode, tf_address, tf_detail;
-	
-	public LbDB_zipcode_Dialog() {}
-	public LbDB_zipcode_Dialog(LbDB_DAO db, JTextField tf_zipcode, JTextField tf_address, JTextField tf_detail) {
-		this.db = db;
-		this.tf_zipcode = tf_zipcode;
-		this.tf_address = tf_address;
-		this.tf_detail = tf_detail;
-		addWindowListener(this);
-	}
-	
-	void initform() {
-		
-	}
-	
-	public void length(String str) {
-		if(str.length() < 2);
-	}
-	
-	@Override
-	public void windowOpened(WindowEvent e) {
+public class Print {
+	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowClosing(WindowEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("우편검색 페이지 종료!!");
-		e.getWindow().setVisible(false);
-		e.getWindow().dispose();
-	}
-	@Override
-	public void windowClosed(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowIconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowDeiconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowActivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowDeactivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
+		DB_DAO db = new DB_DAO();
+		String address = "경북 군위 마시리 1215";
+		Addresstool ad = new Addresstool(address, db);
+		System.out.println("\n" + "시도: " + ad.sido + ", 시군구: " + ad.sigungu +", 읍면: " + ad.eupmyun + 
+						   ", 동: " + ad.dong + ", 리: " + ad.ri + ", 도로명: " + ad.doro + 
+						   ", 길본번: " + ad.buildno1 + ", 길부번: " + ad.buildno2 + ", 지번본번: " + ad.jibun1 );
 	}
 }
