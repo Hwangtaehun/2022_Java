@@ -25,7 +25,6 @@ class Addresstool{
 		eupmyun = "%";
 		doro = "%";
 		dong = "%";
-		dong_at = "dong_hj";
 		ri = "%";
 		buildno1 = "%";
 		buildno2 = "%";
@@ -218,31 +217,15 @@ class Addresstool{
 	}
 	
 	private void dong(String str) {
-		String sql = "SELECT DISTINCT `dong_hj` FROM `address` WHERE `dong_hj` LIKE '" + str + "%'";
+		String sql = "SELECT DISTINCT `dong` FROM `address` WHERE `dong` LIKE '" + str + "%' ORDER BY `dong` DESC";
 		rs = db.getResultSet(sql);
 		try {
 			while(rs.next()) {
-				dong = rs.getString("dong_hj");
+				dong = rs.getString("dong");
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-		if(dong.length() > 4 || dong.equals("%")) {
-			sql = "SELECT DISTINCT `dong` FROM `address` WHERE `dong` LIKE '" + str + "%'";
-			rs = db.getResultSet(sql);
-			try {
-				while(rs.next()) {
-					dong = rs.getString("dong");
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if(!dong.equals("%")) {
-				dong_at = "dong";
-			}
 		}
 		if(!dong.equals("%")) {
 			i++;
@@ -313,10 +296,30 @@ public class Print {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		DB_DAO db = new DB_DAO();
-		String address = "율량동 1569";
-		Addresstool ad = new Addresstool(address, db);
-		System.out.println("\n" + "시도: " + ad.sido + ", 시군구: " + ad.sigungu +", 읍면: " + ad.eupmyun + 
-						   ", 동: " + ad.dong + ", 리: " + ad.ri + ", 도로명: " + ad.doro + 
-						   ", 길본번: " + ad.buildno1 + ", 길부번: " + ad.buildno2 + ", 지번본번: " + ad.jibun1 );
+		String sample = "율천북로99번길 14";
+		String sql, address;
+		Addresstool add = new Addresstool(sample, db);
+		System.out.println("\n" + "시도: " + add.sido + ", 시군구: " + add.sigungu +", 읍면: " + add.eupmyun + 
+						   ", 동: " + add.dong + ", 리: " + add.ri + ", 도로명: " + add.doro + 
+						   ", 길본번: " + add.buildno1 + ", 길부번: " + add.buildno2 + ", 지번본번: " + add.jibun1 );
+		
+		sql = "SELECT * FROM `address` WHERE " + "`sido` LIKE '" + add.sido + "' AND `sigungu` LIKE '" + add.sigungu + 
+			  "' AND `eupmyun` LIKE '" + add.eupmyun + "' AND `dong` LIKE '" + add.dong + "' AND `ri` LIKE '" +
+			  add.ri + "' AND `doro` LIKE '" + add.doro + "' AND `buildno1` LIKE '" + add.buildno1 + "' AND `buildno2` LIKE '" +
+			  add.buildno2 + "' AND `jibun1` LIKE '" + add.jibun1 + "' AND `jibun2` LIKE '" + add.jibun2 + "'";
+		ResultSet result = db.getResultSet(sql);
+		try {
+			while(result.next()) {
+				address = result.getString("sido") + " " + result.getString("sigungu") + " " + 
+						  result.getString("doro") + " " + result.getString("buildno1") + "-" + 
+						  result.getString("buildno2") + "\n" +
+						  result.getString("eupmyun") + " " + result.getString("dong") + " " + 
+				          result.getString("ri") + " " + result.getString("jibun1") + "-" + result.getString("jibun2");
+				System.out.println("기본키: " + result.getInt("add_no") + " 우편번호: " + result.getString("zipcode") + " 주소: " + address);
+			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 }

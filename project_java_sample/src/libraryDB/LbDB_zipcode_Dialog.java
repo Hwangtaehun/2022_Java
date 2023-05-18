@@ -3,9 +3,6 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-
-import test.DB_DAO;
-
 import java.sql.*;
 
 class Addresstool{
@@ -16,13 +13,13 @@ class Addresstool{
 	private String sigungusp[] = {"고양시", "성남시", "수원시", "안산시", "안양시", "용인시", "창원시", "포항시", "전주시", "천안시", "청주시",
 								  "고양",   "성남",  "수원",  "안산",   "안양",  "용인",  "창원",   "포항",  "전주",   "천안",  "청주"};
 	private String main[];
-	private DB_DAO db;
+	private LbDB_DAO db;
 	private int i;
 	private ResultSet rs;
-	public String sido, sigungu, eupmyun, doro, buildno1, buildno2, dong, dong_at, ri, jibun1, jibun2;
+	public String sido, sigungu, eupmyun, doro, buildno1, buildno2, dong, ri, jibun1, jibun2;
 	
 	public Addresstool() {}
-	public Addresstool(String str, DB_DAO db) {
+	public Addresstool(String str, LbDB_DAO db) {
 		this.db = db;
 		String word = str.trim();
 		main = word.split(" ");
@@ -32,7 +29,6 @@ class Addresstool{
 		eupmyun = "%";
 		doro = "%";
 		dong = "%";
-		dong_at = "dong_hj";
 		ri = "%";
 		buildno1 = "%";
 		buildno2 = "%";
@@ -129,27 +125,15 @@ class Addresstool{
 	}
 	
 	private void dong(String str) {
-		String sql = "SELECT DISTINCT `dong_hj` FROM `address` WHERE `dong_hj` LIKE '" + str + "%'";
+		String sql = "SELECT DISTINCT `dong` FROM `address` WHERE `dong` LIKE '" + str + "%' ORDER BY `dong` DESC";
 		rs = db.getResultSet(sql);
 		try {
 			while(rs.next()) {
-				dong = rs.getString("dong_hj");
+				dong = rs.getString("dong");
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		if(dong.length() > 4 || dong.equals("%")) {
-			sql = "SELECT DISTINCT `dong` FROM `address` WHERE `dong` LIKE '" + str + "%'";
-			rs = db.getResultSet(sql);
-			try {
-				while(rs.next()) {
-					dong = rs.getString("dong");
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 		if(!dong.equals("%")) {
 			i++;
@@ -216,28 +200,161 @@ class Addresstool{
 	}
 }
 
-
-/*https://qh5944.tistory.com/44*/
-
 public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
+	private int add_no, dataCount, selectedCol;
+	private String address; 
 	private LbDB_DAO db;
-	private JTextField tf_zipcode, tf_address, tf_detail;
+	private JTextField tf_zipcode, tf_address, tf_research;	
+	private JTable table;
+	private LbDB_TableMode tablemodel;
+	private Addresstool add;
+	private ResultSet result;
 	
 	public LbDB_zipcode_Dialog() {}
-	public LbDB_zipcode_Dialog(LbDB_DAO db, JTextField tf_zipcode, JTextField tf_address, JTextField tf_detail) {
+	public LbDB_zipcode_Dialog(LbDB_DAO db, JTextField tf_zipcode, JTextField tf_address, int add_no) {
 		this.db = db;
 		this.tf_zipcode = tf_zipcode;
 		this.tf_address = tf_address;
-		this.tf_detail = tf_detail;
+		this.add_no = add_no;
+		initform();
 		addWindowListener(this);
 	}
 	
 	void initform() {
+		Container cpane = getContentPane();
+		JPanel northPanel = new JPanel();
+		JPanel centerPanel = new JPanel();
+		JPanel southPanel = new JPanel();
+		JButton bt_research;
+		JLabel label;
+		selectedCol = -1;
+		GridBagLayout gbl = new GridBagLayout();
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 1;
+		gbc.weighty = 1;
 		
+		label = new JLabel("우편번호 검색");
+		northPanel.add("Center", label);
+		
+		centerPanel.setLayout(gbl);
+		setGrid(gbc, 0, 0, 1, 1);
+		tf_research = new JTextField(30);
+		gbl.setConstraints(tf_research, gbc);
+		centerPanel.add(tf_research);
+		centerPanel.setLayout(gbl);
+		setGrid(gbc, 3, 0, 1, 1);
+		bt_research = new JButton("검색");
+		gbl.setConstraints(bt_research, gbc);
+		centerPanel.add(bt_research);
+		
+		String columnName[] = {"우편번호", "주소"};
+		tablemodel = new LbDB_TableMode(columnName.length, columnName);
+		table.setPreferredScrollableViewportSize(new Dimension(470, 14*16));
+		table.getSelectionModel().addListSelectionListener(new tableListener());
+		JScrollPane scrollPane = new JScrollPane(table);
+		southPanel.add(scrollPane);
+		
+		cpane.add("North", northPanel);
+		cpane.add("Center", centerPanel);
+		cpane.add("South", southPanel);
+		pack();
 	}
 	
-	public void length(String str) {
-		if(str.length() < 2);
+	private void setGrid(GridBagConstraints gbc, int dx, int dy, int width, int height) {
+		// TODO Auto-generated method stub
+		gbc.gridx = dx;
+		gbc.gridy = dy;
+		gbc.gridwidth = width;
+		gbc.gridheight = height;
+	}
+	private void inputTable(int cnt, String zipcode, String address) {
+		table.setValueAt(zipcode, cnt, 0);
+		table.setValueAt(address, cnt, 1);
+	}
+	
+	private void removeTableRow(int row) {
+		table.setValueAt(null, row, 0);
+		table.setValueAt(null, row, 1);
+	}
+	
+	public void MoveData() {
+		try {
+			tf_zipcode.setText(result.getString("zipcode"));
+			tf_address.setText(address);
+			add_no = result.getInt("add_no");
+			this.setVisible(false);
+			this.dispose();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	class tableListener implements ListSelectionListener{
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			if(e.getValueIsAdjusting())
+				return;
+			ListSelectionModel lsm = (ListSelectionModel)e.getSource();
+			if(lsm.isSelectionEmpty())
+				System.out.println("No columns are selected");
+			else {
+				selectedCol = lsm.getMinSelectionIndex();
+				if(selectedCol >= dataCount)
+					System.out.println("data is Empty");
+				else {
+					tf_zipcode.setText(table.getValueAt(selectedCol, 0).toString());
+					tf_address.setText(table.getValueAt(selectedCol, 1).toString());
+					try {
+						result.absolute(selectedCol + 1);
+						MoveData();
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+					repaint();
+				}
+			}
+		}
+	}
+	
+	class researchButtonListener implements ActionListener{
+		String[] temp;
+		String sql;
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			temp = tf_research.getText().trim().split(" ");
+			if(temp.length < 2) {
+				JOptionPane.showMessageDialog(null, "검색어를 2글자이상으로 입력해 주십시오",  "주소 검색 오류", JOptionPane.PLAIN_MESSAGE);
+			}
+			else {
+				add = new Addresstool(tf_research.getText(), db);
+				sql = "SELECT * FROM `address` WHERE " + "`sido` LIKE '" + add.sido + "' AND `sigungu` LIKE '" + add.sigungu + 
+						  "' AND `eupmyun` LIKE '" + add.eupmyun + "' AND `dong` LIKE '" + add.dong + "' AND `ri` LIKE '" +
+						  add.ri + "' AND `doro` LIKE '" + add.doro + "' AND `buildno1` LIKE '" + add.buildno1 + "' AND `buildno2` LIKE '" +
+						  add.buildno2 + "' AND `jibun1` LIKE '" + add.jibun1 + "' AND `jibun2` LIKE '" + add.jibun2 + "'";
+				ResultSet result = db.getResultSet(sql);
+				
+				for(int i = 0; i < dataCount; i++) {
+					removeTableRow(i);
+				}
+				try {
+					for(dataCount = 0; result.next(); dataCount++) {
+						address = result.getString("sido") + " " + result.getString("sigungu") + " " + 
+								  result.getString("doro") + " " + result.getString("buildno1") + "-" + 
+								  result.getString("buildno2") + "\n" +
+								  result.getString("eupmyun") + " " + result.getString("dong") + " " + 
+						          result.getString("ri") + " " + result.getString("jibun1") + "-" + result.getString("jibun2");
+						inputTable(dataCount, result.getString("zipcode"), address);
+					}
+					repaint();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		}
 	}
 	
 	@Override

@@ -10,6 +10,7 @@ public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
 	private JTextField tf_name, tf_Id, tf_zipcode, tf_address, tf_detail;
 	private JPasswordField tf_Pw, tf_Pw2;
 	private JButton bt_complate;
+	private int add_no;
 	
 	public LbDB_Signup_Dialog() {}
 	public LbDB_Signup_Dialog(LbDB_DAO db) {
@@ -53,7 +54,7 @@ public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
 		centerPanel.add(tf_Id);
 		setGrid(gbc, 2, 1, 1, 1);
 		bt_duplicate = new JButton("중복 확인");
-		bt_duplicate.addActionListener(new su_DuplicateListener());
+		bt_duplicate.addActionListener(new DuplicateButtonListener());
 		gbl.setConstraints(bt_duplicate, gbc);
 		centerPanel.add(bt_duplicate);
 		setGrid(gbc, 0, 2, 1, 1);
@@ -83,7 +84,7 @@ public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
 		centerPanel.add(tf_zipcode);
 		setGrid(gbc, 2, 4, 1, 1);
 		bt_address = new JButton("우편검색");
-		bt_address.addActionListener(new su_AddressListener());
+		bt_address.addActionListener(new AddressButtonListener());
 		gbl.setConstraints(bt_address, gbc);
 		centerPanel.add(bt_address);
 		setGrid(gbc, 0, 5, 1, 1);
@@ -107,12 +108,12 @@ public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
 		southPanel.setLayout(gbl);
 		setGrid(gbc, 0,0,1,1);
 		bt_complate = new JButton("완료");
-		bt_complate.addActionListener(new su_ComplateListener()); 
+		bt_complate.addActionListener(new ComplateButtonListener()); 
 		bt_complate.setEnabled(false);
 		southPanel.add(bt_complate);
 		setGrid(gbc, 1,0,1,1);
 		bt_clear = new JButton("지우기");
-		bt_clear.addActionListener(new su_ClearListener());
+		bt_clear.addActionListener(new ClearButtonListener());
 		southPanel.add(bt_clear);
 		
 		cpane.add("North", northPanel);
@@ -129,17 +130,18 @@ public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
 		gbc.gridheight = height;
 	}
 	
-	public class su_AddressListener implements ActionListener{
+	class AddressButtonListener implements ActionListener{
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			
+			LbDB_zipcode_Dialog add_Dialog = new LbDB_zipcode_Dialog(db, tf_zipcode, tf_address, add_no);
+			add_Dialog.setVisible(true);
 		}
 		
 	}
 	
-	public class su_ComplateListener implements ActionListener{
+	class ComplateButtonListener implements ActionListener{
 
 		@SuppressWarnings("deprecation")
 		@Override
@@ -160,7 +162,7 @@ public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
 		
 	}
 	
-	public class su_ClearListener implements ActionListener{
+	class ClearButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
@@ -176,7 +178,7 @@ public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
 		
 	}
 	
-	public class su_DuplicateListener implements ActionListener{
+	class DuplicateButtonListener implements ActionListener{
 		ResultSet rs;
 		String sql;
 		boolean check = true;
