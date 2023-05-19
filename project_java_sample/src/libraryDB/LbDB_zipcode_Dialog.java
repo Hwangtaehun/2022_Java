@@ -5,6 +5,22 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
+class foreignkey{
+	private int add_no;
+	
+	public foreignkey() {
+		add_no = 0;
+	};
+	
+	public void insert_add_no(int num) {
+		add_no = num;
+	}
+	
+	public int call_add_no() {
+		return add_no;
+	}
+}
+
 class Addresstool{
 	private String sidobasic[] = {"서울특별시", "부산광역시", "대전광역시", "대구광역시", "인천광역시", "광주광역시", "울산광역시",
 							 "충청북도", "충청남도", "전라북도", "전라남도", "경상북도", "경상남도", "제주특별자치도",
@@ -182,7 +198,6 @@ class Addresstool{
 	private void doro_method(String str) {
 		String sql = "SELECT DISTINCT `doro` FROM `address` WHERE `doro` LIKE '" + str + "'";
 		rs = db.getResultSet(sql);
-		System.out.println(str);
 		
 		try {
 			while(rs.next()) {
@@ -222,7 +237,7 @@ class Addresstool{
 }
 
 public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
-	private int add_no, dataCount, selectedCol;
+	private int dataCount, selectedCol;
 	private String address; 
 	private LbDB_DAO db;
 	private JTextField tf_zipcode, tf_address, tf_research;	
@@ -230,13 +245,14 @@ public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
 	private LbDB_TableMode tablemodel;
 	private Addresstool add;
 	private ResultSet result;
+	private foreignkey fk;
 	
 	public LbDB_zipcode_Dialog() {}
-	public LbDB_zipcode_Dialog(LbDB_DAO db, JTextField tf_zipcode, JTextField tf_address, int add_no) {
+	public LbDB_zipcode_Dialog(LbDB_DAO db, JTextField tf_zipcode, JTextField tf_address, foreignkey fk) {
 		this.db = db;
 		this.tf_zipcode = tf_zipcode;
 		this.tf_address = tf_address;
-		this.add_no = add_no;
+		this.fk = fk;
 		initform();
 		addWindowListener(this);
 	}
@@ -275,6 +291,8 @@ public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
 		table = new JTable(tablemodel);
 		table.setPreferredScrollableViewportSize(new Dimension(470, 14*16));
 		table.getSelectionModel().addListSelectionListener(new tableListener());
+		table.getColumn("우편번호").setPreferredWidth(5);
+		table.getColumn("주소").setPreferredWidth(300);
 		JScrollPane scrollPane = new JScrollPane(table);
 		southPanel.add(scrollPane);
 		
@@ -301,11 +319,11 @@ public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
 		table.setValueAt(null, row, 1);
 	}
 	
-	public void MoveData() {
+	private void MoveData() {
 		try {
 			tf_zipcode.setText(result.getString("zipcode"));
 			tf_address.setText(address);
-			add_no = result.getInt("add_no");
+			fk.insert_add_no(result.getInt("add_no"));
 			this.setVisible(false);
 			this.dispose();
 		} catch (SQLException e) {
@@ -343,17 +361,17 @@ public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
 	
 	class researchButtonListener implements ActionListener{
 		String[] temp;
-		String sql;
+		String sql, under = "";
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			System.out.println("검색 시작");
 			temp = tf_research.getText().trim().split(" ");
 			if(temp.length < 2) {
 				JOptionPane.showMessageDialog(null, "검색어를 2글자이상으로 입력해 주십시오",  "주소 검색 오류", JOptionPane.PLAIN_MESSAGE);
 			}
 			else {
 				add = new Addresstool(tf_research.getText(), db);
+				add.print();
 				sql = "SELECT * FROM `address` WHERE " + "`sido` LIKE '" + add.sido + "' AND `sigungu` LIKE '" + add.sigungu + 
 						  "' AND `eupmyun` LIKE '" + add.eupmyun + "' AND `dong` LIKE '" + add.dong + "' AND `ri` LIKE '" +
 						  add.ri + "' AND `doro` LIKE '" + add.doro + "' AND `buildno1` LIKE '" + add.buildno1 + "' AND `buildno2` LIKE '" +
@@ -366,9 +384,12 @@ public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
 				}
 				try {
 					for(dataCount = 0; result.next(); dataCount++) {
+						if(result.getString("under_yn").equals("1")) {
+							under = "지하";
+						}
 						address = result.getString("sido") + " " + result.getString("sigungu") + " " + 
-								  result.getString("doro") + " " + result.getString("buildno1") + "-" + 
-								  result.getString("buildno2") + "(" +
+								  result.getString("doro") + " " + under + " " +
+								  result.getString("buildno1") + "-" + result.getString("buildno2") + "(" +
 								  result.getString("eupmyun") + " " + result.getString("dong") + " " + 
 						          result.getString("ri") + " " + result.getString("jibun1") + "-" + result.getString("jibun2") + ")";
 						inputTable(dataCount, result.getString("zipcode"), address);
@@ -380,10 +401,6 @@ public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
 				}
 			}
 		}
-	}
-	
-	public int give_add_no() {
-		return add_no;
 	}
 	
 	@Override

@@ -5,16 +5,19 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
-public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
+public class LbDB_Information_Dialog extends JDialog implements WindowListener{
 	private LbDB_DAO db;
 	private JTextField tf_name, tf_Id, tf_zipcode, tf_address, tf_detail;
 	private JPasswordField tf_Pw, tf_Pw2;
 	private JButton bt_complate;
-	private int add_no;
+	private foreignkey fk;
+	private String title;
 	
-	public LbDB_Signup_Dialog() {}
-	public LbDB_Signup_Dialog(LbDB_DAO db) {
+	public LbDB_Information_Dialog() {}
+	public LbDB_Information_Dialog(LbDB_DAO db, String title) {
 		this.db = db;
+		this.title = title;
+		fk = new foreignkey();
 		initform();
 		addWindowListener(this);
 	}
@@ -32,7 +35,7 @@ public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
 		gbc.weightx = 1;
 		gbc.weighty = 1;
 		
-		label = new JLabel("회원가입");
+		label = new JLabel(title);
 		northPanel.add("Center", label);
 		
 		centerPanel.setLayout(gbl);
@@ -52,11 +55,13 @@ public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
 		tf_Id = new JTextField(5);
 		gbl.setConstraints(tf_Id, gbc);
 		centerPanel.add(tf_Id);
-		setGrid(gbc, 2, 1, 1, 1);
-		bt_duplicate = new JButton("중복 확인");
-		bt_duplicate.addActionListener(new DuplicateButtonListener());
-		gbl.setConstraints(bt_duplicate, gbc);
-		centerPanel.add(bt_duplicate);
+		if(title.equals("회원 가입")) {
+			setGrid(gbc, 2, 1, 1, 1);
+			bt_duplicate = new JButton("중복 확인");
+			bt_duplicate.addActionListener(new DuplicateButtonListener());
+			gbl.setConstraints(bt_duplicate, gbc);
+			centerPanel.add(bt_duplicate);
+		}
 		setGrid(gbc, 0, 2, 1, 1);
 		label = new JLabel("비밀번호");
 		gbl.setConstraints(label, gbc);
@@ -130,41 +135,50 @@ public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
 		gbc.gridheight = height;
 	}
 	
+	private void closeDialog() {
+		this.setVisible(false);
+		this.dispose();
+	}
+	
 	class AddressButtonListener implements ActionListener{
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			LbDB_zipcode_Dialog add_Dialog = new LbDB_zipcode_Dialog(db, tf_zipcode, tf_address, add_no);
+			LbDB_zipcode_Dialog add_Dialog = new LbDB_zipcode_Dialog(db, tf_zipcode, tf_address, fk);
 			add_Dialog.setVisible(true);
 		}
 		
 	}
 	
 	class ComplateButtonListener implements ActionListener{
-
+		private int add_no;
 		@SuppressWarnings("deprecation")
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			if(tf_name.getText().isEmpty()) {
-				JOptionPane.showMessageDialog(null, "이름을 입력해주세요.",  "가입 오류", JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(null, "이름을 입력해주세요.",  title + " 오류", JOptionPane.PLAIN_MESSAGE);
 			}
 			else if(tf_Pw.getText().isEmpty())
 			{
-				JOptionPane.showMessageDialog(null, "비밀번호를 입력해주세요.",  "가입 오류", JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(null, "비밀번호를 입력해주세요.",  title + " 오류", JOptionPane.PLAIN_MESSAGE);
 			}
 			else if(tf_zipcode.getText().isEmpty())
 			{
-				JOptionPane.showMessageDialog(null, "주소를 입력해주세요.",  "가입 오류", JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(null, "주소를 입력해주세요.",  title + " 오류", JOptionPane.PLAIN_MESSAGE);
 			}
 			else if(!tf_Pw.getText().equals(tf_Pw2.getText())) {
-				JOptionPane.showMessageDialog(null, "비밀번호를 다시 입력해주세요.",  "가입 오류", JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(null, "비밀번호를 다시 입력해주세요.",  title + " 오류", JOptionPane.PLAIN_MESSAGE);
 			}
 			else {
+				add_no = fk.call_add_no();
 				String sql = "INSERT INTO `member` (`mem_name`, `mem_id`, `mem_pw`, `add_no`, `mem_detail`) VALUES ('" + tf_name.getText() + 
 						     "', '" + tf_Id.getText() + "', '" + tf_Pw.getText() + "', " + add_no + ", '" + tf_detail.getText() + "')";
 				System.out.println(sql);
+				
+				db.Excute(sql);
+				closeDialog();
 			}
 		}
 		
@@ -195,7 +209,7 @@ public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			if(tf_Id.getText().isEmpty()) {
-				JOptionPane.showMessageDialog(null, "아이디를 입력해주세요.",  "가입 오류", JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(null, "아이디를 입력해주세요.",  title + " 오류", JOptionPane.PLAIN_MESSAGE);
 			}
 			else {
 				sql = "SELECT `mem_id` FROM `member`";

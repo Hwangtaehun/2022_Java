@@ -296,7 +296,7 @@ public class Print {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		DB_DAO db = new DB_DAO();
-		String sample = "율천북로99번길 14";
+		String sample = "충청북도 청주시 서원구 사창동 222-15";
 		String sql, address;
 		Addresstool add = new Addresstool(sample, db);
 		System.out.println("\n" + "시도: " + add.sido + ", 시군구: " + add.sigungu +", 읍면: " + add.eupmyun + 
@@ -307,6 +307,7 @@ public class Print {
 			  "' AND `eupmyun` LIKE '" + add.eupmyun + "' AND `dong` LIKE '" + add.dong + "' AND `ri` LIKE '" +
 			  add.ri + "' AND `doro` LIKE '" + add.doro + "' AND `buildno1` LIKE '" + add.buildno1 + "' AND `buildno2` LIKE '" +
 			  add.buildno2 + "' AND `jibun1` LIKE '" + add.jibun1 + "' AND `jibun2` LIKE '" + add.jibun2 + "'";
+		sql = "SELECT * FROM `address` WHERE `add_no` LIKE '4814353'";
 		ResultSet result = db.getResultSet(sql);
 		try {
 			while(result.next()) {
