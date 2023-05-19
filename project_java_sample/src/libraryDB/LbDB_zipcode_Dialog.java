@@ -23,7 +23,7 @@ class Addresstool{
 		this.db = db;
 		String word = str.trim();
 		main = word.split(" ");
-		//print();
+		print();
 		sido = "%";
 		sigungu = "%";
 		eupmyun = "%";
@@ -48,10 +48,44 @@ class Addresstool{
 	}
 	
 	private void sort() {
-		for(i = 0; i < sidobasic.length; i++) {
+		i = 0;
+		sido_method(main[i]);
+		if(main.length == 2) {
+			dong_method(main[i]);
+			if(dong.equals("%")) {
+				sigungu_method(main[i]);
+				if(sigungu.charAt(sigungu.length()-1) == '시' || sigungu.charAt(sigungu.length()-1) == '구') {
+					dong_method(main[i]);
+				}
+				else {
+					eupmyun_method(main[i]);
+					ri_method(main[i]);
+				}
+			}
+		}
+		else {
+			sigungu_method(main[i]);
+			if(sigungu.charAt(sigungu.length()-1) == '시' || sigungu.charAt(sigungu.length()-1) == '구') {
+				dong_method(main[i]);
+			}
+			else {
+				eupmyun_method(main[i]);
+				ri_method(main[i]);
+			}
+		}
+		
+		if(dong.equals("%") && ri.equals("%")) {
+			doro_method(main[i]);
+		}
+		
+		number(main[i]);
+	}
+	
+	private void sido_method(String str) {
+		for(int j = 0; j < sidobasic.length; j++) {
 			if(main[0].equals(sidobasic[i])) {
-				if(i > 16) {
-					int num = i % 17;
+				if(j > 16) {
+					int num = j % 17;
 					sido = sidobasic[num];
 				}
 				else {
@@ -59,25 +93,12 @@ class Addresstool{
 				}
 			}
 		}
-		
-		i = 0;
 		if(!sido.equals("%")) {
 			i++;
 		}
-		
-		sigungu(main[i]);
-		eupmyun(main[i]);
-		dong(main[i]);
-		ri(main[i]);
-		
-		if(dong.equals("%") && ri.equals("%")) {
-			doro(main[i]);
-		}
-		
-		number(main[i]);
 	}
 	
-	private void sigungu(String str) {
+	private void sigungu_method(String str) {
 		String word = str;
 		for(int j = 0; j < sigungusp.length; j++) {
 			if(str.equals(sigungusp[j])) {
@@ -107,7 +128,7 @@ class Addresstool{
 		}
 	}
 	
-	private void eupmyun(String str) {
+	private void eupmyun_method(String str) {
 		String sql = "SELECT DISTINCT `eupmyun` FROM `address` WHERE `eupmyun` LIKE '" + str + "%'";
 		rs = db.getResultSet(sql);
 		
@@ -124,7 +145,7 @@ class Addresstool{
 		}
 	}
 	
-	private void dong(String str) {
+	private void dong_method(String str) {
 		String sql = "SELECT DISTINCT `dong` FROM `address` WHERE `dong` LIKE '" + str + "%' ORDER BY `dong` DESC";
 		rs = db.getResultSet(sql);
 		try {
@@ -140,7 +161,7 @@ class Addresstool{
 		}
 	}
 	
-	private void ri(String str) {
+	private void ri_method(String str) {
 		String sql = "SELECT DISTINCT `ri` FROM `address` WHERE `ri` LIKE '" + str + "%'";
 		rs = db.getResultSet(sql);
 		
@@ -158,8 +179,8 @@ class Addresstool{
 	}
 	
 	
-	private void doro(String str) {
-		String sql = "SELECT DISTINCT `doro` FROM `address` WHERE `doro` LIKE '" + str + "%'";
+	private void doro_method(String str) {
+		String sql = "SELECT DISTINCT `doro` FROM `address` WHERE `doro` LIKE '" + str + "'";
 		rs = db.getResultSet(sql);
 		System.out.println(str);
 		
@@ -245,11 +266,13 @@ public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
 		centerPanel.setLayout(gbl);
 		setGrid(gbc, 3, 0, 1, 1);
 		bt_research = new JButton("검색");
+		bt_research.addActionListener(new researchButtonListener());
 		gbl.setConstraints(bt_research, gbc);
 		centerPanel.add(bt_research);
 		
 		String columnName[] = {"우편번호", "주소"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
+		table = new JTable(tablemodel);
 		table.setPreferredScrollableViewportSize(new Dimension(470, 14*16));
 		table.getSelectionModel().addListSelectionListener(new tableListener());
 		JScrollPane scrollPane = new JScrollPane(table);
@@ -324,6 +347,7 @@ public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
+			System.out.println("검색 시작");
 			temp = tf_research.getText().trim().split(" ");
 			if(temp.length < 2) {
 				JOptionPane.showMessageDialog(null, "검색어를 2글자이상으로 입력해 주십시오",  "주소 검색 오류", JOptionPane.PLAIN_MESSAGE);
@@ -334,7 +358,8 @@ public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
 						  "' AND `eupmyun` LIKE '" + add.eupmyun + "' AND `dong` LIKE '" + add.dong + "' AND `ri` LIKE '" +
 						  add.ri + "' AND `doro` LIKE '" + add.doro + "' AND `buildno1` LIKE '" + add.buildno1 + "' AND `buildno2` LIKE '" +
 						  add.buildno2 + "' AND `jibun1` LIKE '" + add.jibun1 + "' AND `jibun2` LIKE '" + add.jibun2 + "'";
-				ResultSet result = db.getResultSet(sql);
+				System.out.println("sql문: " + sql);
+				result = db.getResultSet(sql);
 				
 				for(int i = 0; i < dataCount; i++) {
 					removeTableRow(i);
@@ -343,9 +368,9 @@ public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
 					for(dataCount = 0; result.next(); dataCount++) {
 						address = result.getString("sido") + " " + result.getString("sigungu") + " " + 
 								  result.getString("doro") + " " + result.getString("buildno1") + "-" + 
-								  result.getString("buildno2") + "\n" +
+								  result.getString("buildno2") + "(" +
 								  result.getString("eupmyun") + " " + result.getString("dong") + " " + 
-						          result.getString("ri") + " " + result.getString("jibun1") + "-" + result.getString("jibun2");
+						          result.getString("ri") + " " + result.getString("jibun1") + "-" + result.getString("jibun2") + ")";
 						inputTable(dataCount, result.getString("zipcode"), address);
 					}
 					repaint();
@@ -355,6 +380,10 @@ public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
 				}
 			}
 		}
+	}
+	
+	public int give_add_no() {
+		return add_no;
 	}
 	
 	@Override

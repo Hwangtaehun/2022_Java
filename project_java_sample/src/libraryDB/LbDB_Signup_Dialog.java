@@ -158,6 +158,14 @@ public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
 			{
 				JOptionPane.showMessageDialog(null, "주소를 입력해주세요.",  "가입 오류", JOptionPane.PLAIN_MESSAGE);
 			}
+			else if(!tf_Pw.getText().equals(tf_Pw2.getText())) {
+				JOptionPane.showMessageDialog(null, "비밀번호를 다시 입력해주세요.",  "가입 오류", JOptionPane.PLAIN_MESSAGE);
+			}
+			else {
+				String sql = "INSERT INTO `member` (`mem_name`, `mem_id`, `mem_pw`, `add_no`, `mem_detail`) VALUES ('" + tf_name.getText() + 
+						     "', '" + tf_Id.getText() + "', '" + tf_Pw.getText() + "', " + add_no + ", '" + tf_detail.getText() + "')";
+				System.out.println(sql);
+			}
 		}
 		
 	}
