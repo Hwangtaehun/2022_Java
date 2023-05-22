@@ -11,11 +11,13 @@ public class LbDB_Login_Dialog extends JDialog implements WindowListener{
 	private JTextField tf_Id;
 	private JPasswordField tf_Pw;
 	private String title;
+	private LbDB_Frame frame;
 	
 	LbDB_Login_Dialog() {}
-	LbDB_Login_Dialog(LbDB_DAO db, Client cl){
+	LbDB_Login_Dialog(LbDB_DAO db, Client cl, LbDB_Frame frame){
 		logDB = db;
 		logCL = cl;
+		this.frame = frame;
 		initform();
 		addWindowListener(this);
 	}
@@ -109,6 +111,8 @@ public class LbDB_Login_Dialog extends JDialog implements WindowListener{
 					logCL.insertnum(Integer.parseInt(pk), Integer.parseInt(state));
 					setVisible(false);
 					dispose();
+					frame = new LbDB_Frame(logDB, logCL);
+					frame.setVisible(true);
 				}
 			}
 		}	
