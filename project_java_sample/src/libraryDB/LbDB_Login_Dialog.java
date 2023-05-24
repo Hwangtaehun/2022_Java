@@ -122,7 +122,7 @@ public class LbDB_Login_Dialog extends JDialog implements WindowListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			LbDB_Information_Dialog signup = new LbDB_Information_Dialog(logDB, title);
+			LbDB_Signup_Dialog signup = new LbDB_Signup_Dialog(logDB, title);
 			signup.setVisible(true);
 		}
 	}

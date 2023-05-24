@@ -5,7 +5,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
-public class LbDB_Information_Dialog extends JDialog implements WindowListener{
+public class LbDB_Signup_Dialog extends JDialog implements WindowListener{
 	private LbDB_DAO db;
 	private JTextField tf_name, tf_Id, tf_zipcode, tf_address, tf_detail;
 	private JPasswordField tf_Pw, tf_Pw2;
@@ -13,8 +13,8 @@ public class LbDB_Information_Dialog extends JDialog implements WindowListener{
 	private foreignkey fk;
 	private String title;
 	
-	public LbDB_Information_Dialog() {}
-	public LbDB_Information_Dialog(LbDB_DAO db, String title) {
+	public LbDB_Signup_Dialog() {}
+	public LbDB_Signup_Dialog(LbDB_DAO db, String title) {
 		this.db = db;
 		this.title = title;
 		fk = new foreignkey();
