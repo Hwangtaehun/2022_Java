@@ -291,11 +291,20 @@ public class LbDB_Frame extends JFrame implements WindowListener{
 		table.setPreferredScrollableViewportSize(new Dimension(470, 14*16));
 		table.getSelectionModel().addListSelectionListener(new tableListener());
 		
-	}
-	
-	private void inputTable(int cnt, String zipcode, String address) {
-		table.setValueAt(zipcode, cnt, 0);
-		table.setValueAt(address, cnt, 1);
+		cpane.add("West", leftPanel);
+		cpane.add("Center", centerPanel);
+		pack();
+		
+		LoadList();
+		
+		try {
+			result.first();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		MoveData();
 	}
 	
 	private void removeTableRow(int row) {
@@ -330,8 +339,37 @@ public class LbDB_Frame extends JFrame implements WindowListener{
 	
 	private void LoadList() {
 		if(menu_title.equals("자료검색")) {
-			sql = "SELECT library.lib_name, book.book_name, book.book_author, book_publish, lent.lent_re_st" +
-				  "FROM "
+			String lent_re_state = "대출불가";
+			sql = "SELECT library.lib_name, book.book_name, book.book_author, book_publish, lent.len_re_st " +
+				  "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
+				  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no";
+			result = db.getResultSet(sql);
+			
+			for(int i = 0; i < dataCount; i++) {
+				removeTableRow(i);
+			}
+			try {
+				for(dataCount = 0; result.next(); dataCount++) {
+					table.setValueAt(result.getString("library.lib_name"), dataCount, 0);
+					table.setValueAt(result.getString("book.book_name"), dataCount, 1);
+					table.setValueAt(result.getString("book.book_author"), dataCount, 2);
+					table.setValueAt(result.getString("book_publish"), dataCount, 3);
+					if(result.getString("lent.len_re_st").isEmpty() || result.getString("lent.len_re_st").equals("1")) {
+						lent_re_state = "대출가능";
+					}
+					else {
+						lent_re_state = "대출불가";
+					}
+					table.setValueAt(lent_re_state, dataCount, 4);
+				}
+				repaint();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else {
+			
 		}
 	}
 	
