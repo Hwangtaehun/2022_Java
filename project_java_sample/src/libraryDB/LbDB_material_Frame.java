@@ -5,86 +5,60 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
-class Material_foreignkey{
-	private int lib_no, book_no, kind_no, mem_no, lent_no, add_no;
-	
-	public void Material_foreignkey() {
-		lib_no = 0;
-		book_no = 0;
-		kind_no = 0;
-		mem_no = 0;
-		lent_no = 0;
-		add_no = 0;
-	}
-	
-	public void insert_lib_no(int lib_no) {
-		this.lib_no = lib_no;
-	}
-	
-	public void insert_book_no(int book_no) {
-		this.book_no = book_no;
-	}
-	
-	public void insert_kind_no(int kind_no) {
-		this.kind_no = kind_no;
-	}
-	
-	public void insert_mem_no(int mem_no) {
-		this.mem_no = mem_no;
-	}
-	
-	public void insert_add_no(int add_no) {
-		this.add_no = add_no;
-	}
-	
-	public int call_lib_no() {
-		return lib_no;
-	}
-	
-	public int call_book_no() {
-		return book_no;
-	}
-	
-	public int call_kind_no() {
-		return kind_no;
-	}
-	
-	public int call_mem_no() {
-		return mem_no;
-	}
-	
-	public int call_lent_no() {
-		return lent_no;
-	}
-	
-	public int call_add_no() {
-		return add_no;
-	}
-}
-
-public class LbDB_material_Frame extends LbDB_Frame {
-	private LbDB_DAO db;
+public class LbDB_material_Frame extends LbDB_main_Frame {
 	private LbDB_TableMode tablemodel;
 	private ResultSet result;
 	private JTable table;
 	private int dataCount, selectedCol;
 	private String sql, menu_title; 
 	private Material_foreignkey mf;
-	private Container cpane;
-	private JPanel leftPanel, centerPanel;
-	private GridBagLayout gbl;
-	private GridBagConstraints gbc;
 	private JTextField tf_bookname, tf_author, tf_publish;
 	private JButton addBt, updateBt, deleteBt, researchBt, clearBt;
 	private JComboBox <String> lib_Box;
 	
-private void bookresearch() {
+	public LbDB_material_Frame () {}
+	public LbDB_material_Frame (LbDB_DAO db, Client cl, String str) {
+		this.db = db;
+		this.cl = cl;
+		menu_title = str;
+		pk = cl.primarykey();
+		state = cl.state();
+		
+		if(state == 1) {
+			manager_Initform();
+		}
+		else {
+			member_Initform();
+		}
+		
+		if(str.equals("자료검색")) {
+			bookresearch();
+		}
+		else if(str.equals("자료관리")) {
+			
+		}
+		else if(str.equals("자료추가")) {
+			
+		}
+		
+		setTitle(str);
+		addWindowListener(this);
+	}
+	
+	private void bookresearch() {
 		String sql, name_content = "";
 		String[] libraryname;
 		JLabel label;
 		
-		leftPanel = new JPanel();
-		centerPanel = new JPanel();
+		Container cpane = getContentPane();
+		JPanel leftPanel = new JPanel();
+		JPanel centerPanel = new JPanel();
+		GridBagLayout gbl = new GridBagLayout();
+		leftPanel.setLayout(gbl);
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 1;
+		gbc.weighty = 1;
 		
 		sql = "SELECT `lib_name` FROM `library`";
 		result = db.getResultSet(sql);
@@ -101,7 +75,6 @@ private void bookresearch() {
 		libraryname = name_content.split(" ");
 		mf = new Material_foreignkey();
 		
-		repaint();
 		setGrid(gbc,0,1,1,1);
 		label = new JLabel("    자료 검색   ");
 		gbl.setConstraints(label, gbc);
@@ -120,7 +93,7 @@ private void bookresearch() {
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,3,1,1);
-		tf_bookname = new JTextField(20);
+		tf_bookname = new JTextField(50);
 		gbl.setConstraints(tf_bookname, gbc);
 		leftPanel.add(tf_bookname);
 		setGrid(gbc,0,4,1,1);
@@ -155,6 +128,8 @@ private void bookresearch() {
 		table = new JTable(tablemodel);
 		table.setPreferredScrollableViewportSize(new Dimension(470, 14*16));
 		table.getSelectionModel().addListSelectionListener(new tableListener());
+		JScrollPane scrollPane = new JScrollPane(table);
+		centerPanel.add(scrollPane);
 		
 		cpane.add("West", leftPanel);
 		cpane.add("Center", centerPanel);
@@ -197,14 +172,6 @@ private void bookresearch() {
 		}
 	}
 	
-	private void setGrid(GridBagConstraints gbc, int dx, int dy, int width, int height) {
-		// TODO Auto-generated method stub
-		gbc.gridx = dx;
-		gbc.gridy = dy;
-		gbc.gridwidth = width;
-		gbc.gridheight = height;
-	}
-	
 	private void LoadList() {
 		if(menu_title.equals("자료검색")) {
 			String lent_re_state = "대출불가";
@@ -222,7 +189,8 @@ private void bookresearch() {
 					table.setValueAt(result.getString("book.book_name"), dataCount, 1);
 					table.setValueAt(result.getString("book.book_author"), dataCount, 2);
 					table.setValueAt(result.getString("book_publish"), dataCount, 3);
-					if(result.getString("lent.len_re_st").isEmpty() || result.getString("lent.len_re_st").equals("1")) {
+					String str = result.getString("lent.len_re_st");
+					if(str == null || str.equals("1")) {
 						lent_re_state = "대출가능";
 					}
 					else {
@@ -250,7 +218,7 @@ private void bookresearch() {
 			// TODO Auto-generated method stub
 			if(e.getStateChange() == ItemEvent.SELECTED) {
 				lib_name = e.getItem().toString();
-				sql = "SELECT * FROM `library WHERE '" + lib_name + "'";
+				sql = "SELECT * FROM `library` WHERE `lib_name` LIKE '" + lib_name + "'";
 				rs = db.getResultSet(sql);
 				
 				try {

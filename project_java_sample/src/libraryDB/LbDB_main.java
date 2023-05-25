@@ -39,8 +39,7 @@ public class LbDB_main {
 		db.printMetaData("place");
 		db.printMetaData("reservation");
 		Client cl = new Client();
-		LbDB_main_Frame frame = null;
-		LbDB_Login_Frame log = new LbDB_Login_Frame(db, cl, frame);
+		LbDB_Login_Frame log = new LbDB_Login_Frame(db, cl);
 		log.setVisible(true);
 	}
 }

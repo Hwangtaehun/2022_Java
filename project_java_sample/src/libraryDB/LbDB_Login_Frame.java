@@ -11,16 +11,14 @@ public class LbDB_Login_Frame extends LbDB_Frame{
 	private JTextField tf_Id;
 	private JPasswordField tf_Pw;
 	private String title;
-	private LbDB_main_Frame frame;
 	
 	LbDB_Login_Frame() {}
-	LbDB_Login_Frame(LbDB_DAO db, Client cl, LbDB_main_Frame frame){
+	LbDB_Login_Frame(LbDB_DAO db, Client cl){
 		logDB = db;
 		logCL = cl;
-		this.frame = frame;
 		initform();
 		addWindowListener(this);
-		title("로그인");
+		setTitle("로그인");
 	}
 	
 	void initform() {
@@ -110,10 +108,10 @@ public class LbDB_Login_Frame extends LbDB_Frame{
 				}
 				else {
 					logCL.insertnum(Integer.parseInt(pk), Integer.parseInt(state));
+					LbDB_main_Frame frame = new LbDB_main_Frame(logDB, logCL);
+					frame.setVisible(true);
 					setVisible(false);
 					dispose();
-					frame = new LbDB_main_Frame(logDB, logCL);
-					frame.setVisible(true);
 				}
 			}
 		}	

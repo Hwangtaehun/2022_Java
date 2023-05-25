@@ -5,10 +5,6 @@ import javax.swing.*;
 public class LbDB_Frame extends JFrame implements WindowListener {
 	public LbDB_Frame() {};
 	
-	public void title(String str) {
-		setTitle(str);
-	}
-	
 	@Override
 	public void windowActivated(WindowEvent e) {
 		// TODO Auto-generated method stub

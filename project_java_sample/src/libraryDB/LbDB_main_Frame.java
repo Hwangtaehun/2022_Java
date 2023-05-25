@@ -1,18 +1,141 @@
 package libraryDB;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
-public class LbDB_main_Frame extends LbDB_Frame {
-	private Client cl;
+import libraryDB.LbDB_material_Frame.ComboboxListener;
+
+class Material_foreignkey{
+	private int lib_no, book_no, kind_no, mem_no, lent_no, add_no;
+	
+	public void Material_foreignkey() {
+		lib_no = 0;
+		book_no = 0;
+		kind_no = 0;
+		mem_no = 0;
+		lent_no = 0;
+		add_no = 0;
+	}
+	
+	public void insert_lib_no(int lib_no) {
+		this.lib_no = lib_no;
+	}
+	
+	public void insert_book_no(int book_no) {
+		this.book_no = book_no;
+	}
+	
+	public void insert_kind_no(int kind_no) {
+		this.kind_no = kind_no;
+	}
+	
+	public void insert_mem_no(int mem_no) {
+		this.mem_no = mem_no;
+	}
+	
+	public void insert_add_no(int add_no) {
+		this.add_no = add_no;
+	}
+	
+	public int call_lib_no() {
+		return lib_no;
+	}
+	
+	public int call_book_no() {
+		return book_no;
+	}
+	
+	public int call_kind_no() {
+		return kind_no;
+	}
+	
+	public int call_mem_no() {
+		return mem_no;
+	}
+	
+	public int call_lent_no() {
+		return lent_no;
+	}
+	
+	public int call_add_no() {
+		return add_no;
+	}
+}
+
+class Combobox_Manager {
 	private LbDB_DAO db;
-	private int state, pk;
-	private String menu_title;
-	private Container cpane;
-	private JPanel centerPanel;
-	private GridBagLayout gbl;
-	private GridBagConstraints gbc;
+	private int fk;
+	private String table, key, sql;
+	private String[] arraystring;
+	private ResultSet rs;
+	public JComboBox <String> combox;
+	
+	public Combobox_Manager() {}
+	public Combobox_Manager(JComboBox <String> cb, String table, String key) {
+		combox = cb;
+		db = new LbDB_DAO();
+		this.table = table;
+		this.key = key;
+		
+		makearray();
+		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
+		combox.addItemListener(new ComboboxListener());
+	}
+	
+	private void makearray() {
+		String sentence = ""; 
+		
+		sql = "SELECT `" + key + "` FROM `" + table + "`";
+		rs = db.getResultSet(sql);
+		try {
+			while(rs.next()) {
+				sentence += rs.getString(key);
+				sentence += " ";
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		arraystring = sentence.split(" ");
+	}
+	
+	public int foreignkey() {
+		return fk;
+	}
+	
+	public class ComboboxListener implements ItemListener{
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			String choice_str;
+			
+			// TODO Auto-generated method stub
+			if(e.getStateChange() == ItemEvent.SELECTED) {
+				choice_str = e.getItem().toString();
+				sql = "SELECT * FROM `" + table + "` WHERE " + key + " LIKE '" + choice_str + "'";
+				rs = db.getResultSet(sql);
+				
+				try {
+					while(rs.next()) {
+						fk = rs.getInt(key);
+					}
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		}
+	}
+}
+
+public class LbDB_main_Frame extends LbDB_Frame {
+	protected Client cl;
+	protected LbDB_DAO db;
+	protected int state, pk;
 	
 	public LbDB_main_Frame() {}
 	public LbDB_main_Frame(LbDB_DAO db, Client cl) {
@@ -29,14 +152,15 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		}
 		
 		Initform();
+		setTitle("메인화면");
 		addWindowListener(this);
 	}
 	
 	private void Initform() {
-		cpane = getContentPane();
-		centerPanel = new JPanel();
-		gbl = new GridBagLayout();
-		gbc = new GridBagConstraints();
+		Container cpane = getContentPane();
+		JPanel centerPanel = new JPanel();
+		GridBagLayout gbl = new GridBagLayout();
+		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.weightx = 1;
 		gbc.weighty = 1;
@@ -63,7 +187,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		pack();
 	}
 	
-	private void manager_Initform(){
+	protected void manager_Initform(){
 		JMenuBar menuBar = new JMenuBar(); 
         JMenu materialMenu = new JMenu("책");
         JMenu libraryMenu = new JMenu("도서관");
@@ -105,10 +229,12 @@ public class LbDB_main_Frame extends LbDB_Frame {
         setJMenuBar(menuBar);
 	}
 	
-	private void member_Initform() {
+	protected void member_Initform() {
 		JMenuBar menuBar = new JMenuBar(); 
-        JMenu materialMenu = new JMenu("자료 검색");
-        materialMenu.addActionListener(new MenuAction());
+        JMenu materialMenu = new JMenu("자료검색");
+        JMenuItem m = new JMenuItem("자료검색");
+        m.addActionListener(new MenuAction());
+        materialMenu.add(m);
         
         JMenu libraryMenu = new JMenu("내서재");
         JMenuItem[] menuItems = new JMenuItem[4];
@@ -126,12 +252,17 @@ public class LbDB_main_Frame extends LbDB_Frame {
         setJMenuBar(menuBar);
 	}
 	
-	private void setGrid(GridBagConstraints gbc, int dx, int dy, int width, int height) {
+	protected void setGrid(GridBagConstraints gbc, int dx, int dy, int width, int height) {
 		// TODO Auto-generated method stub
 		gbc.gridx = dx;
 		gbc.gridy = dy;
 		gbc.gridwidth = width;
 		gbc.gridheight = height;
+	}
+	
+	protected void closeFrame() {
+		setVisible(false);
+		dispose();
 	}
 	
 	public class MenuAction implements ActionListener{
@@ -143,9 +274,13 @@ public class LbDB_main_Frame extends LbDB_Frame {
 			switch(command) {
 			case "자료관리": 
 				System.out.println("자료관리");
+				LbDB_material_Frame frame1 = new LbDB_material_Frame(db, cl, command);
+				frame1.setVisible(true);
 				break;
 			case "자료추가": 
 				System.out.println("자료추가");
+				LbDB_material_Frame frame2 = new LbDB_material_Frame(db, cl, command);
+				frame2.setVisible(true);
 				break;
 			case "도서관관리": 
 				System.out.println("도서관관리");
@@ -167,6 +302,8 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				break;
 			case "자료검색":
 				System.out.println("자료검색");
+				LbDB_material_Frame frame3 = new LbDB_material_Frame(db, cl, command);
+				frame3.setVisible(true);
 				break;
 			case "대출중도서":
 				System.out.println("대출중도서");
@@ -187,6 +324,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				System.out.println("종류추가");
 				break;
 			}
+			closeFrame();
 		}
 	}
 	

@@ -295,9 +295,13 @@ class Addresstool{
 public class Print {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		DB_DAO db = new DB_DAO();
-		String sample = "충청북도 청주시 서원구 사창동 222-15";
+		DB_DAO db = new DB_DAO();		
+		//String sample = "충청북도 청주시 서원구 사창동 222-15";
 		String sql, address;
+		sql = "SELECT library.lib_name, book.book_name, book.book_author, book.book_publish, lent.len_re_st " +
+			  "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
+			  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no";
+		/*
 		Addresstool add = new Addresstool(sample, db);
 		System.out.println("\n" + "시도: " + add.sido + ", 시군구: " + add.sigungu +", 읍면: " + add.eupmyun + 
 						   ", 동: " + add.dong + ", 리: " + add.ri + ", 도로명: " + add.doro + 
@@ -308,15 +312,20 @@ public class Print {
 			  add.ri + "' AND `doro` LIKE '" + add.doro + "' AND `buildno1` LIKE '" + add.buildno1 + "' AND `buildno2` LIKE '" +
 			  add.buildno2 + "' AND `jibun1` LIKE '" + add.jibun1 + "' AND `jibun2` LIKE '" + add.jibun2 + "'";
 		sql = "SELECT * FROM `address` WHERE `add_no` LIKE '4814353'";
+		*/
 		ResultSet result = db.getResultSet(sql);
 		try {
 			while(result.next()) {
+				String str = result.getString("lent.len_re_st");
+				System.out.println("책이름: " + result.getString("book.book_name") + ", 대출 상태: " + str);
+				/*
 				address = result.getString("sido") + " " + result.getString("sigungu") + " " + 
 						  result.getString("doro") + " " + result.getString("buildno1") + "-" + 
 						  result.getString("buildno2") + "\n" +
 						  result.getString("eupmyun") + " " + result.getString("dong") + " " + 
 				          result.getString("ri") + " " + result.getString("jibun1") + "-" + result.getString("jibun2");
 				System.out.println("기본키: " + result.getInt("add_no") + " 우편번호: " + result.getString("zipcode") + " 주소: " + address);
+				*/
 			}
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
