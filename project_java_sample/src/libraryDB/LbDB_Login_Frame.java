@@ -5,21 +5,22 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
-public class LbDB_Login_Dialog extends JDialog implements WindowListener{
+public class LbDB_Login_Frame extends LbDB_Frame{
 	private LbDB_DAO logDB;
 	private Client logCL;
 	private JTextField tf_Id;
 	private JPasswordField tf_Pw;
 	private String title;
-	private LbDB_Frame frame;
+	private LbDB_main_Frame frame;
 	
-	LbDB_Login_Dialog() {}
-	LbDB_Login_Dialog(LbDB_DAO db, Client cl, LbDB_Frame frame){
+	LbDB_Login_Frame() {}
+	LbDB_Login_Frame(LbDB_DAO db, Client cl, LbDB_main_Frame frame){
 		logDB = db;
 		logCL = cl;
 		this.frame = frame;
 		initform();
 		addWindowListener(this);
+		title("로그인");
 	}
 	
 	void initform() {
@@ -111,7 +112,7 @@ public class LbDB_Login_Dialog extends JDialog implements WindowListener{
 					logCL.insertnum(Integer.parseInt(pk), Integer.parseInt(state));
 					setVisible(false);
 					dispose();
-					frame = new LbDB_Frame(logDB, logCL);
+					frame = new LbDB_main_Frame(logDB, logCL);
 					frame.setVisible(true);
 				}
 			}
@@ -122,47 +123,8 @@ public class LbDB_Login_Dialog extends JDialog implements WindowListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			LbDB_Signup_Dialog signup = new LbDB_Signup_Dialog(logDB, title);
-			signup.setVisible(true);
+			LbDB_mem_info_Frame info = new LbDB_mem_info_Frame(logDB, title);
+			info.setVisible(true);
 		}
-	}
-
-	@Override
-	public void windowActivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowClosed(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowClosing(WindowEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("종료됨 !!");
-		e.getWindow().setVisible(false);
-		e.getWindow().dispose();
-		System.exit(0);
-	}
-	@Override
-	public void windowDeactivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowDeiconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowIconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowOpened(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 }

@@ -236,7 +236,7 @@ class Addresstool{
 	}
 }
 
-public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
+public class LbDB_zipcode_Dialog extends LBDB_Frame_Dialog{
 	private int dataCount, selectedCol;
 	private String address; 
 	private LbDB_DAO db;
@@ -253,6 +253,7 @@ public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
 		this.tf_zipcode = tf_zipcode;
 		this.tf_address = tf_address;
 		this.fk = fk;
+		title("우편번호 검색");
 		initform();
 		addWindowListener(this);
 	}
@@ -401,43 +402,5 @@ public class LbDB_zipcode_Dialog extends JDialog implements WindowListener{
 				}
 			}
 		}
-	}
-	
-	@Override
-	public void windowOpened(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowClosing(WindowEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("우편검색 페이지 종료!!");
-		e.getWindow().setVisible(false);
-		e.getWindow().dispose();
-	}
-	@Override
-	public void windowClosed(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowIconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowDeiconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowActivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void windowDeactivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 }
