@@ -1,70 +1,9 @@
 package libraryDB;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
+import java.sql.*;
 import javax.swing.*;
 import javax.swing.event.*;
-
-import libraryDB.LbDB_material_Frame.ComboboxListener;
-
-class Material_foreignkey{
-	private int lib_no, book_no, kind_no, mem_no, lent_no, add_no;
-	
-	public void Material_foreignkey() {
-		lib_no = 0;
-		book_no = 0;
-		kind_no = 0;
-		mem_no = 0;
-		lent_no = 0;
-		add_no = 0;
-	}
-	
-	public void insert_lib_no(int lib_no) {
-		this.lib_no = lib_no;
-	}
-	
-	public void insert_book_no(int book_no) {
-		this.book_no = book_no;
-	}
-	
-	public void insert_kind_no(int kind_no) {
-		this.kind_no = kind_no;
-	}
-	
-	public void insert_mem_no(int mem_no) {
-		this.mem_no = mem_no;
-	}
-	
-	public void insert_add_no(int add_no) {
-		this.add_no = add_no;
-	}
-	
-	public int call_lib_no() {
-		return lib_no;
-	}
-	
-	public int call_book_no() {
-		return book_no;
-	}
-	
-	public int call_kind_no() {
-		return kind_no;
-	}
-	
-	public int call_mem_no() {
-		return mem_no;
-	}
-	
-	public int call_lent_no() {
-		return lent_no;
-	}
-	
-	public int call_add_no() {
-		return add_no;
-	}
-}
 
 class Combobox_Manager {
 	private LbDB_DAO db;
@@ -87,13 +26,28 @@ class Combobox_Manager {
 	}
 	
 	private void makearray() {
-		String sentence = ""; 
+		String sentence = "", key_name = "";
+		char[] temp;
+		int cnt = 0;
 		
-		sql = "SELECT `" + key + "` FROM `" + table + "`";
+		temp = key.toCharArray();
+		for(int i = 0; i < temp.length; i++) {
+			if(temp[i] == '_') {
+				cnt = i;
+			}
+		}
+		
+		for(int i = 0; i < cnt + 1; i++) {
+			key_name += String.valueOf(temp[i]);
+		}
+		key_name += "name";
+		
+		
+		sql = "SELECT `" + key_name + "` FROM `" + table + "`";
 		rs = db.getResultSet(sql);
 		try {
 			while(rs.next()) {
-				sentence += rs.getString(key);
+				sentence += rs.getString(key_name);
 				sentence += " ";
 			}
 		} catch (SQLException e) {
