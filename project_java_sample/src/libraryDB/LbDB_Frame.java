@@ -3,7 +3,13 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class LbDB_Frame extends JFrame implements WindowListener {
+	private String title = "";
+	
 	public LbDB_Frame() {};
+	
+	public void dialog(String title) {
+		this.title = title;
+	}
 	
 	@Override
 	public void windowActivated(WindowEvent e) {
@@ -18,10 +24,17 @@ public class LbDB_Frame extends JFrame implements WindowListener {
 	@Override
 	public void windowClosing(WindowEvent e) {
 		// TODO Auto-generated method stub
-		System.out.println("종료됨 !!");
-		e.getWindow().setVisible(false);
-		e.getWindow().dispose();
-		System.exit(0);
+		if(!title.isEmpty()) {
+			System.out.println(title + "종료됨 !!");
+			e.getWindow().setVisible(false);
+			e.getWindow().dispose();
+		}
+		else {
+			System.out.println("종료됨 !!");
+			e.getWindow().setVisible(false);
+			e.getWindow().dispose();
+			System.exit(0);
+		}
 	}
 	@Override
 	public void windowDeactivated(WindowEvent e) {

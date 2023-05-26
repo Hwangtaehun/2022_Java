@@ -1,5 +1,5 @@
 package libraryDB;
 
-public class LbDB_library_Frame {
+public class LbDB_library_Frame{
 
 }

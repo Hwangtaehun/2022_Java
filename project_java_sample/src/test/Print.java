@@ -331,5 +331,11 @@ public class Print {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
+		String blank = "";
+		
+		if(blank.isEmpty()) {
+			System.out.println("blank가 비어 있습니다.");
+		}
 	}
 }

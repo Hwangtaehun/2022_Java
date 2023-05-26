@@ -6,18 +6,9 @@ import javax.swing.event.*;
 import java.sql.*;
 
 public class LbDB_material_Frame extends LbDB_main_Frame {
-	private LbDB_TableMode tablemodel;
-	private ResultSet result;
-	private JTable table;
-	private int dataCount, selectedCol;
-	private String sql, menu_title; 
 	private JTextField tf_bookname, tf_author, tf_publish;
-	private JButton addBt, updateBt, deleteBt, researchBt, clearBt;
 	private JComboBox <String> lib_Box;
-	private Container cpane;
-	private JPanel leftPanel, centerPanel;
-	private GridBagLayout gbl;
-	private GridBagConstraints gbc;
+	protected JButton reservationBt, deliveryBt;
 	
 	public LbDB_material_Frame () {}
 	public LbDB_material_Frame (LbDB_DAO db, Client cl, String str) {
@@ -27,39 +18,24 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		pk = cl.primarykey();
 		state = cl.state();
 		
-		if(state == 1) {
-			manager_Initform();
-		}
-		else {
-			member_Initform();
-		}
+		Initform();
+		baseform();
 		
-		initform();
-		
-		if(str.equals("자료검색")) {
-			bookresearch();
+		if(menu_title.equals("자료검색")) {
+			materialresearch();
 		}
-		else if(str.equals("자료관리")) {
+		else if(menu_title.equals("자료관리")) {
 			
 		}
-		else if(str.equals("자료추가")) {
+		else if(menu_title.equals("자료추가")) {
 			
 		}
 		
-		setTitle(str);
+		setTitle(menu_title);
 		addWindowListener(this);
 	}
 	
-	private void initform() {
-		cpane = getContentPane();
-		leftPanel = new JPanel();
-		centerPanel = new JPanel();
-		gbl = new GridBagLayout();
-		leftPanel.setLayout(gbl);
-		gbc = new GridBagConstraints();
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.weightx = 1;
-		gbc.weighty = 1;
+	private void baseform() {
 		Combobox_Manager manager = new Combobox_Manager(lib_Box, "library", "lib_no");
 		JLabel label;
 		
@@ -101,17 +77,27 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		leftPanel.add(tf_publish);
 	}
 	
-	private void bookresearch() {
-		setGrid(gbc,1,6,1,1);
+	private void materialresearch() {
+		setGrid(gbc,0,6,1,1);
 		researchBt = new JButton("검색");
 		researchBt.addActionListener(new researchButtonListener());
 		gbl.setConstraints(researchBt, gbc);
 		leftPanel.add(researchBt);
-		setGrid(gbc,2,6,1,1);
+		setGrid(gbc,1,6,1,1);
 		clearBt = new JButton("지우기");
 		clearBt.addActionListener(new clearButtonListener());
 		gbl.setConstraints(clearBt, gbc);
 		leftPanel.add(clearBt);
+		setGrid(gbc,2,6,1,1);
+		reservationBt = new JButton("예약");
+		reservationBt.addActionListener(new reservationButtonListener());
+		gbl.setConstraints(reservationBt, gbc);
+		leftPanel.add(reservationBt);
+		setGrid(gbc,3,6,1,1);
+		deliveryBt = new JButton("상호대차");
+		deliveryBt.addActionListener(new deliveryButtonListener());
+		gbl.setConstraints(deliveryBt, gbc);
+		leftPanel.add(deliveryBt);
 		
 		String columnName[] = {"도서관", "책 이름", "저자", "출판사", "대출가능"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
@@ -125,6 +111,9 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		cpane.add("Center", centerPanel);
 		pack();
 		
+		sql = "SELECT library.lib_name, book.book_name, book.book_author, book.book_publish, lent.len_re_st " +
+				  "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
+				  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no";
 		LoadList();
 		
 		try {
@@ -135,6 +124,10 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		}
 		
 		MoveData();
+	}
+	
+	private void materialmanager() {
+		
 	}
 	
 	private void removeTableRow(int row) {
@@ -174,9 +167,6 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 	private void LoadList() {
 		if(menu_title.equals("자료검색")) {
 			String lent_re_state = "대출불가";
-			sql = "SELECT library.lib_name, book.book_name, book.book_author, book.book_publish, lent.len_re_st " +
-				  "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
-				  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no";
 			result = db.getResultSet(sql);
 			
 			for(int i = 0; i < dataCount; i++) {
@@ -212,7 +202,23 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
-			
+			if(menu_title.equals("자료검색")) {
+				String lib_name = lib_Box.getSelectedItem().toString() + "%";
+				String book_name = tf_bookname.getText() + "%";
+				String book_author = tf_author.getText() + "%";
+				String book_publish = tf_publish.getText() + "%";
+				
+				sql = "SELECT library.lib_name, book.book_name, book.book_author, book.book_publish, lent.len_re_st " +
+					   "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
+					   "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no" +
+					   " AND library.lib_name LIKE '" + lib_name + "' AND book.book_name LIKE '" + book_name + "' AND book.book_author LIKE '" + book_author 
+					   +  "' AND book.book_publish LIKE '" + book_publish + "'";
+				//System.out.println(sql);
+				LoadList();
+			}
+			else {
+				
+			}
 		}
 	}
 	
@@ -244,11 +250,31 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
-			
+			lib_Box.setSelectedIndex(1);
+			tf_bookname.setText(null);
+			tf_author.setText(null);
+			tf_publish.setText(null);
 		}	
 	}
 	
-	class tableListener implements ListSelectionListener{
+	public class reservationButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+		}
+	}
+	
+	public class deliveryButtonListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
+	public class tableListener implements ListSelectionListener{
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			if(e.getValueIsAdjusting())
@@ -277,3 +303,15 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		}
 	}
 }
+
+/*
+cpane = getContentPane();
+leftPanel = new JPanel();
+centerPanel = new JPanel();
+gbl = new GridBagLayout();
+leftPanel.setLayout(gbl);
+gbc = new GridBagConstraints();
+gbc.fill = GridBagConstraints.BOTH;
+gbc.weightx = 1;
+gbc.weighty = 1;
+*/

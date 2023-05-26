@@ -5,6 +5,8 @@ import java.sql.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import libraryDB.LbDB_material_Frame.tableListener;
+
 class Combobox_Manager {
 	private LbDB_DAO db;
 	private int fk;
@@ -90,6 +92,17 @@ public class LbDB_main_Frame extends LbDB_Frame {
 	protected Client cl;
 	protected LbDB_DAO db;
 	protected int state, pk;
+	protected Container cpane;
+	protected JPanel leftPanel, centerPanel;
+	protected GridBagLayout gbl;
+	protected GridBagConstraints gbc;
+	
+	protected LbDB_TableMode tablemodel;
+	protected ResultSet result;
+	protected JTable table;
+	protected int dataCount, selectedCol;
+	protected String sql, menu_title;
+	protected JButton addBt, updateBt, deleteBt, researchBt, clearBt;
 	
 	public LbDB_main_Frame() {}
 	public LbDB_main_Frame(LbDB_DAO db, Client cl) {
@@ -98,26 +111,32 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		state = cl.state();
 		pk = cl.primarykey();
 		
+		Initform();
+		baseform();
+		setTitle("메인화면");
+		addWindowListener(this);
+	}
+	
+	protected void Initform() {
+		cpane = getContentPane();
+		centerPanel = new JPanel();
+		leftPanel = new JPanel();
+		gbl = new GridBagLayout();
+		leftPanel.setLayout(gbl);
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		
 		if(state == 1) {
 			manager_Initform();
 		}
 		else {
 			member_Initform();
 		}
-		
-		Initform();
-		setTitle("메인화면");
-		addWindowListener(this);
 	}
 	
-	private void Initform() {
-		Container cpane = getContentPane();
-		JPanel centerPanel = new JPanel();
-		GridBagLayout gbl = new GridBagLayout();
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.weightx = 1;
-		gbc.weighty = 1;
+	private void baseform() {
 		JLabel context;
 		String text;
 		
@@ -277,11 +296,16 @@ public class LbDB_main_Frame extends LbDB_Frame {
 			case "종류추가":
 				System.out.println("종류추가");
 				break;
+			case "책관리":
+				System.out.println("책관리");
+				break;
+			case "책추가":
+				System.out.println("책추가");
+				break;
 			}
 			closeFrame();
 		}
 	}
-	
 	/*
 	addBt = new JButton("등록");
 	addBt.addActionListener(new addButtonListener());
