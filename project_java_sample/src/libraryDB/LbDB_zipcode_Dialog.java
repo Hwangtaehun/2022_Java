@@ -236,7 +236,7 @@ class Addresstool{
 	}
 }
 
-public class LbDB_zipcode_Dialog extends LBDB_Frame_Dialog{
+public class LbDB_zipcode_Dialog extends LbDB_Frame{
 	private int dataCount, selectedCol;
 	private String address; 
 	private LbDB_DAO db;
@@ -253,7 +253,7 @@ public class LbDB_zipcode_Dialog extends LBDB_Frame_Dialog{
 		this.tf_zipcode = tf_zipcode;
 		this.tf_address = tf_address;
 		this.fk = fk;
-		title("우편번호 검색");
+		dialog("우편번호 검색");
 		initform();
 		addWindowListener(this);
 	}

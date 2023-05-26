@@ -7,8 +7,9 @@ public class LbDB_Frame extends JFrame implements WindowListener {
 	
 	public LbDB_Frame() {};
 	
-	public void dialog(String title) {
-		this.title = title;
+	public void dialog(String str) {
+		title = str;
+		setTitle(title);
 	}
 	
 	@Override

@@ -111,6 +111,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		state = cl.state();
 		pk = cl.primarykey();
 		
+		menuform();
 		Initform();
 		baseform();
 		setTitle("메인화면");
@@ -127,7 +128,9 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.weightx = 1;
 		gbc.weighty = 1;
-		
+	}
+	
+	protected void menuform() {
 		if(state == 1) {
 			manager_Initform();
 		}
@@ -168,8 +171,8 @@ public class LbDB_main_Frame extends LbDB_Frame {
         JMenu lentMenu = new JMenu("대출");
         JMenu bookMenu = new JMenu("종류");
         
-        JMenuItem[] menuItems = new JMenuItem[12];
-        String[] items = {"책관리", "책추가", "도서관관리", "도서관추가", "회원관리", "자료관리", "자료추가", "대출관리", "대출추가", "예약관리", "종류관리", "종류추가"};
+        JMenuItem[] menuItems = new JMenuItem[13];
+        String[] items = {"책관리", "책추가", "도서관관리", "도서관추가", "회원관리", "자료관리", "자료추가", "대출관리", "대출추가", "예약관리", "상호대차관리", "종류관리", "종류추가"};
         
         for(int i=0; i<menuItems.length; i++) {
         	 menuItems[i] = new JMenuItem(items[i]); // 메뉴 아이템 컴포넌트 생성
@@ -187,11 +190,12 @@ public class LbDB_main_Frame extends LbDB_Frame {
         memberMenu.add(menuItems[6]);
         
         lentMenu.add(menuItems[7]);
-        lentMenu.add(menuItems[8]);
+        lentMenu.add(menuItems[8]); 
+        lentMenu.add(menuItems[9]);
+        lentMenu.add(menuItems[10]);
         
-        bookMenu.add(menuItems[9]);
-        bookMenu.add(menuItems[10]);
         bookMenu.add(menuItems[11]);
+        bookMenu.add(menuItems[12]);
         
         menuBar.add(materialMenu);
         menuBar.add(libraryMenu);
@@ -288,6 +292,9 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				System.out.println("예약내역");
 				break;
 			case "상호대차":
+				System.out.println("상호대차");
+				break;
+			case "상호대차관리":
 				System.out.println("상호대차");
 				break;
 			case "종류관리":

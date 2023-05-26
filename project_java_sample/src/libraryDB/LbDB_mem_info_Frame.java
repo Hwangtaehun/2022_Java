@@ -5,7 +5,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
-public class LbDB_mem_info_Frame extends LBDB_Frame_Dialog{
+public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 	private LbDB_DAO db;
 	private JTextField tf_name, tf_Id, tf_zipcode, tf_address, tf_detail;
 	private JPasswordField tf_Pw, tf_Pw2;
@@ -15,11 +15,16 @@ public class LbDB_mem_info_Frame extends LBDB_Frame_Dialog{
 	
 	public LbDB_mem_info_Frame() {}
 	public LbDB_mem_info_Frame(LbDB_DAO db, String title) {
-		title(title);
 		this.db = db;
 		this.title = title;
 		fk = new foreignkey();
 		initform();
+		if(title.equals("회원 가입")) {
+			dialog("회원 가입");
+		}
+		else {
+			
+		}
 	}
 	
 	void initform() {
@@ -125,14 +130,6 @@ public class LbDB_mem_info_Frame extends LBDB_Frame_Dialog{
 		cpane.add("Center", centerPanel);
 		cpane.add("South", southPanel);
 		pack();
-	}
-	
-	private void setGrid(GridBagConstraints gbc, int dx, int dy, int width, int height) {
-		// TODO Auto-generated method stub
-		gbc.gridx = dx;
-		gbc.gridy = dy;
-		gbc.gridwidth = width;
-		gbc.gridheight = height;
 	}
 	
 	private void closeDialog() {

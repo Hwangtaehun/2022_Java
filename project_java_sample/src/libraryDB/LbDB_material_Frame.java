@@ -18,6 +18,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		pk = cl.primarykey();
 		state = cl.state();
 		
+		menuform();
 		Initform();
 		baseform();
 		
@@ -78,26 +79,26 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 	}
 	
 	private void materialresearch() {
+		setGrid(gbc,2,5,1,1);
+		deliveryBt = new JButton("상호대차");
+		deliveryBt.addActionListener(new deliveryButtonListener());
+		gbl.setConstraints(deliveryBt, gbc);
+		leftPanel.add(deliveryBt);
 		setGrid(gbc,0,6,1,1);
-		researchBt = new JButton("검색");
-		researchBt.addActionListener(new researchButtonListener());
-		gbl.setConstraints(researchBt, gbc);
-		leftPanel.add(researchBt);
-		setGrid(gbc,1,6,1,1);
 		clearBt = new JButton("지우기");
 		clearBt.addActionListener(new clearButtonListener());
 		gbl.setConstraints(clearBt, gbc);
 		leftPanel.add(clearBt);
+		setGrid(gbc,1,6,1,1);
+		researchBt = new JButton("검색");
+		researchBt.addActionListener(new researchButtonListener());
+		gbl.setConstraints(researchBt, gbc);
+		leftPanel.add(researchBt);
 		setGrid(gbc,2,6,1,1);
 		reservationBt = new JButton("예약");
 		reservationBt.addActionListener(new reservationButtonListener());
 		gbl.setConstraints(reservationBt, gbc);
 		leftPanel.add(reservationBt);
-		setGrid(gbc,3,6,1,1);
-		deliveryBt = new JButton("상호대차");
-		deliveryBt.addActionListener(new deliveryButtonListener());
-		gbl.setConstraints(deliveryBt, gbc);
-		leftPanel.add(deliveryBt);
 		
 		String columnName[] = {"도서관", "책 이름", "저자", "출판사", "대출가능"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
@@ -111,9 +112,8 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		cpane.add("Center", centerPanel);
 		pack();
 		
-		sql = "SELECT library.lib_name, book.book_name, book.book_author, book.book_publish, lent.len_re_st " +
-				  "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
-				  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no";
+		sql = "SELECT * " + "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
+			  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no";
 		LoadList();
 		
 		try {
