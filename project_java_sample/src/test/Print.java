@@ -295,6 +295,7 @@ class Addresstool{
 public class Print {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		
 		DB_DAO db = new DB_DAO();		
 		//String sample = "충청북도 청주시 서원구 사창동 222-15";
 		String sql, address;

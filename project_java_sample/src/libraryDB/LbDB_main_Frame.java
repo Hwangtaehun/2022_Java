@@ -26,9 +26,18 @@ class Combobox_Manager {
 		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
 		combox.addItemListener(new ComboboxListener());
 	}
+	public Combobox_Manager(JComboBox <String> cb, String table, String key, String where) {
+		combox = cb;
+		db = new LbDB_DAO();
+		this.table = table;
+		this.key = key;
+		
+		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
+		combox.addItemListener(new ComboboxListener());
+	}
 	
-	private void makearray() {
-		String sentence = "", key_name = "";
+	private String changenamekey() {
+		String key_name = "";
 		char[] temp;
 		int cnt = 0;
 		
@@ -44,20 +53,27 @@ class Combobox_Manager {
 		}
 		key_name += "name";
 		
+		return key_name;
+	}
+	
+	private void makearray() {
+		String sentence = "", key_name = "";
+		
+		key_name = changenamekey();
 		
 		sql = "SELECT `" + key_name + "` FROM `" + table + "`";
 		rs = db.getResultSet(sql);
 		try {
 			while(rs.next()) {
 				sentence += rs.getString(key_name);
-				sentence += " ";
+				sentence += "-";
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		arraystring = sentence.split(" ");
+		arraystring = sentence.split("-");
 	}
 	
 	public int foreignkey() {
@@ -169,7 +185,6 @@ public class LbDB_main_Frame extends LbDB_Frame {
         JMenu libraryMenu = new JMenu("도서관");
         JMenu memberMenu = new JMenu("자료 및 회원");
         JMenu lentMenu = new JMenu("대출");
-        JMenu bookMenu = new JMenu("종류");
         
         JMenuItem[] menuItems = new JMenuItem[13];
         String[] items = {"책관리", "책추가", "도서관관리", "도서관추가", "회원관리", "자료관리", "자료추가", "대출관리", "대출추가", "예약관리", "상호대차관리", "종류관리", "종류추가"};
