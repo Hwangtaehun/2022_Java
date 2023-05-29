@@ -16,24 +16,29 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		pk = cl.primarykey();
 		state = cl.state();
 		
-		if(state == 1) {
-			manager_Initform();
-		}
-		else {
-			member_Initform();
-		}
-		
 		Initform();
 		baseform();
 		
 		if(menu_title.equals("책검색")) {
-			
+			dialog(menu_title);
+			tableform();
+			baseform_final();
+			tableform_final();
 		}
-		else if(menu_title.equals("책추가")) {
+		else {
+			if(state == 1) {
+				manager_Initform();
+			}
+			else {
+				member_Initform();
+			}
 			
-		}
-		else if(menu_title.equals("책관리")) {
-			
+			if(menu_title.equals("책추가")) {
+				
+			}
+			else {
+				
+			}
 		}
 	}
 	
@@ -41,7 +46,7 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		JLabel label;
 		
 		setGrid(gbc,1,1,1,1);
-		label = new JLabel("    자료 검색   ");
+		label = new JLabel("    " + menu_title + "   ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,0,2,1,1);
@@ -68,7 +73,9 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		tf_publish = new JTextField(20);
 		gbl.setConstraints(tf_publish, gbc);
 		leftPanel.add(tf_publish);
-		
+	}
+	
+	private void tableform() {
 		String columnName[] = {"책 이름", "저자", "출판사", "가격", "출판년도"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
@@ -76,11 +83,15 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		table.getSelectionModel().addListSelectionListener(new tableListener());
 		JScrollPane scrollPane = new JScrollPane(table);
 		centerPanel.add(scrollPane);
-		
+	}
+	
+	private void baseform_final() {
 		cpane.add("West", leftPanel);
 		cpane.add("Center", centerPanel);
 		pack();
-		
+	}
+	
+	private void tableform_final() {
 		sql = "SELECT library.lib_name, book.book_name, book.book_author, book.book_publish, lent.len_re_st " +
 				  "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
 				  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no";

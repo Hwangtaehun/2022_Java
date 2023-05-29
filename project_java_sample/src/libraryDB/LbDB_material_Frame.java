@@ -114,7 +114,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		
 		sql = "SELECT * " + "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
 			  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no";
-		LoadList();
+		LoadList(sql);
 		
 		try {
 			result.first();
@@ -164,10 +164,10 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		}
 	}
 	
-	private void LoadList() {
+	private void LoadList(String now_sql) {
 		if(menu_title.equals("자료검색")) {
 			String lent_re_state = "대출불가";
-			result = db.getResultSet(sql);
+			result = db.getResultSet(now_sql);
 			
 			for(int i = 0; i < dataCount; i++) {
 				removeTableRow(i);
@@ -178,8 +178,8 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 					table.setValueAt(result.getString("book.book_name"), dataCount, 1);
 					table.setValueAt(result.getString("book.book_author"), dataCount, 2);
 					table.setValueAt(result.getString("book_publish"), dataCount, 3);
-					String str = result.getString("lent.len_re_st");
-					if(str == null || str.equals("1")) {
+					String state = result.getString("lent.len_re_st");
+					if(state == null || state.equals("1")) {
 						lent_re_state = "대출가능";
 					}
 					else {
@@ -208,13 +208,17 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 				String book_author = tf_author.getText() + "%";
 				String book_publish = tf_publish.getText() + "%";
 				
-				sql = "SELECT library.lib_name, book.book_name, book.book_author, book.book_publish, lent.len_re_st " +
+				String now_sql = sql + " AND library.lib_name LIKE '" + lib_name + "' AND book.book_name LIKE '" + book_name
+						          + "' AND book.book_author LIKE '" + book_author +  "' AND book.book_publish LIKE '" 
+						          + book_publish + "'";
+						
+			   /*sql = "SELECT library.lib_name, book.book_name, book.book_author, book.book_publish, lent.len_re_st " +
 					   "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
 					   "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no" +
 					   " AND library.lib_name LIKE '" + lib_name + "' AND book.book_name LIKE '" + book_name + "' AND book.book_author LIKE '" + book_author 
-					   +  "' AND book.book_publish LIKE '" + book_publish + "'";
+					   +  "' AND book.book_publish LIKE '" + book_publish + "'"; */
 				//System.out.println(sql);
-				LoadList();
+				LoadList(now_sql);
 			}
 			else {
 				
