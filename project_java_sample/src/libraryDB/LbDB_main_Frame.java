@@ -277,9 +277,13 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				break;
 			case "도서관관리": 
 				System.out.println("도서관관리");
+				LbDB_library_Frame frame4 = new LbDB_library_Frame(db, cl, command);
+				frame4.setVisible(true);
 				break;
 			case "도서관추가": 
 				System.out.println("도서관추가");
+				LbDB_library_Frame frame5 = new LbDB_library_Frame(db, cl, command);
+				frame5.setVisible(true);
 				break;
 			case "회원관리": 
 				System.out.println("회원관리");

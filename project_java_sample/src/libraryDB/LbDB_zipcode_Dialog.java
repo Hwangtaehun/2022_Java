@@ -57,6 +57,7 @@ class Addresstool{
 		for(int i = 0; i < main.length; i++) {
 			System.out.print(main[i]+ " ");
 		}
+		System.out.print("\n");
 	}
 	
 	public void print2() {
@@ -127,7 +128,7 @@ class Addresstool{
 			}
 		}
 		
-		String sql = "SELECT DISTINCT `sigungu` FROM `address` WHERE `sigungu` LIKE '" + word + "%'";
+		String sql = "SELECT DISTINCT `sigungu` FROM `address` WHERE `sigungu` LIKE '%" + word + "%'";
 		rs = db.getResultSet(sql);
 		
 		try {
@@ -248,8 +249,8 @@ public class LbDB_zipcode_Dialog extends LbDB_Frame{
 	private foreignkey fk;
 	
 	public LbDB_zipcode_Dialog() {}
-	public LbDB_zipcode_Dialog(LbDB_DAO db, JTextField tf_zipcode, JTextField tf_address, foreignkey fk) {
-		this.db = db;
+	public LbDB_zipcode_Dialog(JTextField tf_zipcode, JTextField tf_address, foreignkey fk) {
+		db = new LbDB_DAO();
 		this.tf_zipcode = tf_zipcode;
 		this.tf_address = tf_address;
 		this.fk = fk;
