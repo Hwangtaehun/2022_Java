@@ -295,7 +295,20 @@ class Addresstool{
 public class Print {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		String blank = "009";
+		String last = "";
+		int number = Integer.parseInt(blank);
+		number++;
+		System.out.println(number);
+		last = result_method(number);
+		System.out.println(last);
 		
+		if(blank.isEmpty()) {
+			System.out.println("blank가 비어 있습니다.");
+		}
+	}
+	
+	public void address() {
 		DB_DAO db = new DB_DAO();		
 		//String sample = "충청북도 청주시 서원구 사창동 222-15";
 		String sql, address;
@@ -332,11 +345,21 @@ public class Print {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+	}
+	
+	public static String result_method(int num) {
+		String str;
 		
-		String blank = "";
-		
-		if(blank.isEmpty()) {
-			System.out.println("blank가 비어 있습니다.");
+		if(num < 10) {
+			str = "00" + num;
 		}
+		else if(10 <= num && num < 100) {
+			str = "0" + num;
+		}
+		else {
+			str = Integer.toString(num);
+		}
+		
+		return str;
 	}
 }
