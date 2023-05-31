@@ -48,4 +48,28 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		
 		return str;
 	}
+	
+	public String strTonumTostr(String str) {
+		String result = null;
+		
+		return result;
+	}
+	
+	public boolean isInteger(String strValue) {
+	    try {
+	      Integer.parseInt(strValue);
+	      return true;
+	    } catch (NumberFormatException ex) {
+	      return false;
+	    }
+	}
+	
+	public boolean isFloat(String strValue) {
+	    try {
+	      Float.parseFloat(strValue);
+	      return true;
+	    } catch (NumberFormatException ex) {
+	      return false;
+	    }
+	}
 }

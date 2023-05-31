@@ -295,16 +295,23 @@ class Addresstool{
 public class Print {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String blank = "009";
-		String last = "";
-		int number = Integer.parseInt(blank);
-		number++;
-		System.out.println(number);
-		last = result_method(number);
-		System.out.println(last);
+		String blank = "814.1";
+		//String last = "";
+		//int number = Integer.parseInt(blank);
+		//number++;
+		//System.out.println(number);
+		//last = result_method(number);
+		//System.out.println(last);
 		
 		if(blank.isEmpty()) {
 			System.out.println("blank가 비어 있습니다.");
+		}
+		
+		if(isInteger(blank)) {
+			System.out.println("정수 입니다.");
+		}
+		else if(isFloat(blank)) {
+			System.out.println("실수 입니다.");
 		}
 	}
 	
@@ -361,5 +368,23 @@ public class Print {
 		}
 		
 		return str;
+	}
+	
+	public static boolean isInteger(String strValue) {
+	    try {
+	      Integer.parseInt(strValue);
+	      return true;
+	    } catch (NumberFormatException ex) {
+	      return false;
+	    }
+	}
+	
+	public static boolean isFloat(String strValue) {
+	    try {
+	      Float.parseFloat(strValue);
+	      return true;
+	    } catch (NumberFormatException ex) {
+	      return false;
+	    }
 	}
 }
