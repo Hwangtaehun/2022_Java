@@ -51,7 +51,7 @@ public class LbDB_library_Frame extends LbDB_main_Frame {
 		JButton addressbt;
 		
 		setGrid(gbc,1,1,1,1);
-		label = new JLabel("    " + menu_title + "   ");
+		label = new JLabel("                                                     " + menu_title);
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,0,4,1,1);
