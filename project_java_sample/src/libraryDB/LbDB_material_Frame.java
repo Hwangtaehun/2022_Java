@@ -8,6 +8,7 @@ import java.sql.*;
 public class LbDB_material_Frame extends LbDB_main_Frame {
 	private JTextField tf_bookname, tf_author, tf_publish;
 	private JComboBox <String> lib_Box;
+	private int kind_no;
 	protected JButton reservationBt, deliveryBt;
 	
 	public LbDB_material_Frame () {}
@@ -17,6 +18,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		menu_title = str;
 		pk = cl.primarykey();
 		state = cl.state();
+		kind_no = 0;
 		
 		menuform();
 		Initform();

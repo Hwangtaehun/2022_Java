@@ -5,41 +5,7 @@ import java.sql.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-class Combobox_Inheritance{
-	private String parent_name;
-	private String num;
-	private boolean nothing = false;
-	public Combobox_Manager child_manager;
-	public JComboBox <String> child_combox;
-	
-	public Combobox_Inheritance() {}
-	public Combobox_Inheritance(Combobox_Manager cm, JComboBox <String> cd, String str) {
-		this.child_manager = cm;
-		this.child_combox = cd;
-		parent_name = str;
-		num = "";
-	}
-	
-	public void insert_num(String str) {
-		num = str;
-	}
-
-	public void insert_nothing(boolean bool) {
-		nothing = bool;
-	}
-	
-	public String call_parent_name() {
-		return parent_name;
-	}
-	
-	public String call_num() {
-		return num;
-	}
-	
-	public boolean call_nothing() {
-		return nothing;
-	}
-}
+import libraryDB.LbDB_material_Frame.tableListener;
 
 class Combobox_Manager {
 	private LbDB_DAO db;
@@ -47,9 +13,6 @@ class Combobox_Manager {
 	private String table, key, key_name, sql;
 	private String[] arraystring;
 	private ResultSet rs;
-	private Combobox_Inheritance ci;
-	private boolean ci_exist = false;
-	private boolean nothing = false;
 	public JComboBox <String> combox;
 	
 	public Combobox_Manager() {}
@@ -63,32 +26,9 @@ class Combobox_Manager {
 		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
 		combox.addItemListener(new ComboboxListener());
 	}
-	public Combobox_Manager(JComboBox <String> cb, String table, String key, String where, boolean bool) {
-		combox = cb;
-		db = new LbDB_DAO();
-		this.table = table;
-		this.key = key;
-		nothing = bool;
-		
-		makearray(where);
-		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
-		combox.addItemListener(new ComboboxListener());
-	}
-	public Combobox_Manager(Combobox_Inheritance ci, JComboBox <String> cb, String table, String key, String where) {
-		combox = cb;
-		db = new LbDB_DAO();
-		this.table = table;
-		this.key = key;
-		this.ci = ci;
-		ci_exist = true;
-		
-		makearray(where);
-		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
-		combox.addItemListener(new ComboboxListener());
-	}
 	
 	private String changenamekey() {
-		String str = "";
+		String key_name = "";
 		char[] temp;
 		int cnt = 0;
 		
@@ -100,39 +40,19 @@ class Combobox_Manager {
 		}
 		
 		for(int i = 0; i < cnt + 1; i++) {
-			str += String.valueOf(temp[i]);
+			key_name += String.valueOf(temp[i]);
 		}
-		str += "name";
+		key_name += "name";
 		
-		return str;
+		return key_name;
 	}
 	
 	private void makearray() {
 		String sentence = "";
 		
 		key_name = changenamekey();
-		if(nothing) {
-			sentence = "없음-";
-		}
+		
 		sql = "SELECT `" + key_name + "` FROM `" + table + "`";
-		rs = db.getResultSet(sql);
-		try {
-			while(rs.next()) {
-				sentence += rs.getString(key_name);
-				sentence += "-";
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		arraystring = sentence.split("-");
-	}
-	private void makearray(String str) {
-		String sentence = "";
-		
-		key_name = changenamekey();
-		sql = "SELECT `" + key_name + "` FROM `" + table + "` " + str;
 		rs = db.getResultSet(sql);
 		try {
 			while(rs.next()) {
@@ -155,45 +75,20 @@ class Combobox_Manager {
 		@Override
 		public void itemStateChanged(ItemEvent e) {
 			String choice_str;
-			String pn = "", num = "";
 			
 			// TODO Auto-generated method stub
 			if(e.getStateChange() == ItemEvent.SELECTED) {
 				choice_str = e.getItem().toString();
 				sql = "SELECT * FROM `" + table + "` WHERE " + key_name + " LIKE '" + choice_str + "'";
-				System.out.println(sql);
 				rs = db.getResultSet(sql);
 				
 				try {
 					while(rs.next()) {
 						fk = rs.getInt(key);
-						if(key.equals("kind_no")) {
-							num = rs.getString("kind_num");
-							System.out.println(num);
-						}
 					}
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				}
-				
-				if(ci_exist) {
-					pn = ci.call_parent_name();
-					boolean no = ci.call_nothing();
-					ci.insert_num(num);
-					if(pn.equals("대분류")) {
-					    String str = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) + "_0'";
-					    System.out.println(str);
-						ci.child_manager = new Combobox_Manager(ci.child_combox, table, key, str, no);
-						ci.child_combox = ci.child_manager.combox;
-					}
-					else if(pn.equals("중분류")) {
-						String str = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) 
-						  			 + String.valueOf(num.charAt(1)) + "_'";
-						System.out.println(str);
-						ci.child_manager = new Combobox_Manager(ci.child_combox, table, key, str, no);
-						ci.child_combox = ci.child_manager.combox;
-					}
 				}
 			}
 		}
