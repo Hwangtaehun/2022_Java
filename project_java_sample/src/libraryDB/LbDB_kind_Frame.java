@@ -4,8 +4,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import libraryDB.LbDB_library_Frame.tableListener;
-import libraryDB.LbDB_material_Frame.reservationButtonListener;
+import libraryDB.LbDB_library_Frame.updateButtonListener;
 
 import java.sql.*;
 
@@ -14,6 +13,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 	private Combobox_Inheritance one_to_two, two_to_three;
 	private Combobox_Manager one_manager, two_manager, three_manager;
 	private JTextField tf_name, tf_kind_num, tf_research;
+	private String last_sql;
 	
 	public LbDB_kind_Frame() {}
 	public LbDB_kind_Frame(String str, JTextField tf) {
@@ -41,10 +41,11 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		setTitle(str);
 		Initform();
 		if(str.equals("종류추가")) {
+			baseform();
 			addform();
 		}
 		else {
-			
+			editform();
 		}
 	}
 	
@@ -82,7 +83,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,2,1,1);
-		where = "WHERE `kind_num` LIKE '_00";
+		where = "WHERE `kind_num` LIKE '_00'";
 		one_to_two = new Combobox_Inheritance (two_manager, two_Box, "대분류");
 		one_manager = new Combobox_Manager(one_to_two, one_Box, "kind", "kind_no", where); 
 		one_Box = one_manager.combox;
@@ -92,6 +93,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 	
 	private void dialogform() {
 		JButton bt;
+		
 		setGrid(gbc,1,5,1,1);
 		bt = new JButton("입력");
 		gbl.setConstraints(bt, gbc);
@@ -104,6 +106,8 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 	
 	private void addform() {
 		JLabel label;
+		
+		one_to_two.insert_nothing(true);
 		setGrid(gbc,0,5,1,1);
 		label = new JLabel("    이름  ");
 		gbl.setConstraints(label, gbc);
@@ -123,6 +127,82 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 	}
 	
 	private void editform() {
+		JLabel label;
+		
+		setGrid(gbc,1,1,1,1);
+		label = new JLabel("    " + menu_title + "   ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,0,2,1,1);
+		label = new JLabel("    검색  ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,2,1,1);
+		tf_research = new JTextField(20);
+		gbl.setConstraints(tf_research, gbc);
+		leftPanel.add(tf_research);
+		setGrid(gbc,2,2,1,1);
+		researchBt = new JButton("검색");
+		researchBt.addActionListener(new researchButtonListener());
+		gbl.setConstraints(researchBt, gbc);
+		leftPanel.add(researchBt);
+		setGrid(gbc,1,3,1,1);
+		label = new JLabel("    ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,0,6,1,1);
+		label = new JLabel("    소분류    ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,6,1,1);
+		String where = "WHERE `kind_num` LIKE '00_'";
+		three_manager = new Combobox_Manager(three_Box, "kind", "kind_no", where, true);
+		three_Box = three_manager.combox;
+		gbl.setConstraints(three_Box, gbc);
+		leftPanel.add(three_Box);
+		setGrid(gbc,0,5,1,1);
+		label = new JLabel("    중분류    ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,5,1,1);
+		where = "WHERE `kind_num` LIKE '0_0'";
+		two_to_three = new Combobox_Inheritance (three_manager, three_Box, "중분류");
+		two_to_three.insert_nothing(true);
+		two_manager = new Combobox_Manager(two_to_three, two_Box, "kind", "kind_no", where); 
+		two_Box = two_manager.combox;
+		gbl.setConstraints(two_Box, gbc);
+		leftPanel.add(two_Box);
+		setGrid(gbc,0,4,1,1);
+		label = new JLabel("    대분류    ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,4,1,1);
+		where = "WHERE `kind_num` LIKE '_00'";
+		one_to_two = new Combobox_Inheritance (two_manager, two_Box, "대분류");
+		one_manager = new Combobox_Manager(one_to_two, one_Box, "kind", "kind_no", where); 
+		one_Box = one_manager.combox;
+		gbl.setConstraints(one_Box, gbc);
+		leftPanel.add(one_Box);
+		setGrid(gbc,0,7,1,1);
+		label = new JLabel("    이름  ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,7,1,1);
+		tf_name = new JTextField(20);
+		gbl.setConstraints(tf_name, gbc);
+		leftPanel.add(tf_name);
+		setGrid(gbc,0,8,1,1);
+		updateBt = new JButton("수정");
+		updateBt.addActionListener(new updateButtonListener());
+		gbl.setConstraints(updateBt, gbc);
+		leftPanel.add(updateBt);
+		setGrid(gbc,1,8,1,1);
+		deleteBt = new JButton("삭제");
+		deleteBt.addActionListener(new deleteButtonListener());
+		gbl.setConstraints(deleteBt, gbc);
+		leftPanel.add(deleteBt);
+		
+		
 		String columnName[] = {"번호", "이름"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
@@ -136,7 +216,8 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		pack();
 		
 		sql = "SELECT * FROM `kind` ";
-		LoadList(sql);
+		last_sql = sql + "ORDER BY `kind_num`";
+		LoadList(last_sql);
 		
 		try {
 			result.first();
@@ -278,8 +359,9 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
-			String lib_name = "%" + tf_research.getText() + "%";
-			String now_sql = sql + " AND library.lib_name LIKE '" + lib_name + "'";
+			String kind_name = "%" + tf_research.getText() + "%";
+			String now_sql = sql + "WHERE kind_name LIKE '" + kind_name + "' ORDER BY `kind_num`";
+			System.out.println(now_sql);
 			LoadList(now_sql);
 			
 			try {
@@ -339,7 +421,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
-			String now_sql;
+			String result_name = null, next, previous = null, temp = "", now_sql;
 			int code = 0;
 			
 			if(selectedCol == -1) {
@@ -348,24 +430,47 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 			}
 			try {
 				code = result.getInt("kind_no");
+				result_name = result.getString("kind_name");
 				
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			if(textfield_check(tf_lib_date.getText())) {
-				if(push_addbt) {
-					now_sql = "UPDATE `library` SET `lib_name` = '" + tf_lib_name.getText() + "', `lib_date` = '" + tf_lib_date.getText() +
-							  "', `add_no` = " + fk.call_add_no() + ", `lib_detail` = '" + tf_lib_detail.getText() + "' WHERE `lib_no` = " + code;
+			
+			if(result_name.equals(three_Box.getSelectedItem())) {
+				now_sql = "UPDATE `kind` SET `kind_name` = '" + tf_name.getText() + "' WHERE `lib_no` = " + code;
+			}
+			else {
+				if(three_Box.getSelectedItem().equals("없음")) {
+					now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + two_manager.foreignkey();
 				}
 				else {
-					now_sql = "UPDATE `library` SET `lib_name` = '" + tf_lib_name.getText() + "', `lib_date` = '" + tf_lib_date.getText() +
-							  "', `lib_detail` = '" + tf_lib_detail.getText() + "' WHERE `lib_no` = " + code;
+					now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + three_manager.foreignkey();
 				}
-				System.out.println(now_sql);
-				db.Excute(now_sql);
+				result = db.getResultSet(now_sql);
+				try {
+					while(result.next()) {
+						previous = result.getString("kind_num");
+					}
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				next = strTonumTostr(previous);
+				
+				now_sql = "SELECT * FROM `kind` WHERE `kind_num` LIKE " + next;
+				result = db.getResultSet(now_sql);
+				try {
+					while(result.next()) {
+						temp = result.getString("kind_num");
+					}
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
-			LoadList(sql);
+			
+			LoadList(last_sql);
 			
 			try {
 				result.absolute(selectedCol + 1);
@@ -398,7 +503,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 			now_sql = "DELETE FROM `kind` WHERE `kind_no` = " + code;
 			System.out.println(now_sql);
 			db.Excute(now_sql);
-			LoadList(sql);
+			LoadList(last_sql);
 		}	
 	}
 	
@@ -415,11 +520,14 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 				if(selectedCol >= dataCount)
 					System.out.println("data is Empty");
 				else {
-					tf_lib_name.setText(table.getValueAt(selectedCol, 0).toString());
-					tf_lib_date.setText(table.getValueAt(selectedCol, 1).toString());
-					tf_zipcode.setText(table.getValueAt(selectedCol, 2).toString());
-					tf_address.setText(table.getValueAt(selectedCol, 3).toString());
-					tf_lib_detail.setText(table.getValueAt(selectedCol, 4).toString());
+					String kind_num = table.getValueAt(selectedCol, 0).toString();
+					String oneclass = numToname(String.valueOf(kind_num.charAt(0)) + "00");
+					String twoclass = numToname(String.valueOf(kind_num.charAt(0)) + String.valueOf(kind_num.charAt(1)) + "0");
+					String threeclass = table.getValueAt(selectedCol, 1).toString();
+					one_Box.setSelectedItem(oneclass);
+					two_Box.setSelectedItem(twoclass);
+					three_Box.setSelectedItem(threeclass);
+					tf_name.setText(threeclass);
 					try {
 						result.absolute(selectedCol + 1);
 						MoveData();

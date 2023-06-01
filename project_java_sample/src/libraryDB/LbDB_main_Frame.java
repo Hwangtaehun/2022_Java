@@ -44,7 +44,7 @@ class Combobox_Inheritance{
 class Combobox_Manager {
 	private LbDB_DAO db;
 	private int fk;
-	private String table, key, sql;
+	private String table, key, key_name, sql;
 	private String[] arraystring;
 	private ResultSet rs;
 	private Combobox_Inheritance ci;
@@ -88,7 +88,7 @@ class Combobox_Manager {
 	}
 	
 	private String changenamekey() {
-		String key_name = "";
+		String str = "";
 		char[] temp;
 		int cnt = 0;
 		
@@ -100,15 +100,15 @@ class Combobox_Manager {
 		}
 		
 		for(int i = 0; i < cnt + 1; i++) {
-			key_name += String.valueOf(temp[i]);
+			str += String.valueOf(temp[i]);
 		}
-		key_name += "name";
+		str += "name";
 		
-		return key_name;
+		return str;
 	}
 	
 	private void makearray() {
-		String sentence = "", key_name = "";
+		String sentence = "";
 		
 		key_name = changenamekey();
 		if(nothing) {
@@ -130,8 +130,8 @@ class Combobox_Manager {
 	}
 	private void makearray(String str) {
 		String sentence = "";
-		String key_name = changenamekey();
 		
+		key_name = changenamekey();
 		sql = "SELECT `" + key_name + "` FROM `" + table + "` " + str;
 		rs = db.getResultSet(sql);
 		try {
@@ -160,14 +160,16 @@ class Combobox_Manager {
 			// TODO Auto-generated method stub
 			if(e.getStateChange() == ItemEvent.SELECTED) {
 				choice_str = e.getItem().toString();
-				sql = "SELECT * FROM `" + table + "` WHERE " + key + " LIKE '" + choice_str + "'";
+				sql = "SELECT * FROM `" + table + "` WHERE " + key_name + " LIKE '" + choice_str + "'";
+				System.out.println(sql);
 				rs = db.getResultSet(sql);
 				
 				try {
 					while(rs.next()) {
 						fk = rs.getInt(key);
 						if(key.equals("kind_no")) {
-							num = rs.getString("kind_name");
+							num = rs.getString("kind_num");
+							System.out.println(num);
 						}
 					}
 				} catch (SQLException e1) {
@@ -181,12 +183,16 @@ class Combobox_Manager {
 					ci.insert_num(num);
 					if(pn.equals("대분류")) {
 					    String str = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) + "_0'";
+					    System.out.println(str);
 						ci.child_manager = new Combobox_Manager(ci.child_combox, table, key, str, no);
+						ci.child_combox = ci.child_manager.combox;
 					}
 					else if(pn.equals("중분류")) {
 						String str = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) 
 						  			 + String.valueOf(num.charAt(1)) + "_'";
+						System.out.println(str);
 						ci.child_manager = new Combobox_Manager(ci.child_combox, table, key, str, no);
+						ci.child_combox = ci.child_manager.combox;
 					}
 				}
 			}
@@ -409,9 +415,13 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				break;
 			case "종류관리":
 				System.out.println("종류관리");
+				LbDB_kind_Frame frame6 = new LbDB_kind_Frame(db, cl, command);
+				frame6.setVisible(true);
 				break;
 			case "종류추가":
 				System.out.println("종류추가");
+				LbDB_kind_Frame frame7 = new LbDB_kind_Frame(db, cl, command);
+				frame7.setVisible(true);
 				break;
 			case "책관리":
 				System.out.println("책관리");
