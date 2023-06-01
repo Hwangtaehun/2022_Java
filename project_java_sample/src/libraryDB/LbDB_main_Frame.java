@@ -5,8 +5,6 @@ import java.sql.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import libraryDB.LbDB_material_Frame.tableListener;
-
 class Combobox_Manager {
 	private LbDB_DAO db;
 	private int fk;
