@@ -5,12 +5,75 @@ import java.sql.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+class Combobox_Inheritance{
+	private String parent_name, num, arraystring[];
+	private boolean nothing = false;
+	public Combobox_Manager child_manager;
+	public JComboBox <String> child_combox;
+	
+	public Combobox_Inheritance() {}
+	public Combobox_Inheritance(Combobox_Manager cm, JComboBox <String> cd, String str) {
+		this.child_manager = cm;
+		this.child_combox = cd;
+		parent_name = str;
+		num = "";
+	}
+	
+	public void insert_num(String str) {
+		num = str;
+	}
+
+	public void insert_nothing(boolean bool) {
+		nothing = bool;
+	}
+	
+	public String call_parent_name() {
+		return parent_name;
+	}
+	
+	public String call_num() {
+		return num;
+	}
+	
+	public boolean call_nothing() {
+		return nothing;
+	}
+	
+	public void makearray(String str) {
+		String sentence = "", sql;
+		LbDB_DAO db; 
+		ResultSet rs;
+		
+		db = new LbDB_DAO();
+		sql = "SELECT `kind_name` FROM `kind` " + str;
+		rs = db.getResultSet(sql);
+		try {
+			while(rs.next()) {
+				sentence += rs.getString("kind_name");
+				sentence += "-";
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		arraystring = sentence.split("-");
+	}
+	
+	public String[] call_array() {
+		return arraystring;
+	}
+}
+
 class Combobox_Manager {
 	private LbDB_DAO db;
 	private int fk;
 	private String table, key, key_name, sql;
 	private String[] arraystring;
 	private ResultSet rs;
+	private Combobox_Inheritance ci;
+	private boolean ci_exist = false;
+	private boolean nothing = false;
 	public JComboBox <String> combox;
 	
 	public Combobox_Manager() {}
@@ -24,9 +87,32 @@ class Combobox_Manager {
 		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
 		combox.addItemListener(new ComboboxListener());
 	}
+	public Combobox_Manager(JComboBox <String> cb, String table, String key, String where, boolean bool) {
+		combox = cb;
+		db = new LbDB_DAO();
+		this.table = table;
+		this.key = key;
+		nothing = bool;
+		
+		makearray(where);
+		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
+		combox.addItemListener(new ComboboxListener());
+	}
+	public Combobox_Manager(Combobox_Inheritance ci, JComboBox <String> cb, String table, String key, String where) {
+		combox = cb;
+		db = new LbDB_DAO();
+		this.table = table;
+		this.key = key;
+		this.ci = ci;
+		ci_exist = true;
+		
+		makearray(where);
+		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
+		combox.addItemListener(new ComboboxListener());
+	}
 	
 	private String changenamekey() {
-		String key_name = "";
+		String str = "";
 		char[] temp;
 		int cnt = 0;
 		
@@ -38,19 +124,40 @@ class Combobox_Manager {
 		}
 		
 		for(int i = 0; i < cnt + 1; i++) {
-			key_name += String.valueOf(temp[i]);
+			str += String.valueOf(temp[i]);
 		}
-		key_name += "name";
+		str += "name";
 		
-		return key_name;
+		return str;
 	}
 	
 	private void makearray() {
 		String sentence = "";
 		
 		key_name = changenamekey();
-		
+		if(nothing) {
+			sentence = "없음-";
+		}
 		sql = "SELECT `" + key_name + "` FROM `" + table + "`";
+		rs = db.getResultSet(sql);
+		try {
+			while(rs.next()) {
+				sentence += rs.getString(key_name);
+				sentence += "-";
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		arraystring = sentence.split("-");
+	}
+	
+	private void makearray(String str) {
+		String sentence = "";
+		
+		key_name = changenamekey();
+		sql = "SELECT `" + key_name + "` FROM `" + table + "` " + str;
 		rs = db.getResultSet(sql);
 		try {
 			while(rs.next()) {
@@ -72,21 +179,48 @@ class Combobox_Manager {
 	public class ComboboxListener implements ItemListener{
 		@Override
 		public void itemStateChanged(ItemEvent e) {
-			String choice_str;
+			String choice_str, now_sql = null;
+			String pn = "", num = "";
+			String array[];
 			
 			// TODO Auto-generated method stub
 			if(e.getStateChange() == ItemEvent.SELECTED) {
 				choice_str = e.getItem().toString();
 				sql = "SELECT * FROM `" + table + "` WHERE " + key_name + " LIKE '" + choice_str + "'";
+				System.out.println(sql);
 				rs = db.getResultSet(sql);
 				
 				try {
 					while(rs.next()) {
 						fk = rs.getInt(key);
+						if(key.equals("kind_no")) {
+							num = rs.getString("kind_num");
+							System.out.println(num);
+						}
 					}
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+				}
+				
+				if(ci_exist) {
+					pn = ci.call_parent_name();
+					ci.insert_num(num);
+					if(pn.equals("대분류")) {
+					    now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) + "_0'";
+					    System.out.println(now_sql);
+					}
+					else if(pn.equals("중분류")) {
+						now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) 
+						  			 + String.valueOf(num.charAt(1)) + "_'";
+						System.out.println(now_sql);
+					}
+					ci.child_combox.removeAllItems();
+					ci.makearray(now_sql);
+					array = ci.call_array();
+					for(int i = 0; i < array.length ; i++) {
+						ci.child_combox.addItem(array[i]);
+					}
 				}
 			}
 		}

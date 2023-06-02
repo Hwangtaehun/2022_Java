@@ -23,6 +23,32 @@ class Client{
 	}
 }
 
+class foreignkey{
+	private int add_no;
+	private int kind_no;
+	
+	public foreignkey() {
+		add_no = 0;
+		kind_no = 0;
+	};
+	
+	public void insert_kind_no(int num) {
+		kind_no = num;
+	}
+	
+	public void insert_add_no(int num) {
+		add_no = num;
+	}
+	
+	public int call_add_no() {
+		return add_no;
+	}
+	
+	public int call_kind_no() {
+		return kind_no;
+	}
+}
+
 public class LbDB_main {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

@@ -5,32 +5,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
-class foreignkey{
-	private int add_no;
-	private int kind_no;
-	
-	public foreignkey() {
-		add_no = 0;
-		kind_no = 0;
-	};
-	
-	public void insert_kind_no(int num) {
-		kind_no = num;
-	}
-	
-	public void insert_add_no(int num) {
-		add_no = num;
-	}
-	
-	public int call_add_no() {
-		return add_no;
-	}
-	
-	public int call_kind_no() {
-		return kind_no;
-	}
-}
-
 class Addresstool{
 	private String sidobasic[] = {"서울특별시", "부산광역시", "대전광역시", "대구광역시", "인천광역시", "광주광역시", "울산광역시",
 							 "충청북도", "충청남도", "전라북도", "전라남도", "경상북도", "경상남도", "제주특별자치도",

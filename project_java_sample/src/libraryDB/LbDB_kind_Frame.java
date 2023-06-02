@@ -7,20 +7,21 @@ import java.sql.*;
 
 public class LbDB_kind_Frame extends LbDB_main_Frame {
 	private JComboBox <String> one_Box, two_Box, three_Box;
+	private Combobox_Inheritance one_to_two, two_to_three;
+	private Combobox_Manager one_manager, two_manager, three_manager;
 	private JTextField tf_name, tf_kind_num, tf_research;
 	private String last_sql;
-	private foreignkey fk;
 	
 	public LbDB_kind_Frame() {}
-	public LbDB_kind_Frame(String str, JTextField tf, foreignkey fk) {
+	public LbDB_kind_Frame(String str, JTextField tf) {
 		db = new LbDB_DAO();
-		fk = this.fk;
 		menu_title = str;
 		tf = tf_kind_num;
 		dialog(str);
 		Initform();
 		baseform();
 		dialogform();
+		addWindowListener(this);
 	}
 	public LbDB_kind_Frame(LbDB_DAO db, Client cl, String str) {
 		this.db = db;
@@ -44,49 +45,49 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		else {
 			editform();
 		}
+		addWindowListener(this);
 	}
 	
 	private void baseform() {
 		JLabel label;
-		String dataModel[];
 		
 		setGrid(gbc,1,1,1,1);
 		label = new JLabel("    " + menu_title + "   ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc,0,2,1,1);
-		label = new JLabel("    대분류    ");
+		setGrid(gbc,0,4,1,1);
+		label = new JLabel("    소분류    ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc,1,2,1,1);
-		String where = "WHERE `kind_num` LIKE '_00'";
-		dataModel = makearray(where);
-		one_Box = new JComboBox<String>(new DefaultComboBoxModel<String>(dataModel));
-		one_Box.addItemListener(new OneboxListener());
-		gbl.setConstraints(one_Box, gbc);
-		leftPanel.add(one_Box);
+		setGrid(gbc,1,4,1,1);
+		String where = "WHERE `kind_num` LIKE '00_'";
+		three_manager = new Combobox_Manager(three_Box, "kind", "kind_no", where, false);
+		three_Box = three_manager.combox;
+		gbl.setConstraints(three_Box, gbc);
+		leftPanel.add(three_Box);
 		setGrid(gbc,0,3,1,1);
 		label = new JLabel("    중분류    ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,3,1,1);
 		where = "WHERE `kind_num` LIKE '0_0'";
-		dataModel = makearray(where);
-		two_Box = new JComboBox<String>(new DefaultComboBoxModel<String>(dataModel));
-		two_Box.addItemListener(new TwoboxListener());
+		two_to_three = new Combobox_Inheritance (three_manager, three_Box, "중분류");
+		two_to_three.insert_nothing(true);
+		two_manager = new Combobox_Manager(two_to_three, two_Box, "kind", "kind_no", where); 
+		two_Box = two_manager.combox;
 		gbl.setConstraints(two_Box, gbc);
 		leftPanel.add(two_Box);
-		setGrid(gbc,0,4,1,1);
-		label = new JLabel("    소분류    ");
+		setGrid(gbc,0,2,1,1);
+		label = new JLabel("    대분류    ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc,1,4,1,1);
-		where = "WHERE `kind_num` LIKE '00_'";
-		dataModel = makearray(where);
-		three_Box = new JComboBox<String>(new DefaultComboBoxModel<String>(dataModel));
-		three_Box.addItemListener(new ThreeboxListener());
-		gbl.setConstraints(three_Box, gbc);
-		leftPanel.add(three_Box);
+		setGrid(gbc,1,2,1,1);
+		where = "WHERE `kind_num` LIKE '_00'";
+		one_to_two = new Combobox_Inheritance (two_manager, two_Box, "대분류");
+		one_manager = new Combobox_Manager(one_to_two, one_Box, "kind", "kind_no", where); 
+		one_Box = one_manager.combox;
+		gbl.setConstraints(one_Box, gbc);
+		leftPanel.add(one_Box);
 	}
 	
 	private void dialogform() {
@@ -105,6 +106,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 	private void addform() {
 		JLabel label;
 		
+		one_to_two.insert_nothing(true);
 		setGrid(gbc,0,5,1,1);
 		label = new JLabel("    이름  ");
 		gbl.setConstraints(label, gbc);
@@ -125,7 +127,6 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 	
 	private void editform() {
 		JLabel label;
-		String dataModel[];
 		
 		setGrid(gbc,1,1,1,1);
 		label = new JLabel("    " + menu_title + "   ");
@@ -148,39 +149,39 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		label = new JLabel("    ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc,0,4,1,1);
-		label = new JLabel("    대분류    ");
+		setGrid(gbc,0,6,1,1);
+		label = new JLabel("    소분류    ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc,1,4,1,1);
-		String where = "WHERE `kind_num` LIKE '_00'";
-		dataModel = makearray(where);
-		one_Box = new JComboBox<String>(new DefaultComboBoxModel<String>(dataModel));
-		one_Box.addItemListener(new OneboxListener());
-		gbl.setConstraints(one_Box, gbc);
-		leftPanel.add(one_Box);
+		setGrid(gbc,1,6,1,1);
+		String where = "WHERE `kind_num` LIKE '00_'";
+		three_manager = new Combobox_Manager(three_Box, "kind", "kind_no", where, true);
+		three_Box = three_manager.combox;
+		gbl.setConstraints(three_Box, gbc);
+		leftPanel.add(three_Box);
 		setGrid(gbc,0,5,1,1);
 		label = new JLabel("    중분류    ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,5,1,1);
 		where = "WHERE `kind_num` LIKE '0_0'";
-		dataModel = makearray(where);
-		two_Box = new JComboBox<String>(new DefaultComboBoxModel<String>(dataModel));
-		two_Box.addItemListener(new TwoboxListener());
+		two_to_three = new Combobox_Inheritance (three_manager, three_Box, "중분류");
+		two_to_three.insert_nothing(true);
+		two_manager = new Combobox_Manager(two_to_three, two_Box, "kind", "kind_no", where); 
+		two_Box = two_manager.combox;
 		gbl.setConstraints(two_Box, gbc);
 		leftPanel.add(two_Box);
-		setGrid(gbc,0,6,1,1);
-		label = new JLabel("    소분류    ");
+		setGrid(gbc,0,4,1,1);
+		label = new JLabel("    대분류    ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc,1,6,1,1);
-		where = "WHERE `kind_num` LIKE '00_'";
-		dataModel = makearray(where);
-		three_Box = new JComboBox<String>(new DefaultComboBoxModel<String>(dataModel));
-		three_Box.addItemListener(new ThreeboxListener());
-		gbl.setConstraints(three_Box, gbc);
-		leftPanel.add(three_Box);
+		setGrid(gbc,1,4,1,1);
+		where = "WHERE `kind_num` LIKE '_00'";
+		one_to_two = new Combobox_Inheritance (two_manager, two_Box, "대분류");
+		one_manager = new Combobox_Manager(one_to_two, one_Box, "kind", "kind_no", where); 
+		one_Box = one_manager.combox;
+		gbl.setConstraints(one_Box, gbc);
+		leftPanel.add(one_Box);
 		setGrid(gbc,0,7,1,1);
 		label = new JLabel("    이름  ");
 		gbl.setConstraints(label, gbc);
@@ -335,78 +336,15 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 	    }
 	}
 	
-	private String[] makearray(String where) {
-		String sentence = "", key_name = "", now_sql;
-		String arraystring[];
-		
-		now_sql = "SELECT * FROM `kind`" + where + "ORDER BY `kind_num`";
-		result = db.getResultSet(now_sql);
-		try {
-			while(result.next()) {
-				sentence += result.getString(key_name);
-				sentence += "-";
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		arraystring = sentence.split("-");
-		
-		return arraystring;
-	}
-	
-	private String correctKey() {
-		String fianl_kind_num = null, now_sql;
-		
-		now_sql = "SELECT * FROM `kind` WHERE `kind_name` LIKE '" + one_Box.getSelectedItem().toString()
-		        + "' AND kind_no <= 10";
-		result = db.getResultSet(now_sql);
-		try {
-			while(result.next()) {
-				fianl_kind_num = result.getString("kind_num");
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		now_sql = "SELECT * FROM `kind` WHERE `kind_name` LIKE '" + two_Box.getSelectedItem().toString()
-        		+ "' AND `kind_num` LIKE '" + fianl_kind_num.charAt(0) + "_0'";
-		result = db.getResultSet(now_sql);
-		try {
-			while(result.next()) {
-				fianl_kind_num = result.getString("kind_num");
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		now_sql = "SELECT * FROM `kind` WHERE `kind_name` LIKE '" + three_Box.getSelectedItem().toString()
-				+ "' AND `kind_num` LIKE '" + fianl_kind_num.charAt(0) + fianl_kind_num.charAt(0) +  "_'";
-		result = db.getResultSet(now_sql);
-		try {
-			while(result.next()) {
-				fianl_kind_num = result.getString("kind_num");
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return fianl_kind_num;
-	}
-	
 	public class inputButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			String fianl_kind_num = correctKey();
-			sql = "SELECT * FROM `kind` WHERE `kind_num` LIKE " + fianl_kind_num;
+			sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + three_manager.foreignkey();
 			result = db.getResultSet(sql);
 			try {
 				while(result.next()) {
 					tf_kind_num.setText(result.getString("kind_num"));
-					fk.insert_kind_no(result.getInt("kind_no"));
 				}
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
@@ -440,8 +378,12 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			String next, previous = null, temp = "", now_sql;
-			
-			now_sql = "SELECT * FROM `kind` WHERE `kind_num` LIKE " + correctKey();
+			if(three_Box.getSelectedItem().equals("없음")) {
+				now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + two_manager.foreignkey();
+			}
+			else {
+				now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + three_manager.foreignkey();
+			}
 			result = db.getResultSet(now_sql);
 			try {
 				while(result.next()) {
@@ -498,7 +440,12 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 				now_sql = "UPDATE `kind` SET `kind_name` = '" + tf_name.getText() + "' WHERE `lib_no` = " + code;
 			}
 			else {
-				now_sql = "SELECT * FROM `kind` WHERE `kind_num` LIKE " + correctKey();
+				if(three_Box.getSelectedItem().equals("없음")) {
+					now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + two_manager.foreignkey();
+				}
+				else {
+					now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + three_manager.foreignkey();
+				}
 				result = db.getResultSet(now_sql);
 				try {
 					while(result.next()) {
@@ -589,43 +536,6 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 					repaint();
 				}
 			}
-		}
-	}
-	
-	public class OneboxListener implements ItemListener{
-		@Override
-		public void itemStateChanged(ItemEvent e) {
-			// TODO Auto-generated method stub
-			String where;
-			String dataModel[];
-			
-			where = "WHERE `kind_num` LIKE '" + String.valueOf(one_Box.getSelectedItem().toString().charAt(0)) + "_0'";
-			dataModel = makearray(where);
-			two_Box = new JComboBox<String>(new DefaultComboBoxModel<String>(dataModel));
-			two_Box.addItemListener(new TwoboxListener());
-		}
-	}
-	
-	public class TwoboxListener implements ItemListener{
-		@Override
-		public void itemStateChanged(ItemEvent e) {
-			// TODO Auto-generated method stub
-			String where;
-			String dataModel[];
-			
-			where = "WHERE `kind_num` LIKE '" + String.valueOf(two_Box.getSelectedItem().toString().charAt(0)) + 
-					 String.valueOf(two_Box.getSelectedItem().toString().charAt(1)) + "_'";
-			dataModel = makearray(where);
-			three_Box = new JComboBox<String>(new DefaultComboBoxModel<String>(dataModel));
-			three_Box.addItemListener(new TwoboxListener());
-		}
-	}
-	
-	public class ThreeboxListener implements ItemListener{
-		@Override
-		public void itemStateChanged(ItemEvent e) {
-			// TODO Auto-generated method stub
-			/*무엇을 넣을까?*/
 		}
 	}
 }
