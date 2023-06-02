@@ -200,7 +200,6 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(deleteBt, gbc);
 		leftPanel.add(deleteBt);
 		
-		
 		String columnName[] = {"번호", "이름"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
@@ -237,12 +236,12 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		ResultSet rs;
 		String now_sql, text = "";
 		
-		now_sql = "SELECT * FROM `kind` WHERE `kind_num` LIKE " + str;
+		now_sql = "SELECT * FROM `kind` WHERE `kind_num` LIKE '" + str + "'";
 		rs = Database.getResultSet(now_sql);
 		
 		try {
 			while(rs.next()) {
-				text = rs.getString("kind_num");
+				text = rs.getString("kind_name");
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -256,9 +255,9 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		try {
 			String kind_num = result.getString("kind_num");
 			String oneclass = numToname(String.valueOf(kind_num.charAt(0)) + "00");
-			one_manager.repaintCombobox(String.valueOf(kind_num.charAt(0)) + "_0");
+			one_manager.repaintCombobox(kind_num);
 			String twoclass = numToname(String.valueOf(kind_num.charAt(0)) + String.valueOf(kind_num.charAt(1)) + "0");
-			two_manager.repaintCombobox(String.valueOf(kind_num.charAt(0)) + String.valueOf(kind_num.charAt(1)) + "_");
+			two_manager.repaintCombobox(kind_num);
 			one_Box.setSelectedItem(oneclass);
 			two_Box.setSelectedItem(twoclass);
 			three_Box.setSelectedItem(result.getString("kind_name"));
@@ -522,9 +521,9 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 				else {
 					String kind_num = table.getValueAt(selectedCol, 0).toString();
 					String oneclass = numToname(String.valueOf(kind_num.charAt(0)) + "00");
-					one_manager.repaintCombobox(String.valueOf(kind_num.charAt(0)) + "_0");
+					one_manager.repaintCombobox(kind_num);
 					String twoclass = numToname(String.valueOf(kind_num.charAt(0)) + String.valueOf(kind_num.charAt(1)) + "0");
-					two_manager.repaintCombobox(String.valueOf(kind_num.charAt(0)) + String.valueOf(kind_num.charAt(1)) + "_");
+					two_manager.repaintCombobox(kind_num);
 					String threeclass = table.getValueAt(selectedCol, 1).toString();
 					one_Box.setSelectedItem(oneclass);
 					two_Box.setSelectedItem(twoclass);
