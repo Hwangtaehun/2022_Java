@@ -155,7 +155,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		leftPanel.add(label);
 		setGrid(gbc,1,6,1,1);
 		String where = "WHERE `kind_num` LIKE '00_'";
-		three_manager = new Combobox_Manager(three_Box, "kind", "kind_no", where, true);
+		three_manager = new Combobox_Manager(three_Box, "kind", "kind_no", where, false);
 		three_Box = three_manager.combox;
 		gbl.setConstraints(three_Box, gbc);
 		leftPanel.add(three_Box);
@@ -166,7 +166,6 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		setGrid(gbc,1,5,1,1);
 		where = "WHERE `kind_num` LIKE '0_0'";
 		two_to_three = new Combobox_Inheritance (three_manager, three_Box, "중분류");
-		two_to_three.insert_nothing(true);
 		two_manager = new Combobox_Manager(two_to_three, two_Box, "kind", "kind_no", where); 
 		two_Box = two_manager.combox;
 		gbl.setConstraints(two_Box, gbc);
@@ -257,12 +256,13 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		try {
 			String kind_num = result.getString("kind_num");
 			String oneclass = numToname(String.valueOf(kind_num.charAt(0)) + "00");
+			one_manager.repaintCombobox(String.valueOf(kind_num.charAt(0)) + "_0");
 			String twoclass = numToname(String.valueOf(kind_num.charAt(0)) + String.valueOf(kind_num.charAt(1)) + "0");
-			String threeclass = numToname(kind_num);
+			two_manager.repaintCombobox(String.valueOf(kind_num.charAt(0)) + String.valueOf(kind_num.charAt(1)) + "_");
 			one_Box.setSelectedItem(oneclass);
 			two_Box.setSelectedItem(twoclass);
-			three_Box.setSelectedItem(threeclass);
-			tf_name.setText(kind_num);
+			three_Box.setSelectedItem(result.getString("kind_name"));
+			tf_name.setText(result.getString("kind_name"));
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -507,6 +507,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 	}
 	
 	public class tableListener implements ListSelectionListener{
+		
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			if(e.getValueIsAdjusting())
@@ -521,7 +522,9 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 				else {
 					String kind_num = table.getValueAt(selectedCol, 0).toString();
 					String oneclass = numToname(String.valueOf(kind_num.charAt(0)) + "00");
+					one_manager.repaintCombobox(String.valueOf(kind_num.charAt(0)) + "_0");
 					String twoclass = numToname(String.valueOf(kind_num.charAt(0)) + String.valueOf(kind_num.charAt(1)) + "0");
+					two_manager.repaintCombobox(String.valueOf(kind_num.charAt(0)) + String.valueOf(kind_num.charAt(1)) + "_");
 					String threeclass = table.getValueAt(selectedCol, 1).toString();
 					one_Box.setSelectedItem(oneclass);
 					two_Box.setSelectedItem(twoclass);

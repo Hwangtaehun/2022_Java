@@ -6,23 +6,22 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 class Combobox_Inheritance{
-	private String parent_name, num, arraystring[];
+	private String parent_name, num = "";
 	private boolean nothing = false;
 	public Combobox_Manager child_manager;
 	public JComboBox <String> child_combox;
 	
 	public Combobox_Inheritance() {}
-	public Combobox_Inheritance(Combobox_Manager cm, JComboBox <String> cd, String str) {
+	public Combobox_Inheritance(Combobox_Manager cm, JComboBox <String> cb, String str) {
 		this.child_manager = cm;
-		this.child_combox = cd;
+		this.child_combox = cb;
 		parent_name = str;
-		num = "";
 	}
 	
 	public void insert_num(String str) {
 		num = str;
 	}
-
+	
 	public void insert_nothing(boolean bool) {
 		nothing = bool;
 	}
@@ -39,29 +38,17 @@ class Combobox_Inheritance{
 		return nothing;
 	}
 	
-	public void makearray(String str) {
-		String sentence = "", sql;
-		LbDB_DAO db; 
-		ResultSet rs;
+	public String call_num_where() {
+		String simple = "";
 		
-		db = new LbDB_DAO();
-		sql = "SELECT `kind_name` FROM `kind` " + str;
-		rs = db.getResultSet(sql);
-		try {
-			while(rs.next()) {
-				sentence += rs.getString("kind_name");
-				sentence += "-";
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(parent_name.equals("대분류")) {
+			simple = num.charAt(0) + "_0";
+		}
+		else if(parent_name.equals("중분류")) {
+			simple = num.charAt(0) + num.charAt(1) + "_";
 		}
 		
-		arraystring = sentence.split("-");
-	}
-	
-	public String[] call_array() {
-		return arraystring;
+		return simple;
 	}
 }
 
@@ -73,7 +60,6 @@ class Combobox_Manager {
 	private ResultSet rs;
 	private Combobox_Inheritance ci;
 	private boolean ci_exist = false;
-	private boolean nothing = false;
 	public JComboBox <String> combox;
 	
 	public Combobox_Manager() {}
@@ -92,9 +78,8 @@ class Combobox_Manager {
 		db = new LbDB_DAO();
 		this.table = table;
 		this.key = key;
-		nothing = bool;
 		
-		makearray(where);
+		makearray(where, bool);
 		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
 		combox.addItemListener(new ComboboxListener());
 	}
@@ -106,7 +91,7 @@ class Combobox_Manager {
 		this.ci = ci;
 		ci_exist = true;
 		
-		makearray(where);
+		makearray(where, false);
 		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
 		combox.addItemListener(new ComboboxListener());
 	}
@@ -135,9 +120,6 @@ class Combobox_Manager {
 		String sentence = "";
 		
 		key_name = changenamekey();
-		if(nothing) {
-			sentence = "없음-";
-		}
 		sql = "SELECT `" + key_name + "` FROM `" + table + "`";
 		rs = db.getResultSet(sql);
 		try {
@@ -153,9 +135,16 @@ class Combobox_Manager {
 		arraystring = sentence.split("-");
 	}
 	
-	private void makearray(String str) {
+	private void makearray(String str, boolean bool) {
 		String sentence = "";
 		
+		if(str.isEmpty()) {
+			return;
+		}
+		
+		if(bool) {
+			sentence = "없음-";
+		}
 		key_name = changenamekey();
 		sql = "SELECT `" + key_name + "` FROM `" + table + "` " + str;
 		rs = db.getResultSet(sql);
@@ -176,13 +165,31 @@ class Combobox_Manager {
 		return fk;
 	}
 	
+	public void repaintCombobox(String num) {
+		String now_sql = "", pn;
+		
+		pn = ci.call_parent_name();
+		if(pn.equals("대분류")) {
+		    now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) + "_0'";
+		    System.out.println(now_sql);
+		}
+		else if(pn.equals("중분류")) {
+			now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) 
+			  			 + String.valueOf(num.charAt(1)) + "_'";
+			System.out.println(now_sql);
+		}
+		ci.child_combox.removeAllItems();
+		makearray(now_sql, ci.call_nothing());
+		for(int i = 0; i < arraystring.length ; i++) {
+			ci.child_combox.addItem(arraystring[i]);
+		}
+	}
+	
 	public class ComboboxListener implements ItemListener{
 		@Override
 		public void itemStateChanged(ItemEvent e) {
-			String choice_str, now_sql = null;
-			String pn = "", num = "";
-			String array[];
-			
+			String choice_str, num = "";
+			System.out.println("e.getItem().toString 출력 내용: " + e.getItem().toString());
 			// TODO Auto-generated method stub
 			if(e.getStateChange() == ItemEvent.SELECTED) {
 				choice_str = e.getItem().toString();
@@ -204,23 +211,7 @@ class Combobox_Manager {
 				}
 				
 				if(ci_exist) {
-					pn = ci.call_parent_name();
-					ci.insert_num(num);
-					if(pn.equals("대분류")) {
-					    now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) + "_0'";
-					    System.out.println(now_sql);
-					}
-					else if(pn.equals("중분류")) {
-						now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) 
-						  			 + String.valueOf(num.charAt(1)) + "_'";
-						System.out.println(now_sql);
-					}
-					ci.child_combox.removeAllItems();
-					ci.makearray(now_sql);
-					array = ci.call_array();
-					for(int i = 0; i < array.length ; i++) {
-						ci.child_combox.addItem(array[i]);
-					}
+					repaintCombobox(num);
 				}
 			}
 		}
