@@ -156,12 +156,12 @@ class Combobox_Manager {
 		pn = ci.call_parent_name();
 		if(pn.equals("대분류")) {
 		    now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) + "_0'";
-		    //System.out.println(now_sql);
+		    System.out.println(now_sql);
 		}
 		else if(pn.equals("중분류")) {
 			now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) 
 			  			 + String.valueOf(num.charAt(1)) + "_'";
-			//System.out.println(now_sql);
+			System.out.println(now_sql);
 		}
 		ci.child_combox.removeAllItems();
 		makearray(now_sql, ci.call_nothing());
@@ -177,39 +177,49 @@ class Combobox_Manager {
 			// TODO Auto-generated method stub
 			if(e.getStateChange() == ItemEvent.SELECTED) {
 				choice_str = e.getItem().toString();
-				if(pa_exist) {
-					//System.out.println("ci_exist = " + ci_exist);
+				
+				if(choice_str.equals("없음")) {
 					if(ci_exist) {
-						terms = String.valueOf(parent_num.charAt(0)) + "_0";
+						ci.child_manager.exist_parent(num);
+						ci.child_combox.removeAllItems();
+						ci.child_combox.addItem("없음");
 					}
-					else {
-						terms = String.valueOf(parent_num.charAt(0)) + String.valueOf(parent_num.charAt(1)) + "_";
-					}
-					sql = "SELECT * FROM `" + table + "` WHERE " + key_name + " LIKE '" + choice_str + "'" +
-						  " AND kind_num LIKE '" + terms + "'";
 				}
 				else {
-					sql = "SELECT * FROM `" + table + "` WHERE " + key_name + " LIKE '" + choice_str + "'";
-				}
-				System.out.println(sql);
-				rs = db.getResultSet(sql);
-				
-				try {
-					while(rs.next()) {
-						fk = rs.getInt(key);
-						if(key.equals("kind_no")) {
-							num = rs.getString("kind_num");
-							//System.out.println(num);
+					if(pa_exist) {
+						//System.out.println("ci_exist = " + ci_exist);
+						if(ci_exist) {
+							terms = String.valueOf(parent_num.charAt(0)) + "_0";
 						}
+						else {
+							terms = String.valueOf(parent_num.charAt(0)) + String.valueOf(parent_num.charAt(1)) + "_";
+						}
+						sql = "SELECT * FROM `" + table + "` WHERE " + key_name + " LIKE '" + choice_str + "'" +
+							  " AND kind_num LIKE '" + terms + "'";
 					}
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
-				if(ci_exist) {
-					ci.child_manager.exist_parent(num);
-					repaintCombobox(num);
+					else {
+						sql = "SELECT * FROM `" + table + "` WHERE " + key_name + " LIKE '" + choice_str + "'";
+					}
+					System.out.println(sql);
+					rs = db.getResultSet(sql);
+					
+					try {
+						while(rs.next()) {
+							fk = rs.getInt(key);
+							if(key.equals("kind_no")) {
+								num = rs.getString("kind_num");
+								//System.out.println(num);
+							}
+						}
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+					if(ci_exist) {
+						ci.child_manager.exist_parent(num);
+						repaintCombobox(num);
+					}
 				}
 			}
 		}

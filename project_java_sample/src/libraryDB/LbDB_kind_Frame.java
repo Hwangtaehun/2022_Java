@@ -317,6 +317,12 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		return text;
 	}
 	
+	private String possible(String str) {
+		String finish = "불가능";
+		//여기부터
+		return finish;
+	}
+	
 	private boolean isInteger(String strValue) {
 	    try {
 	      Integer.parseInt(strValue);
@@ -377,41 +383,56 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			String next, previous = null, temp = "", now_sql;
+			boolean bool = true;
+			
 			if(three_Box.getSelectedItem().equals("없음")) {
 				now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + two_manager.foreignkey();
+			}
+			else if(two_Box.getSelectedItem().equals("없음")) {
+				now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + one_manager.foreignkey();
+				String finish = possible(now_sql); //여기부터
+				if(finish.equals("불가능")) {
+					bool = false;
+				}
 			}
 			else {
 				now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + three_manager.foreignkey();
 			}
-			result = db.getResultSet(now_sql);
-			try {
-				while(result.next()) {
-					previous = result.getString("kind_num");
-				}
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			next = strTonumTostr(previous);
 			
-			now_sql = "SELECT * FROM `kind` WHERE `kind_num` LIKE " + next;
-			result = db.getResultSet(now_sql);
-			try {
-				while(result.next()) {
-					temp = result.getString("kind_num");
+			if(bool) {
+				result = db.getResultSet(now_sql);
+				try {
+					while(result.next()) {
+						previous = result.getString("kind_num");
+					}
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			if(temp.isEmpty()) {
-				now_sql = "INSERT INTO `kind` ( `kind_num`, `kind_name` ) VALUES('" + next + "', '" + tf_name.getText() +"')";
+				next = strTonumTostr(previous);
+				
+				now_sql = "SELECT * FROM `kind` WHERE `kind_num` LIKE " + next;
+				result = db.getResultSet(now_sql);
+				try {
+					while(result.next()) {
+						temp = result.getString("kind_num");
+					}
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				if(temp.isEmpty()) {
+					now_sql = "INSERT INTO `kind` ( `kind_num`, `kind_name` ) VALUES('" + next + "', '" + tf_name.getText() +"')";
+				}
+				else {
+					next = previous + ".1";
+					now_sql = "INSERT INTO `kind` ( `kind_num`, `kind_name` ) VALUES('" + next + "', '" + tf_name.getText() +"')";
+				}
+				db.Excute(now_sql);
 			}
 			else {
-				next = previous + ".1";
-				now_sql = "INSERT INTO `kind` ( `kind_num`, `kind_name` ) VALUES('" + next + "', '" + tf_name.getText() +"')";
+				
 			}
-			db.Excute(now_sql);
 		}
 	}
 	
