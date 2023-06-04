@@ -161,7 +161,7 @@ class Combobox_Manager {
 		pn = ci.call_parent_name();
 		if(pn.equals("대분류")) {
 		    now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) + "_0'";
-		    System.out.println(now_sql);
+		    //System.out.println(now_sql);
 		}
 		else if(pn.equals("중분류")) {
 			now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) + String.valueOf(num.charAt(1)); 
@@ -171,7 +171,7 @@ class Combobox_Manager {
 			else {
 				now_sql += "_'";
 			}
-			System.out.println(now_sql);
+			//System.out.println(now_sql);
 		}
 		ci.child_combox.removeAllItems();
 		makearray(now_sql, ci.call_nothing());
@@ -209,7 +209,7 @@ class Combobox_Manager {
 					else {
 						sql = "SELECT * FROM `" + table + "` WHERE " + key_name + " LIKE '" + choice_str + "'";
 					}
-					System.out.println(sql);
+					//System.out.println(sql);
 					rs = db.getResultSet(sql);
 					
 					try {
@@ -217,7 +217,7 @@ class Combobox_Manager {
 							fk = rs.getInt(key);
 							if(key.equals("kind_no")) {
 								num = rs.getString("kind_num");
-								System.out.println(num);
+								//System.out.println(num);
 							}
 						}
 					} catch (SQLException e1) {
