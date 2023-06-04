@@ -93,6 +93,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 	private void dialogform() {
 		JButton bt;
 		
+		two_to_three.insert_nothing(false);
 		setGrid(gbc,1,5,1,1);
 		bt = new JButton("입력");
 		gbl.setConstraints(bt, gbc);
