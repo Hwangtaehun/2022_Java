@@ -60,7 +60,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,4,1,1);
-		String where = "WHERE `kind_num` LIKE '00_'";
+		String where = "WHERE `kind_num` LIKE '00_' AND `kind_no` > 100";
 		if(menu_title.equals("종류추가")) {
 			three_manager = new Combobox_Manager(three_Box, "kind", "kind_no", where, true);
 		}
