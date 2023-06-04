@@ -61,7 +61,12 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		leftPanel.add(label);
 		setGrid(gbc,1,4,1,1);
 		String where = "WHERE `kind_num` LIKE '00_'";
-		three_manager = new Combobox_Manager(three_Box, "kind", "kind_no", where, true);
+		if(menu_title.equals("종류추가")) {
+			three_manager = new Combobox_Manager(three_Box, "kind", "kind_no", where, true);
+		}
+		else {
+			three_manager = new Combobox_Manager(three_Box, "kind", "kind_no", where, false);
+		}
 		three_Box = three_manager.combox;
 		gbl.setConstraints(three_Box, gbc);
 		leftPanel.add(three_Box);
@@ -308,11 +313,13 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		String text = "문제발생";
 		
 		if(bool) {
-			int num = Integer.parseInt(str);
-			if(num < 9) {
-				num++;
-				text = integerTokey(num);
+			String final_position = String.valueOf(str.charAt(2));
+			int num = Integer.parseInt(final_position);
+			if(num > 8) {
+				return text;
 			}
+			num++;
+			text = String.valueOf(str.charAt(0)) + String.valueOf(str.charAt(1)) + num;
 		}
 		else {
 			String now_sql = "SELECT * FROM `kind` WHERE `kind_num` LIKE '" + str + "%'";
@@ -439,7 +446,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
-			String result_name = null, next, previous = null, result_num = "", now_sql;
+			String result_name = null, next = null, previous = null, result_num = "", now_sql, three_num, three_name = null;
 			boolean bool = false;
 			int code = 0;
 			
@@ -457,8 +464,21 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 				e.printStackTrace();
 			}
 			
-			String three_num = String.valueOf(result_num.charAt(0)) + String.valueOf(result_num.charAt(1)) + String.valueOf(result_num.charAt(2));
-			if(three_num.equals(three_Box.getSelectedItem())) {
+			three_num = String.valueOf(result_num.charAt(0)) + String.valueOf(result_num.charAt(1)) + String.valueOf(result_num.charAt(2));
+			System.out.println("three_num: " + three_num);
+			now_sql = "SELECT * FROM `kind` WHERE `kind_num` LIKE '" + three_num + "'";
+			result = db.getResultSet(now_sql);
+			try {
+				while(result.next()) {
+					three_name = result.getString("kind_name");
+				}
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			System.out.println("three_name: " + three_name);
+			
+			if(three_name.equals(three_Box.getSelectedItem())) {
 				now_sql = "UPDATE `kind` SET `kind_name` = '" + tf_name.getText() + "' WHERE `kind_no` = " + code;
 			}
 			else {
@@ -469,7 +489,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 				else {
 					now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + three_manager.foreignkey();
 				}
-				System.out.println("수정부분에서 검색" + now_sql);
+				System.out.println("수정부분에서 검색: " + now_sql);
 				
 				result = db.getResultSet(now_sql);
 				try {
@@ -481,17 +501,18 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 					e1.printStackTrace();
 				}
 				next = strTonumTostr(previous, bool);
-				
-				if(next.equals("문제발생")) {
-					JOptionPane.showMessageDialog(null, "삽입이 불가능합니다.", "삽입 오류", JOptionPane.WARNING_MESSAGE);
-				}
-				else {
-					now_sql = "UPDATE `kind` SET `kind_num` = '" + next + "', `kind_name` = '" + tf_name + 
-							  "' WHERE `kind_no` = " + code;
-				}
+				now_sql = "UPDATE `kind` SET `kind_num` = '" + next + "', `kind_name` = '" + tf_name.getText() + 
+						  "' WHERE `kind_no` = " + code;
 			}
 			System.out.println("수정부분: " + now_sql);
-			db.Excute(now_sql);
+			
+			if(next.equals("문제발생")) {
+				JOptionPane.showMessageDialog(null, "삽입이 불가능합니다.", "삽입 오류", JOptionPane.WARNING_MESSAGE);
+			}
+			else {
+				db.Excute(now_sql);
+			}
+			
 			
 			LoadList(last_sql);
 			
