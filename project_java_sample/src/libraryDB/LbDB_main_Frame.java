@@ -40,6 +40,7 @@ class Combobox_Manager {
 	private Combobox_Inheritance ci;
 	private boolean ci_exist = false;
 	private boolean pa_exist = false;
+	private boolean dialog = false;
 	public JComboBox <String> combox;
 	
 	public Combobox_Manager() {}
@@ -150,6 +151,10 @@ class Combobox_Manager {
 		parent_num = str;
 	}
 	
+	public void isDialog() {
+		dialog = true;
+	}
+	
 	public void repaintCombobox(String num) {
 		String now_sql = "", pn;
 		
@@ -159,8 +164,13 @@ class Combobox_Manager {
 		    System.out.println(now_sql);
 		}
 		else if(pn.equals("중분류")) {
-			now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) 
-			  			 + String.valueOf(num.charAt(1)) + "_'";
+			now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) + String.valueOf(num.charAt(1)); 
+			if(dialog) {
+				now_sql += "_%'";
+			}
+			else {
+				now_sql += "_'";
+			}
 			System.out.println(now_sql);
 		}
 		ci.child_combox.removeAllItems();
@@ -187,7 +197,6 @@ class Combobox_Manager {
 				}
 				else {
 					if(pa_exist) {
-						//System.out.println("ci_exist = " + ci_exist);
 						if(ci_exist) {
 							terms = String.valueOf(parent_num.charAt(0)) + "_0";
 						}
@@ -208,7 +217,7 @@ class Combobox_Manager {
 							fk = rs.getInt(key);
 							if(key.equals("kind_no")) {
 								num = rs.getString("kind_num");
-								//System.out.println(num);
+								System.out.println(num);
 							}
 						}
 					} catch (SQLException e1) {

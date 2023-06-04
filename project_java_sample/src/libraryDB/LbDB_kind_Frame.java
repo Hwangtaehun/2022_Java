@@ -106,7 +106,6 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 	private void addform() {
 		JLabel label;
 		
-		one_to_two.insert_nothing(true);
 		setGrid(gbc,0,5,1,1);
 		label = new JLabel("    이름  ");
 		gbl.setConstraints(label, gbc);
@@ -301,26 +300,42 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		return str;
 	}
 	
-	private String strTonumTostr(String str) {
+	private String strTonumTostr(String str, boolean bool) {
 		String text = "문제발생";
-		if(isInteger(str)) {
+		
+		if(bool) {
 			int num = Integer.parseInt(str);
-			num++;
-			text = integerTokey(num);
+			if(num < 9) {
+				num++;
+				text = integerTokey(num);
+			}
 		}
-		else if(isFloat(str)) {
-			String[] str_array = str.split(".");
-			int num = Integer.parseInt(str_array[1]);
-			num++;
-			text = str_array[0] + "." + num; 
+		else {
+			String now_sql = "SELECT * FROM `kind` WHERE `kind_num` LIKE '" + str + "%'";
+			result = db.getResultSet(now_sql);
+			
+			try {
+				while(result.next()) {
+					text = result.getString("kind_num");
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(isInteger(text)) {
+				text += ".1";
+			}
+			else if(isFloat(text)) {
+				String[] str_array = text.split(".");
+				int num = Integer.parseInt(str_array[1]);
+				num++;
+				text = str_array[0] + "." + num; 
+			}
+			else {
+				text = "문제발생";
+			}
 		}
 		return text;
-	}
-	
-	private String possible(String str) {
-		String finish = "불가능";
-		//여기부터
-		return finish;
 	}
 	
 	private boolean isInteger(String strValue) {
@@ -383,34 +398,31 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			String next, previous = null, temp = "", now_sql;
-			boolean bool = true;
+			boolean bool = false;
 			
 			if(three_Box.getSelectedItem().equals("없음")) {
 				now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + two_manager.foreignkey();
-			}
-			else if(two_Box.getSelectedItem().equals("없음")) {
-				now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + one_manager.foreignkey();
-				String finish = possible(now_sql); //여기부터
-				if(finish.equals("불가능")) {
-					bool = false;
-				}
+				bool = true;
 			}
 			else {
 				now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + three_manager.foreignkey();
 			}
 			
-			if(bool) {
-				result = db.getResultSet(now_sql);
-				try {
-					while(result.next()) {
-						previous = result.getString("kind_num");
-					}
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+			result = db.getResultSet(now_sql);
+			try {
+				while(result.next()) {
+					previous = result.getString("kind_num");
 				}
-				next = strTonumTostr(previous);
-				
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			next = strTonumTostr(previous, bool);
+			
+			if(next.equals("문제발생")) {
+				JOptionPane.showMessageDialog(null, "삽입이 불가능합니다.", "삽입 오류", JOptionPane.WARNING_MESSAGE);
+			}
+			else {
 				now_sql = "SELECT * FROM `kind` WHERE `kind_num` LIKE " + next;
 				result = db.getResultSet(now_sql);
 				try {
@@ -430,9 +442,6 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 				}
 				db.Excute(now_sql);
 			}
-			else {
-				
-			}
 		}
 	}
 	
@@ -441,6 +450,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
 			String result_name = null, next, previous = null, temp = "", now_sql;
+			boolean bool = false;
 			int code = 0;
 			
 			if(selectedCol == -1) {
@@ -462,6 +472,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 			else {
 				if(three_Box.getSelectedItem().equals("없음")) {
 					now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + two_manager.foreignkey();
+					bool = true;
 				}
 				else {
 					now_sql = "SELECT * FROM `kind` WHERE `kind_no` LIKE " + three_manager.foreignkey();
@@ -475,7 +486,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				next = strTonumTostr(previous);
+				next = strTonumTostr(previous, bool);
 				
 				now_sql = "SELECT * FROM `kind` WHERE `kind_num` LIKE " + next;
 				result = db.getResultSet(now_sql);
