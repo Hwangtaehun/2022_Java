@@ -26,6 +26,7 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		pk = cl.primarykey();
 		state = cl.state();
 		
+		setTitle(str);
 		Initform();
 		baseform();
 		
@@ -37,11 +38,9 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		}
 		
 		if(menu_title.equals("책추가")) {
-			baseform();
 			addform();
 		}
 		else {
-			baseform();
 			managerform();
 			tableform();
 			baseform_final();
@@ -75,6 +74,10 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 			sortBt.addActionListener(new sortButtonListener());
 			gbl.setConstraints(sortBt, gbc);
 			centerPanel.add(sortBt);
+			setGrid(gbc,0,3,1,1);
+			label = new JLabel("        ");
+			gbl.setConstraints(label, gbc);
+			leftPanel.add(label);
 		}
 		setGrid(gbc,0,4,1,1);
 		label = new JLabel("    책이름    ");
@@ -324,12 +327,17 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
 			String now_sql;
-			boolean price = isInteger(tf_price.getText());
-			boolean year = isYear(tf_year.getText());
 			
-			System.out.println("price = "+ tf_price.getText() + ", price bool = " + price + ", year bool = " + year);
-			
-			if(!isInteger(tf_price.getText())) {
+			if(tf_bookname.getText().isEmpty()) {
+				JOptionPane.showMessageDialog(null, "책이름을 넣어주세요.", "추가 오류", JOptionPane.WARNING_MESSAGE);
+			}
+			else if(tf_author.getText().isEmpty()) {
+				JOptionPane.showMessageDialog(null, "저자를 넣어주세요.", "추가 오류", JOptionPane.WARNING_MESSAGE);
+			}
+			else if(tf_publish.getText().isEmpty()) {
+				JOptionPane.showMessageDialog(null, "출판사를 넣어주세요.", "추가 오류", JOptionPane.WARNING_MESSAGE);
+			}
+			else if(!isInteger(tf_price.getText())) {
 				JOptionPane.showMessageDialog(null, "가격부분이 숫자가 아닙니다.", "추가 오류", JOptionPane.WARNING_MESSAGE);
 			}
 			else if(!isYear(tf_year.getText())){
