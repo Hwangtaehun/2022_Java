@@ -269,6 +269,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		cpane = getContentPane();
 		centerPanel = new JPanel();
 		leftPanel = new JPanel();
+		selectedCol = -1;
 		gbl = new GridBagLayout();
 		leftPanel.setLayout(gbl);
 		gbc = new GridBagConstraints();
@@ -389,6 +390,24 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		dispose();
 	}
 	
+	protected boolean isInteger(String strValue) {
+	    try {
+	      Integer.parseInt(strValue);
+	      return true;
+	    } catch (NumberFormatException ex) {
+	      return false;
+	    }
+	}
+	
+	protected boolean isFloat(String strValue) {
+	    try {
+	      Float.parseFloat(strValue);
+	      return true;
+	    } catch (NumberFormatException ex) {
+	      return false;
+	    }
+	}
+	
 	public class MenuAction implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -460,24 +479,16 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				break;
 			case "책관리":
 				System.out.println("책관리");
+				LbDB_book_Frame frame8 = new LbDB_book_Frame(db, cl, command);
+				frame8.setVisible(true);
 				break;
 			case "책추가":
 				System.out.println("책추가");
+				LbDB_book_Frame frame9 = new LbDB_book_Frame(db, cl, command);
+				frame9.setVisible(true);
 				break;
 			}
 			closeFrame();
 		}
 	}
-	/*
-	addBt = new JButton("등록");
-	addBt.addActionListener(new addButtonListener());
-	updateBt = new JButton("수정");
-	updateBt.addActionListener(new updateButtonListener());
-	deleteBt = new JButton("삭제");
-	deleteBt.addActionListener(new deleteButtonListener());
-	researchBt = new JButton("검색");
-	researchBt.addActionListener(new researchButtonListener());
-	clearBt = new JButton("지우기");
-	clearBt.addActionListener(new clearButtonListener());
-	*/
 }

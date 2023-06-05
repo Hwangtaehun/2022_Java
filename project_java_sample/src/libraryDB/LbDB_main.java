@@ -26,10 +26,12 @@ class Client{
 class foreignkey{
 	private int add_no;
 	private int kind_no;
+	private int book_no;
 	
 	public foreignkey() {
 		add_no = 0;
 		kind_no = 0;
+		book_no = 0;
 	};
 	
 	public void insert_kind_no(int num) {
@@ -40,12 +42,20 @@ class foreignkey{
 		add_no = num;
 	}
 	
+	public void insert_book_no(int num) {
+		book_no = num;
+	}
+	
 	public int call_add_no() {
 		return add_no;
 	}
 	
 	public int call_kind_no() {
 		return kind_no;
+	}
+	
+	public int call_book_no() {
+		return book_no;
 	}
 }
 

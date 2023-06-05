@@ -6,15 +6,18 @@ import javax.swing.event.*;
 import java.sql.*;
 
 public class LbDB_book_Frame extends LbDB_main_Frame{
-	private JTextField tf_bookname, tf_author, tf_publish, tf_price, tf_year;
+	private JTextField tf_bookname, tf_author, tf_publish, tf_price, tf_year, tf_research;
+	private JButton sortBt;
+	private foreignkey fk;
+	private int sw = 1;
 	
 	public LbDB_book_Frame() {}
-	public LbDB_book_Frame(String str, JTextField tf) {
+	public LbDB_book_Frame(String str, JTextField tf, foreignkey fk) {
 		tf_bookname = tf;
+		this.fk = fk;
 		dialog(menu_title);
-		tableform();
-		baseform_final();
-		tableform_final();
+		dialogform();
+		
 	}
 	public LbDB_book_Frame(LbDB_DAO db, Client cl, String str) {
 		this.db = db;
@@ -34,10 +37,15 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		}
 		
 		if(menu_title.equals("책추가")) {
-			
+			baseform();
+			addform();
 		}
 		else {
-			
+			baseform();
+			managerform();
+			tableform();
+			baseform_final();
+			tableform_final();
 		}
 	}
 	
@@ -48,30 +56,67 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		label = new JLabel("    " + menu_title + "   ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc,0,2,1,1);
+		if(menu_title.equals("책관리")) {
+			setGrid(gbc,0,2,1,1);
+			label = new JLabel("    검색    ");
+			gbl.setConstraints(label, gbc);
+			leftPanel.add(label);
+			setGrid(gbc,1,2,1,1);
+			tf_research = new JTextField(50);
+			gbl.setConstraints(tf_research, gbc);
+			leftPanel.add(tf_research);
+			setGrid(gbc,2,2,1,1);
+			researchBt = new JButton("검색");
+			researchBt.addActionListener(new researchButtonListener());
+			gbl.setConstraints(researchBt, gbc);
+			centerPanel.add(researchBt);
+			setGrid(gbc,2,3,1,1);
+			sortBt = new JButton("정렬");
+			sortBt.addActionListener(new sortButtonListener());
+			gbl.setConstraints(sortBt, gbc);
+			centerPanel.add(sortBt);
+		}
+		setGrid(gbc,0,4,1,1);
 		label = new JLabel("    책이름    ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc,1,2,1,1);
+		setGrid(gbc,1,4,1,1);
 		tf_bookname = new JTextField(50);
 		gbl.setConstraints(tf_bookname, gbc);
 		leftPanel.add(tf_bookname);
-		setGrid(gbc,0,3,1,1);
+		setGrid(gbc,0,5,1,1);
 		label = new JLabel("    저자   ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc,1,3,1,1);
+		setGrid(gbc,1,5,1,1);
 		tf_author = new JTextField(20);
 		gbl.setConstraints(tf_author, gbc);
 		leftPanel.add(tf_author);
-		setGrid(gbc,0,4,1,1);
+		setGrid(gbc,0,6,1,1);
 		label = new JLabel("    출판사  ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc,1,4,1,1);
+		setGrid(gbc,1,6,1,1);
 		tf_publish = new JTextField(20);
 		gbl.setConstraints(tf_publish, gbc);
 		leftPanel.add(tf_publish);
+		setGrid(gbc,0,7,1,1);
+		label = new JLabel("    가격  ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,7,1,1);
+		tf_price = new JTextField(10);
+		gbl.setConstraints(tf_price, gbc);
+		leftPanel.add(tf_price);
+		setGrid(gbc,0,8,1,1);
+		label = new JLabel("    년도  ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,8,1,1);
+		tf_year = new JTextField(10);
+		gbl.setConstraints(tf_year, gbc);
+		leftPanel.add(tf_year);
+		
 	}
 	
 	private void tableform() {
@@ -81,7 +126,7 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		table.setPreferredScrollableViewportSize(new Dimension(700, 14*16));
 		table.getSelectionModel().addListSelectionListener(new tableListener());
 		JScrollPane scrollPane = new JScrollPane(table);
-		centerPanel.add(scrollPane); //요부분 재정의
+		centerPanel.add(scrollPane);
 	}
 	
 	private void baseform_final() {
@@ -92,7 +137,7 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 	
 	private void tableform_final() {
 		sql = "SELECT * FROM `book` ORDER BY `book_name`";
-		LoadList();
+		LoadList(sql);
 		
 		try {
 			result.first();
@@ -105,93 +150,198 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 	}
 	
 	private void dialogform() {
+		JLabel label;
 		
+		JPanel northPanel = new JPanel();
+		label = new JLabel("책검색");
+		northPanel.add("Center", label);
+		
+		setGrid(gbc,0,0,1,1);
+		tf_research = new JTextField(50);
+		gbl.setConstraints(tf_bookname, gbc);
+		centerPanel.add(tf_bookname);
+		setGrid(gbc,1,0,1,1);
+		researchBt = new JButton("검색");
+		researchBt.addActionListener(new researchButtonListener());
+		gbl.setConstraints(researchBt, gbc);
+		centerPanel.add(researchBt);
+		setGrid(gbc,2,0,1,1);
+		sortBt = new JButton("정렬");
+		sortBt.addActionListener(new sortButtonListener());
+		gbl.setConstraints(sortBt, gbc);
+		centerPanel.add(sortBt);
+		
+		String columnName[] = {"책 이름", "저자", "출판사", "가격", "출판년도"};
+		tablemodel = new LbDB_TableMode(columnName.length, columnName);
+		table = new JTable(tablemodel);
+		table.setPreferredScrollableViewportSize(new Dimension(700, 14*16));
+		table.getSelectionModel().addListSelectionListener(new tableListener());
+		JScrollPane scrollPane = new JScrollPane(table);
+		leftPanel.add(scrollPane);
+		
+		cpane.add("North", northPanel);
+		cpane.add("Center", centerPanel);
+		cpane.add("South", leftPanel);
+		pack();
+	}
+	
+	private void addform() {
+		setGrid(gbc,0,9,1,1);
+		addBt = new JButton("추가");
+		addBt.addActionListener(new addButtonListener());
+		gbl.setConstraints(addBt, gbc);
+		leftPanel.add(addBt);
+		setGrid(gbc,2,9,1,1);
+		clearBt = new JButton("공백");
+		clearBt.addActionListener(new clearButtonListener());
+		gbl.setConstraints(clearBt, gbc);
+		leftPanel.add(clearBt);
+		
+		cpane.add("Center", leftPanel);
+		pack();
+	}
+	
+	private void managerform() {
+		setGrid(gbc,0,9,1,1);
+		deleteBt = new JButton("삭제");
+		deleteBt.addActionListener(new deleteButtonListener());
+		gbl.setConstraints(deleteBt, gbc);
+		leftPanel.add(deleteBt);
+		setGrid(gbc,1,9,1,1);
+		updateBt = new JButton("수정");
+		updateBt.addActionListener(new updateButtonListener());
+		gbl.setConstraints(updateBt, gbc);
+		leftPanel.add(updateBt);
+		setGrid(gbc,2,9,1,1);
+		clearBt = new JButton("공백");
+		clearBt.addActionListener(new clearButtonListener());
+		gbl.setConstraints(clearBt, gbc);
+		leftPanel.add(clearBt);
 	}
 	
 	private void removeTableRow(int row) {
-		if(menu_title.equals("책검색")) {
-			table.setValueAt(null, row, 0);
-			table.setValueAt(null, row, 1);
-			table.setValueAt(null, row, 2);
-			table.setValueAt(null, row, 3);
-			table.setValueAt(null, row, 4);
-		}
-		else {
-			
-		}
+		table.setValueAt(null, row, 0);
+		table.setValueAt(null, row, 1);
+		table.setValueAt(null, row, 2);
+		table.setValueAt(null, row, 3);
+		table.setValueAt(null, row, 4);
 	}
 	
 	private void MoveData() {
 		try {
-			if(!menu_title.equals("책검색")) {
-				String bookname = result.getString("book_name");
-				String author = result.getString("book_author");
-				String publish = result.getString("book_publish");
-				int price = result.getInt("book_price");
-				int year = result.getInt("book_year");
-				tf_bookname.setText(bookname);
-				tf_author.setText(author);
-				tf_publish.setText(publish);
-				tf_price.setText(Integer.toString(price));
-				tf_year.setText(Integer.toString(year));
-			}
+			String bookname = result.getString("book_name");
+			String author = result.getString("book_author");
+			String publish = result.getString("book_publish");
+			int price = result.getInt("book_price");
+			int year = result.getInt("book_year");
+			tf_bookname.setText(bookname);
+			tf_author.setText(author);
+			tf_publish.setText(publish);
+			tf_price.setText(Integer.toString(price));
+			tf_year.setText(Integer.toString(year));
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	private void LoadList() {
-		if(!menu_title.equals("책검색")) {
-			result = db.getResultSet(sql);
-			
-			for(int i = 0; i < dataCount; i++) {
-				removeTableRow(i);
-			}
-			try {
-				for(dataCount = 0; result.next(); dataCount++) {
-					table.setValueAt(result.getString("book_name"), dataCount, 0);
-					table.setValueAt(result.getString("book_author"), dataCount, 1);
-					table.setValueAt(result.getString("book_publish"), dataCount, 2);
-					table.setValueAt(result.getInt("book_price"), dataCount, 3);
-					table.setValueAt(result.getInt("book_year"), dataCount, 4);
-				}
-				repaint();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+	private void OutData() {
+		try {
+			tf_bookname.setText(result.getString("book_name"));
+			fk.insert_book_no(result.getInt("book_no"));
+			closeFrame();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+	}
+	
+	private void LoadList(String now_sql) {
+		result = db.getResultSet(now_sql);
+		
+		for(int i = 0; i < dataCount; i++) {
+			removeTableRow(i);
+		}
+		try {
+			for(dataCount = 0; result.next(); dataCount++) {
+				table.setValueAt(result.getString("book_name"), dataCount, 0);
+				table.setValueAt(result.getString("book_author"), dataCount, 1);
+				table.setValueAt(result.getString("book_publish"), dataCount, 2);
+				table.setValueAt(result.getInt("book_price"), dataCount, 3);
+				table.setValueAt(result.getInt("book_year"), dataCount, 4);
+			}
+			repaint();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private boolean isYear(String strValue) {
+		boolean bool = false;
+		
+		if(isInteger(strValue) && strValue.length() == 4)
+			bool = true;
+		
+		return bool;
 	}
 	
 	public class researchButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
-			if(menu_title.equals("자료검색")) {
-				String book_name = tf_bookname.getText() + "%";
-				String book_author = tf_author.getText() + "%";
-				String book_publish = tf_publish.getText() + "%";
-				
-				sql = "SELECT library.lib_name, book.book_name, book.book_author, book.book_publish, lent.len_re_st " +
-					   "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
-					   "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no" +
-					   " AND library.lib_name LIKE '' AND book.book_name LIKE '" + book_name + "' AND book.book_author LIKE '" + book_author 
-					   +  "' AND book.book_publish LIKE '" + book_publish + "'";
-				//System.out.println(sql);
-				LoadList();
+			String book_name = "%" + tf_research.getText() + "%";
+			String book_author = "%" + tf_research.getText() + "%";
+			String book_publish = "%" + tf_research.getText() + "%";
+			
+			sql = "SELECT * FROM book WHERE `book_name` LIKE '" + book_name + "' OR `book_author` LIKE '" +
+				  book_author + "' OR `book_publish` LIKE '" + book_publish + "'";
+			String now_sql = sql + " ORDER BY `book_name`";
+			System.out.println(now_sql);
+			LoadList(sql);
+		}
+	}
+	
+	public class sortButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			String now_sql;
+			
+			if(sw == 1) {
+				now_sql = sql + " ORDER BY `book_name`";				
 			}
 			else {
-				
+				now_sql = sql + " ORDER BY `book_year` DESC";
 			}
-		}
+			LoadList(now_sql);
+			sw *= -1;
+		}	
 	}
 	
 	public class addButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
+			String now_sql;
+			boolean price = isInteger(tf_price.getText());
+			boolean year = isYear(tf_year.getText());
 			
+			System.out.println("price = "+ tf_price.getText() + ", price bool = " + price + ", year bool = " + year);
+			
+			if(!isInteger(tf_price.getText())) {
+				JOptionPane.showMessageDialog(null, "가격부분이 숫자가 아닙니다.", "추가 오류", JOptionPane.WARNING_MESSAGE);
+			}
+			else if(!isYear(tf_year.getText())){
+				JOptionPane.showMessageDialog(null, "년도부분이 잘못되었습니다.", "추가 오류", JOptionPane.WARNING_MESSAGE);
+			}
+			else {
+				now_sql = "INSERT INTO `book` (`book_name`, `book_author`, `book_publish`, `book_price`, `book_year`) VALUES ('"
+						+ tf_bookname.getText() + "', '" + tf_author.getText() + "', '" + tf_publish.getText() + "', "
+						+ tf_price.getText() + ", " + tf_year.getText() + ")";
+				System.out.println(now_sql);
+				db.Excute(now_sql);
+			}
 		}	
 	}
 	
@@ -199,7 +349,34 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
+			String now_sql;
+			int code = 0;
 			
+			if(selectedCol == -1) {
+				System.out.println("변경할 셀이 선택되지 않았습니다.");
+				return;
+			}
+			
+			try {
+				code = result.getInt("book_no");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(!isInteger(tf_price.getText())) {
+				JOptionPane.showMessageDialog(null, "가격부분이 숫자가 아닙니다.", "추가 오류", JOptionPane.WARNING_MESSAGE);
+			}
+			else if(!isYear(tf_year.getText())){
+				JOptionPane.showMessageDialog(null, "년도부분이 잘못되었습니다.", "추가 오류", JOptionPane.WARNING_MESSAGE);
+			}
+			else {
+				now_sql = "UPDATE `book` SET `book_name` = '" + tf_bookname.getText() + "', `book_author` = '" +
+						  tf_author.getText() + "', `book_publish` = '" + tf_publish.getText() + "', `book_price = " +
+						  tf_price.getText() + ", `book_year` = " + tf_year.getText() + "WHERE `book_no` = " + code;
+				System.out.println(now_sql);
+				db.Excute(now_sql);
+				LoadList(sql);
+			}
 		}	
 	}
 	
@@ -207,7 +384,24 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
+			String now_sql;
+			int code = 0;
 			
+			if(selectedCol == -1) {
+				System.out.println("변경할 셀이 선택되지 않았습니다.");
+				return;
+			}
+			
+			try {
+				code = result.getInt("book_no");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			now_sql = "DELETE FROM `book` WHERE `book_no` = " + code;
+			db.Excute(now_sql);
+			LoadList(sql);
 		}	
 	}
 	
@@ -218,6 +412,8 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 			tf_bookname.setText(null);
 			tf_author.setText(null);
 			tf_publish.setText(null);
+			tf_price.setText(null);
+			tf_year.setText(null);
 		}	
 	}
 	
@@ -239,7 +435,12 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 					tf_publish.setText(table.getValueAt(selectedCol, 3).toString());
 					try {
 						result.absolute(selectedCol + 1);
-						MoveData();
+						if(menu_title.equals("책검색")) {
+							OutData();
+						}
+						else {
+							MoveData();
+						}
 					} catch (SQLException e1) {
 						e1.printStackTrace();
 					}

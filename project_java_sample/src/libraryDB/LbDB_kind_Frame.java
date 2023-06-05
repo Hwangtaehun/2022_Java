@@ -295,20 +295,6 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 		}
 	}
 	
-	private String integerTokey(int num) {
-		String str;
-		if(num < 10) {
-			str = "00" + num;
-		}
-		else if(10 <= num && num < 100) {
-			str = "0" + num;
-		}
-		else {
-			str = Integer.toString(num);
-		}
-		return str;
-	}
-	
 	private String strTonumTostr(String str, boolean bool) {
 		String text = "문제발생";
 		
@@ -349,24 +335,6 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 			}
 		}
 		return text;
-	}
-	
-	private boolean isInteger(String strValue) {
-	    try {
-	      Integer.parseInt(strValue);
-	      return true;
-	    } catch (NumberFormatException ex) {
-	      return false;
-	    }
-	}
-	
-	private boolean isFloat(String strValue) {
-	    try {
-	      Float.parseFloat(strValue);
-	      return true;
-	    } catch (NumberFormatException ex) {
-	      return false;
-	    }
 	}
 	
 	public class inputButtonListener implements ActionListener{
