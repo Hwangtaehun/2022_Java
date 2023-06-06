@@ -6,11 +6,14 @@ import javax.swing.event.*;
 import java.sql.*;
 
 public class LbDB_material_Frame extends LbDB_main_Frame {
-	private JTextField tf_bookname, tf_author, tf_publish;
-	private JButton bookBt, kindBt
+	private JTextField tf_bookname, tf_author, tf_publish, tf_kind, tf_many;
+	private JButton bookBt, kindBt;
 	private JComboBox <String> lib_Box;
 	private foreignkey fk;
-	protected JButton reservationBt, deliveryBt;
+	private Combobox_Manager manager;
+	private JButton reservationBt, deliveryBt;
+	private int over_num;
+	
 	
 	public LbDB_material_Frame () {}
 	public LbDB_material_Frame (LbDB_DAO db, Client cl, String str) {
@@ -26,13 +29,16 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		baseform();
 		
 		if(menu_title.equals("자료검색")) {
-			materialresearch();
+			researchform();
 		}
-		else if(menu_title.equals("자료추가")) {
-			
-		}
-		else if(menu_title.equals("자료관리")) {
-			
+		else {
+			managerform();
+			if(menu_title.equals("자료추가")) {
+				addform();
+			}
+			else if(menu_title.equals("자료관리")) {
+				editform(); //이부분 완성하기
+			}
 		}
 		
 		
@@ -41,7 +47,6 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 	}
 	
 	private void baseform() {
-		Combobox_Manager manager = new Combobox_Manager(lib_Box, "library", "lib_no");
 		JLabel label;
 		
 		setGrid(gbc,1,1,1,1);
@@ -53,14 +58,10 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,2,1,1);
+		manager = new Combobox_Manager(lib_Box, "library", "lib_no");
 		lib_Box = manager.combox;
 		gbl.setConstraints(lib_Box, gbc);
 		leftPanel.add(lib_Box);
-	}
-	
-	private void materialresearch() {
-		JLabel label;
-		
 		setGrid(gbc,0,3,1,1);
 		label = new JLabel("    책이름    ");
 		gbl.setConstraints(label, gbc);
@@ -69,6 +70,11 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		tf_bookname = new JTextField(50);
 		gbl.setConstraints(tf_bookname, gbc);
 		leftPanel.add(tf_bookname);
+	}
+	
+	private void researchform() {
+		JLabel label;
+		
 		setGrid(gbc,0,4,1,1);
 		label = new JLabel("    저자   ");
 		gbl.setConstraints(label, gbc);
@@ -91,7 +97,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(deliveryBt, gbc);
 		leftPanel.add(deliveryBt);
 		setGrid(gbc,0,6,1,1);
-		clearBt = new JButton("지우기");
+		clearBt = new JButton("공백");
 		clearBt.addActionListener(new clearButtonListener());
 		gbl.setConstraints(clearBt, gbc);
 		leftPanel.add(clearBt);
@@ -132,12 +138,77 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		MoveData();
 	}
 	
-	private void materialadd() {
+	private void managerform() {
+		JLabel label;
+		
+		setGrid(gbc,2,3,1,1);
+		bookBt = new JButton("책검색");
+		bookBt.addActionListener(new bookListener());
+		gbl.setConstraints(bookBt, gbc);
+		leftPanel.add(bookBt);
+		setGrid(gbc,0,4,1,1);
+		label = new JLabel("     종류    ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,4,1,1);
+		tf_kind = new JTextField(5);
+		gbl.setConstraints(tf_kind, gbc);
+		leftPanel.add(tf_kind);
+		setGrid(gbc,2,4,1,1);
+		kindBt = new JButton("종류검색");
+		kindBt.addActionListener(new kindListener());
+		gbl.setConstraints(kindBt, gbc);
+		leftPanel.add(kindBt);
+		setGrid(gbc,0,5,1,1);
+		label = new JLabel("     권차    ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,5,1,1);
+		tf_many = new JTextField(5);
+		gbl.setConstraints(tf_many, gbc);
+		leftPanel.add(tf_many);
+	}
+	
+	private void addform() {
+		JLabel label;
+		
+		tf_bookname.setEnabled(false);
+		tf_kind.setEnabled(false);
+		setGrid(gbc,1,6,1,1);
+		addBt = new JButton("추가");
+		addBt.addActionListener(new addButtonListener());
+		gbl.setConstraints(addBt, gbc);
+		leftPanel.add(addBt);
+		
+		cpane.add("Center", leftPanel);
+		pack();
+	}
+	
+	private void editform() {
 		
 	}
 	
-	private void materialmanager() {
+	private String book_count() {
+		int lib_no, book_no, num = 0;
+		String str_num = "c.";
 		
+		lib_no = manager.foreignkey();
+		book_no = fk.call_book_no();
+		
+		sql = "SELECT * FROM `material` WHERE `lib_no` LIKE " + lib_no + " `book_no` LIKE " + book_no;
+		result = db.getResultSet(sql);
+		try {
+			while(result.next()){
+				num++;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		num++;
+		str_num += num;
+		
+		return str_num;
 	}
 	
 	private void removeTableRow(int row) {
@@ -240,7 +311,20 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
+			String mat_many, mat_overlap, now_sql;
 			
+			mat_many = "v." + tf_many.getText();
+			mat_overlap = book_count();
+			now_sql = "INSERT INTO `material` ( lib_no, book_no, kind_no, mat_many, mat_overlap ) VALUES (" +
+					  manager.foreignkey() + ", " +  fk.call_book_no() + ", " + fk.call_kind_no() + ", '" +
+					  mat_many + "', '" + mat_overlap + "')";
+			System.out.println(now_sql);
+			db.Excute(now_sql);
+			
+			now_sql = "UPDATE `material` SET `mat_overlap` = '" + mat_overlap + "' WHERE `lib_no` = " + manager.foreignkey() +
+					  "AND `book_no` = " + fk.call_book_no();
+			System.out.println(now_sql);
+			db.Excute(now_sql);
 		}	
 	}
 	
@@ -248,7 +332,29 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
+			String mat_many, mat_overlap, now_sql;			
+			int code = 0;
 			
+			if(selectedCol == -1) {
+				System.out.println("변경할 셀이 선택되지 않았습니다.");
+				return;
+			}
+			
+			try {
+				code = result.getInt("mat_no");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			mat_many = "v." + tf_many.getText();
+			mat_overlap = book_count();
+			now_sql = "UPDATE `material` SET `lib_no` = " + manager.foreignkey() + ", `book_no` = " + fk.call_book_no() +
+					  ", `kind_no` = " + fk.call_kind_no() + ", `mat_many` = '" + mat_many + "', `mat_overlap` = '" +
+					  mat_overlap + "' WHERE mat_no = " + code;
+			System.out.println(now_sql);
+			db.Excute(now_sql);
+			LoadList(sql);
 		}	
 	}
 	
@@ -256,7 +362,24 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
+			String now_sql;
+			int code = 0;
 			
+			if(selectedCol == -1) {
+				System.out.println("변경할 셀이 선택되지 않았습니다.");
+				return;
+			}
+			
+			try {
+				code = result.getInt("mat_no");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			now_sql = "DELECT FROM `material` WHERE `mat_no` = " + code;
+			System.out.println(now_sql);
+			db.Excute(now_sql);
+			LoadList(sql);
 		}	
 	}
 	
@@ -284,6 +407,26 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
 			
+		}
+		
+	}
+	
+	public class bookListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			LbDB_book_Frame book = new LbDB_book_Frame("책검색", tf_bookname, fk);
+			book.setVisible(true);
+		}
+		
+	}
+	
+	public class kindListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			LbDB_kind_Frame kind = new LbDB_kind_Frame("종류검색", tf_kind, fk);
+			kind.setVisible(true);
 		}
 		
 	}
@@ -317,15 +460,3 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		}
 	}
 }
-
-/*
-cpane = getContentPane();
-leftPanel = new JPanel();
-centerPanel = new JPanel();
-gbl = new GridBagLayout();
-leftPanel.setLayout(gbl);
-gbc = new GridBagConstraints();
-gbc.fill = GridBagConstraints.BOTH;
-gbc.weightx = 1;
-gbc.weighty = 1;
-*/

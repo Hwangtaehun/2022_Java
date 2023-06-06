@@ -308,6 +308,15 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 			String now_sql = sql + sortsql;
 			System.out.println(now_sql);
 			LoadList(now_sql);
+			
+			try {
+				result.first();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			MoveData();
 		}
 	}
 	
@@ -448,9 +457,11 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 				if(selectedCol >= dataCount)
 					System.out.println("data is Empty");
 				else {
-					tf_bookname.setText(table.getValueAt(selectedCol, 1).toString());
-					tf_author.setText(table.getValueAt(selectedCol, 2).toString());
-					tf_publish.setText(table.getValueAt(selectedCol, 3).toString());
+					tf_bookname.setText(table.getValueAt(selectedCol, 0).toString());
+					tf_author.setText(table.getValueAt(selectedCol, 1).toString());
+					tf_publish.setText(table.getValueAt(selectedCol, 2).toString());
+					tf_price.setText(table.getValueAt(selectedCol, 3).toString());
+					tf_year.setText(table.getValueAt(selectedCol, 4).toString());
 					try {
 						result.absolute(selectedCol + 1);
 						if(menu_title.equals("책검색")) {

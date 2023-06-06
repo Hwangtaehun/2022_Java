@@ -11,17 +11,17 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 	private Combobox_Manager one_manager, two_manager, three_manager;
 	private JTextField tf_name, tf_kind_num, tf_research;
 	private String last_sql;
+	private foreignkey fk;
 	
 	public LbDB_kind_Frame() {}
-	public LbDB_kind_Frame(String str, JTextField tf) {
+	public LbDB_kind_Frame(String str, JTextField tf, foreignkey fk) {
 		db = new LbDB_DAO();
 		menu_title = str;
-		tf = tf_kind_num;
+		tf_kind_num = tf;
 		dialog(str);
 		Initform();
 		baseform();
 		dialogform();
-		addWindowListener(this);
 	}
 	public LbDB_kind_Frame(LbDB_DAO db, Client cl, String str) {
 		this.db = db;
@@ -346,6 +346,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 			try {
 				while(result.next()) {
 					tf_kind_num.setText(result.getString("kind_num"));
+					fk.insert_kind_no(result.getInt("kind_no"));
 				}
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
