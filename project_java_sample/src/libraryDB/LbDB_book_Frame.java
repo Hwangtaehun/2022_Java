@@ -9,6 +9,7 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 	private JTextField tf_bookname, tf_author, tf_publish, tf_price, tf_year, tf_research;
 	private JButton sortBt;
 	private foreignkey fk;
+	private String sortsql;
 	private int sw = 1;
 	
 	public LbDB_book_Frame() {}
@@ -17,7 +18,6 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		this.fk = fk;
 		dialog(menu_title);
 		dialogform();
-		
 	}
 	public LbDB_book_Frame(LbDB_DAO db, Client cl, String str) {
 		this.db = db;
@@ -46,6 +46,7 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 			baseform_final();
 			tableform_final();
 		}
+		addWindowListener(this);
 	}
 	
 	private void baseform() {
@@ -57,7 +58,7 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		leftPanel.add(label);
 		if(menu_title.equals("책관리")) {
 			setGrid(gbc,0,2,1,1);
-			label = new JLabel("    검색    ");
+			label = new JLabel(" 검색");
 			gbl.setConstraints(label, gbc);
 			leftPanel.add(label);
 			setGrid(gbc,1,2,1,1);
@@ -78,9 +79,10 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 			label = new JLabel("        ");
 			gbl.setConstraints(label, gbc);
 			leftPanel.add(label);
+			
 		}
 		setGrid(gbc,0,4,1,1);
-		label = new JLabel("    책이름    ");
+		label = new JLabel("책이름");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,4,1,1);
@@ -88,7 +90,7 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		gbl.setConstraints(tf_bookname, gbc);
 		leftPanel.add(tf_bookname);
 		setGrid(gbc,0,5,1,1);
-		label = new JLabel("    저자   ");
+		label = new JLabel(" 저자");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,5,1,1);
@@ -96,7 +98,7 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		gbl.setConstraints(tf_author, gbc);
 		leftPanel.add(tf_author);
 		setGrid(gbc,0,6,1,1);
-		label = new JLabel("    출판사  ");
+		label = new JLabel("출판사");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,6,1,1);
@@ -104,7 +106,7 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		gbl.setConstraints(tf_publish, gbc);
 		leftPanel.add(tf_publish);
 		setGrid(gbc,0,7,1,1);
-		label = new JLabel("    가격  ");
+		label = new JLabel(" 가격");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,7,1,1);
@@ -112,7 +114,7 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		gbl.setConstraints(tf_price, gbc);
 		leftPanel.add(tf_price);
 		setGrid(gbc,0,8,1,1);
-		label = new JLabel("    년도  ");
+		label = new JLabel(" 년도");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,8,1,1);
@@ -139,8 +141,12 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 	}
 	
 	private void tableform_final() {
-		sql = "SELECT * FROM `book` ORDER BY `book_name`";
-		LoadList(sql);
+		String now_sql;
+		
+		sql = "SELECT * FROM `book`";
+		sortsql = " ORDER BY `book_name`";
+		now_sql = sql + sortsql;
+		LoadList(now_sql);
 		
 		try {
 			result.first();
@@ -299,9 +305,9 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 			
 			sql = "SELECT * FROM book WHERE `book_name` LIKE '" + book_name + "' OR `book_author` LIKE '" +
 				  book_author + "' OR `book_publish` LIKE '" + book_publish + "'";
-			String now_sql = sql + " ORDER BY `book_name`";
+			String now_sql = sql + sortsql;
 			System.out.println(now_sql);
-			LoadList(sql);
+			LoadList(now_sql);
 		}
 	}
 	
@@ -312,10 +318,12 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 			String now_sql;
 			
 			if(sw == 1) {
-				now_sql = sql + " ORDER BY `book_name`";				
+				sortsql = " ORDER BY `book_name`";
+				now_sql = sql + sortsql;				
 			}
 			else {
-				now_sql = sql + " ORDER BY `book_year` DESC";
+				sortsql = " ORDER BY `book_year` DESC";
+				now_sql = sql + sortsql;
 			}
 			LoadList(now_sql);
 			sw *= -1;
@@ -379,11 +387,12 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 			}
 			else {
 				now_sql = "UPDATE `book` SET `book_name` = '" + tf_bookname.getText() + "', `book_author` = '" +
-						  tf_author.getText() + "', `book_publish` = '" + tf_publish.getText() + "', `book_price = " +
-						  tf_price.getText() + ", `book_year` = " + tf_year.getText() + "WHERE `book_no` = " + code;
+						  tf_author.getText() + "', `book_publish` = '" + tf_publish.getText() + "', `book_price` = " +
+						  tf_price.getText() + ", `book_year` = " + tf_year.getText() + " WHERE `book_no` = " + code;
 				System.out.println(now_sql);
 				db.Excute(now_sql);
-				LoadList(sql);
+				now_sql = sql + sortsql;
+				LoadList(now_sql);
 			}
 		}	
 	}
@@ -409,7 +418,8 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 			
 			now_sql = "DELETE FROM `book` WHERE `book_no` = " + code;
 			db.Excute(now_sql);
-			LoadList(sql);
+			now_sql = sql + sortsql;
+			LoadList(now_sql);
 		}	
 	}
 	

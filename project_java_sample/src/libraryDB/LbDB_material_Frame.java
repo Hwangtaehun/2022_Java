@@ -7,6 +7,7 @@ import java.sql.*;
 
 public class LbDB_material_Frame extends LbDB_main_Frame {
 	private JTextField tf_bookname, tf_author, tf_publish;
+	private JButton bookBt, kindBt
 	private JComboBox <String> lib_Box;
 	private foreignkey fk;
 	protected JButton reservationBt, deliveryBt;
@@ -27,12 +28,13 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		if(menu_title.equals("자료검색")) {
 			materialresearch();
 		}
-		else if(menu_title.equals("자료관리")) {
-			
-		}
 		else if(menu_title.equals("자료추가")) {
 			
 		}
+		else if(menu_title.equals("자료관리")) {
+			
+		}
+		
 		
 		setTitle(menu_title);
 		addWindowListener(this);
@@ -54,6 +56,11 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		lib_Box = manager.combox;
 		gbl.setConstraints(lib_Box, gbc);
 		leftPanel.add(lib_Box);
+	}
+	
+	private void materialresearch() {
+		JLabel label;
+		
 		setGrid(gbc,0,3,1,1);
 		label = new JLabel("    책이름    ");
 		gbl.setConstraints(label, gbc);
@@ -78,9 +85,6 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		tf_publish = new JTextField(20);
 		gbl.setConstraints(tf_publish, gbc);
 		leftPanel.add(tf_publish);
-	}
-	
-	private void materialresearch() {
 		setGrid(gbc,2,5,1,1);
 		deliveryBt = new JButton("상호대차");
 		deliveryBt.addActionListener(new deliveryButtonListener());
@@ -126,6 +130,10 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		}
 		
 		MoveData();
+	}
+	
+	private void materialadd() {
+		
 	}
 	
 	private void materialmanager() {
