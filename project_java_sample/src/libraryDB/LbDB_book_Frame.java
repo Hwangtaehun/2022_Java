@@ -9,14 +9,17 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 	private JTextField tf_bookname, tf_author, tf_publish, tf_price, tf_year, tf_research;
 	private JButton sortBt;
 	private foreignkey fk;
-	private String sortsql;
+	private String sortsql = "";
 	private int sw = 1;
 	
 	public LbDB_book_Frame() {}
 	public LbDB_book_Frame(String str, JTextField tf, foreignkey fk) {
+		db = new LbDB_DAO();
+		menu_title = str;
 		tf_bookname = tf;
 		this.fk = fk;
-		dialog(menu_title);
+		dialog(str);
+		Initform();
 		dialogform();
 	}
 	public LbDB_book_Frame(LbDB_DAO db, Client cl, String str) {
@@ -69,12 +72,12 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 			researchBt = new JButton("검색");
 			researchBt.addActionListener(new researchButtonListener());
 			gbl.setConstraints(researchBt, gbc);
-			centerPanel.add(researchBt);
+			leftPanel.add(researchBt);
 			setGrid(gbc,2,3,1,1);
 			sortBt = new JButton("정렬");
 			sortBt.addActionListener(new sortButtonListener());
 			gbl.setConstraints(sortBt, gbc);
-			centerPanel.add(sortBt);
+			leftPanel.add(sortBt);
 			setGrid(gbc,0,3,1,1);
 			label = new JLabel("        ");
 			gbl.setConstraints(label, gbc);
@@ -167,8 +170,8 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 		
 		setGrid(gbc,0,0,1,1);
 		tf_research = new JTextField(50);
-		gbl.setConstraints(tf_bookname, gbc);
-		centerPanel.add(tf_bookname);
+		gbl.setConstraints(tf_research, gbc);
+		centerPanel.add(tf_research);
 		setGrid(gbc,1,0,1,1);
 		researchBt = new JButton("검색");
 		researchBt.addActionListener(new researchButtonListener());
@@ -316,7 +319,9 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 				e.printStackTrace();
 			}
 			
-			MoveData();
+			if(menu_title.equals("책관리")) {
+				MoveData();
+			}
 		}
 	}
 	
@@ -336,6 +341,14 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 			}
 			LoadList(now_sql);
 			sw *= -1;
+			
+			try {
+				result.first();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			MoveData();
 		}	
 	}
 	
@@ -457,23 +470,23 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 				if(selectedCol >= dataCount)
 					System.out.println("data is Empty");
 				else {
-					tf_bookname.setText(table.getValueAt(selectedCol, 0).toString());
-					tf_author.setText(table.getValueAt(selectedCol, 1).toString());
-					tf_publish.setText(table.getValueAt(selectedCol, 2).toString());
-					tf_price.setText(table.getValueAt(selectedCol, 3).toString());
-					tf_year.setText(table.getValueAt(selectedCol, 4).toString());
-					try {
-						result.absolute(selectedCol + 1);
-						if(menu_title.equals("책검색")) {
-							OutData();
-						}
-						else {
-							MoveData();
-						}
-					} catch (SQLException e1) {
-						e1.printStackTrace();
+					if(menu_title.equals("책검색")) {
+						OutData();
 					}
-					repaint();
+					else {
+						tf_bookname.setText(table.getValueAt(selectedCol, 0).toString());
+						tf_author.setText(table.getValueAt(selectedCol, 1).toString());
+						tf_publish.setText(table.getValueAt(selectedCol, 2).toString());
+						tf_price.setText(table.getValueAt(selectedCol, 3).toString());
+						tf_year.setText(table.getValueAt(selectedCol, 4).toString());
+						try {
+							result.absolute(selectedCol + 1);
+							MoveData();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+						repaint();
+					}
 				}
 			}
 		}
