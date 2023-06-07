@@ -33,7 +33,7 @@ class Combobox_Inheritance{
 
 class Combobox_Manager {
 	private LbDB_DAO db;
-	private int fk;
+	private int fk = 1;
 	private String table, key, key_name, sql, parent_num;
 	private String[] arraystring;
 	private ResultSet rs;
@@ -306,12 +306,12 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		JMenuBar menuBar = new JMenuBar(); 
         JMenu materialMenu = new JMenu("책");
         JMenu libraryMenu = new JMenu("도서관");
-        JMenu memberMenu = new JMenu("자료 및 회원");
+        JMenu memberMenu = new JMenu("자료");
         JMenu lentMenu = new JMenu("대출");
         JMenu bookMenu = new JMenu("종류");
         
-        JMenuItem[] menuItems = new JMenuItem[13];
-        String[] items = {"책관리", "책추가", "도서관관리", "도서관추가", "회원관리", "자료관리", "자료추가", "대출관리", "대출추가", "예약관리", "상호대차관리", "종류관리", "종류추가"};
+        JMenuItem[] menuItems = new JMenuItem[12];
+        String[] items = {"책관리", "책추가", "도서관관리", "도서관추가", "자료관리", "자료추가", "대출관리", "대출추가", "예약관리", "상호대차관리", "종류관리", "종류추가"};
         
         for(int i=0; i<menuItems.length; i++) {
         	 menuItems[i] = new JMenuItem(items[i]); // 메뉴 아이템 컴포넌트 생성
@@ -326,15 +326,14 @@ public class LbDB_main_Frame extends LbDB_Frame {
         
         memberMenu.add(menuItems[4]);
         memberMenu.add(menuItems[5]);
-        memberMenu.add(menuItems[6]);
         
-        lentMenu.add(menuItems[7]);
-        lentMenu.add(menuItems[8]); 
+        lentMenu.add(menuItems[6]);
+        lentMenu.add(menuItems[7]); 
+        lentMenu.add(menuItems[8]);
         lentMenu.add(menuItems[9]);
-        lentMenu.add(menuItems[10]);
         
+        bookMenu.add(menuItems[10]);
         bookMenu.add(menuItems[11]);
-        bookMenu.add(menuItems[12]);
         
         menuBar.add(materialMenu);
         menuBar.add(libraryMenu);
@@ -362,8 +361,19 @@ public class LbDB_main_Frame extends LbDB_Frame {
              libraryMenu.add(menuItems[i]);
         }
         
+        JMenu memberMenu = new JMenu("마이페이지");
+        JMenuItem[] memberItems = new JMenuItem[2];
+        String[] items2 = {"회원정보수정", "회원탈퇴"};
+        
+        for(int i=0; i < memberItems.length; i++) {
+        	memberItems[i] = new JMenuItem(items2[i]);
+        	memberItems[i].addActionListener(new MenuAction());
+        	memberMenu.add(memberItems[i]);
+        }
+        
         menuBar.add(materialMenu);
         menuBar.add(libraryMenu);
+        menuBar.add(memberMenu);
         
         setJMenuBar(menuBar);
 	}
@@ -426,8 +436,24 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				LbDB_library_Frame frame5 = new LbDB_library_Frame(db, cl, command);
 				frame5.setVisible(true);
 				break;
-			case "회원관리": 
-				System.out.println("회원관리");
+			case "회원정보수정": 
+				System.out.println("회원정보수정");
+				LbDB_mem_info_Frame frame10 = new LbDB_mem_info_Frame(db, cl, command);
+				frame10.setVisible(true);
+				break;
+			case "회원탈퇴":
+				System.out.println("회원탈퇴");
+				int answer = JOptionPane.showConfirmDialog(null, "탈퇴하시겠습니까?", "회원탈퇴",JOptionPane.YES_NO_OPTION );
+				if(answer == JOptionPane.YES_OPTION){
+					//사용자가 yes를 눌렀을 떄
+					pk = cl.primarykey();
+					String sql = "DELETE FROM `member` WHERE `mem_no` = " + pk;
+					db.Excute(sql);
+					System.out.println("회원정보 삭제");
+				} else{
+					//사용자가 Yes 외 값 입력시
+					System.out.println("작업취소");
+				}
 				break;
 			case "대출관리": 
 				System.out.println("대출관리");
