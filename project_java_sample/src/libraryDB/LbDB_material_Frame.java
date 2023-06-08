@@ -7,7 +7,7 @@ import java.sql.*;
 
 class SwingItem{
 	private JTextField tf_bookname, tf_kind, tf_many;
-	public JComboBox <String> lib_Box;
+	private JComboBox <String> lib_Box;
 	
 	public SwingItem() {}
 	public SwingItem(JComboBox <String> lb, JTextField bn, JTextField ki, JTextField ma) {
@@ -25,6 +25,13 @@ class SwingItem{
 		tf_bookname.setText(str);
 	}
 	
+	public void set_kind(String str) {
+		tf_kind.setText(str);
+	}
+	
+	public void set_many(String str) {
+		tf_many.setText(str);
+	}
 }
 
 public class LbDB_material_Frame extends LbDB_main_Frame {
@@ -32,16 +39,18 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 	private JButton bookBt, kindBt;
 	private JComboBox <String> lib_Box;
 	private foreignkey fk;
+	private SwingItem si;
 	private Combobox_Manager manager;
 	private JButton reservationBt, deliveryBt;
 	
 	public LbDB_material_Frame () {}
-	public LbDB_material_Frame (int mat_no, String str) {
+	public LbDB_material_Frame (SwingItem si, String str) {
+		db = new LbDB_DAO();
 		menu_title = str;
-		
+		this.si = si;
 		Initform();
 		baseform();
-		researchform();
+		dialogform();
 		dialog(str);
 	}
 	public LbDB_material_Frame (LbDB_DAO db, Client cl, String str) {
@@ -58,8 +67,6 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		
 		if(menu_title.equals("자료검색")) {
 			researchform();
-			menu_researchform();
-			researchform_table();
 		}
 		else {
 			managerform();
@@ -71,7 +78,6 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 			}
 		}
 		
-		
 		setTitle(menu_title);
 		addWindowListener(this);
 	}
@@ -80,7 +86,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		JLabel label;
 		
 		setGrid(gbc,1,1,1,1);
-		label = new JLabel("    자료 검색   ");
+		label = new JLabel("    "+ menu_title + "   ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,0,2,1,1);
@@ -102,6 +108,40 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		leftPanel.add(tf_bookname);
 	}
 	
+	private void dialogform() {
+		setGrid(gbc,0,4,1,1);
+		researchBt = new JButton("검색");
+		researchBt.addActionListener(new researchButtonListener());
+		gbl.setConstraints(researchBt, gbc);
+		leftPanel.add(researchBt);
+		
+		String columnName[] = {"도서관", "책 이름", "저자", "출판사", "종류"};
+		tablemodel = new LbDB_TableMode(columnName.length, columnName);
+		table = new JTable(tablemodel);
+		table.setPreferredScrollableViewportSize(new Dimension(700, 14*16));
+		table.getSelectionModel().addListSelectionListener(new tableListener());
+		JScrollPane scrollPane = new JScrollPane(table);
+		centerPanel.add(scrollPane);
+		
+		cpane.add("West", leftPanel);
+		cpane.add("Center", centerPanel);
+		pack();
+		
+		sql = "SELECT * " + "FROM library, book, material, kind" + 
+			  " WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no AND kind.kind_no = material.kind_no";
+		System.out.println(sql);
+		LoadList(sql);
+		
+		try {
+			result.first();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		MoveData();
+	}
+	
 	private void researchform() {
 		JLabel label;
 		
@@ -121,6 +161,11 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		tf_publish = new JTextField(20);
 		gbl.setConstraints(tf_publish, gbc);
 		leftPanel.add(tf_publish);
+		setGrid(gbc,2,5,1,1);
+		deliveryBt = new JButton("상호대차");
+		deliveryBt.addActionListener(new deliveryButtonListener());
+		gbl.setConstraints(deliveryBt, gbc);
+		leftPanel.add(deliveryBt);
 		setGrid(gbc,0,6,1,1);
 		clearBt = new JButton("공백");
 		clearBt.addActionListener(new clearButtonListener());
@@ -131,30 +176,12 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		researchBt.addActionListener(new researchButtonListener());
 		gbl.setConstraints(researchBt, gbc);
 		leftPanel.add(researchBt);
-	}
-	
-	private void dialog_researchform() {
-		setGrid(gbc,2,6,1,1);
-		JButton completeBt = new JButton("예약");
-		completeBt.addActionListener(new reservationButtonListener());
-		gbl.setConstraints(completeBt, gbc);
-		leftPanel.add(completeBt);
-	}
-	
-	private void menu_researchform() {
-		setGrid(gbc,2,5,1,1);
-		deliveryBt = new JButton("상호대차");
-		deliveryBt.addActionListener(new deliveryButtonListener());
-		gbl.setConstraints(deliveryBt, gbc);
-		leftPanel.add(deliveryBt);
 		setGrid(gbc,2,6,1,1);
 		reservationBt = new JButton("예약");
 		reservationBt.addActionListener(new reservationButtonListener());
 		gbl.setConstraints(reservationBt, gbc);
 		leftPanel.add(reservationBt);
-	}
-	
-	private void researchform_table() {
+		
 		String columnName[] = {"도서관", "책 이름", "저자", "출판사", "대출가능"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
@@ -226,8 +253,15 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 	}
 	
 	private void editform() {
+		JButton bt;
+		
 		tf_bookname.setEnabled(false);
 		tf_kind.setEnabled(false);
+		setGrid(gbc,2,2,1,1);
+		bt = new JButton("자료검색");
+		bt.addActionListener(new materialListener());
+		gbl.setConstraints(bt, gbc);
+		leftPanel.add(bt);
 		setGrid(gbc,1,6,1,1);
 		deleteBt = new JButton("삭제");
 		deleteBt.addActionListener(new deleteButtonListener());
@@ -333,14 +367,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 	}
 	
 	private void removeTableRow(int row) {
-		if(menu_title.equals("자료검색")) {
-			table.setValueAt(null, row, 0);
-			table.setValueAt(null, row, 1);
-			table.setValueAt(null, row, 2);
-			table.setValueAt(null, row, 3);
-			table.setValueAt(null, row, 4);
-		}
-		else {
+		if(menu_title.equals("자료관리")) {
 			table.setValueAt(null, row, 0);
 			table.setValueAt(null, row, 1);
 			table.setValueAt(null, row, 2);
@@ -349,11 +376,16 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 			table.setValueAt(null, row, 5);
 			table.setValueAt(null, row, 6);
 		}
+		else {
+			table.setValueAt(null, row, 0);
+			table.setValueAt(null, row, 1);
+			table.setValueAt(null, row, 2);
+			table.setValueAt(null, row, 3);
+			table.setValueAt(null, row, 4);
+		}
 	}
 	
 	private void MoveData() {
-		String arraystr[];
-		
 		try {
 			String libraryname = result.getString("library.lib_name");
 			String bookname = result.getString("book.book_name");
@@ -408,6 +440,21 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 				e.printStackTrace();
 			}
 		}
+		else if(menu_title.equals("상세검색")) {
+			try {
+				for(dataCount = 0; result.next(); dataCount++) {
+					table.setValueAt(result.getString("library.lib_name"), dataCount, 0);
+					table.setValueAt(result.getString("book.book_name"), dataCount, 1);
+					table.setValueAt(result.getString("book.book_author"), dataCount, 2);
+					table.setValueAt(result.getString("book.book_publish"), dataCount, 3);
+					table.setValueAt(result.getString("kind.kind_num"), dataCount, 4);
+				}
+				repaint();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		else {
 			try {
 				for(dataCount = 0; result.next(); dataCount++) {
@@ -437,15 +484,17 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
+			String now_sql;
+			
 			if(menu_title.equals("자료검색")) {
 				String lib_name = lib_Box.getSelectedItem().toString() + "%";
 				String book_name = tf_bookname.getText() + "%";
 				String book_author = tf_author.getText() + "%";
 				String book_publish = tf_publish.getText() + "%";
 				
-				String now_sql = sql + " AND library.lib_name LIKE '" + lib_name + "' AND book.book_name LIKE '" + book_name
-						          + "' AND book.book_author LIKE '" + book_author +  "' AND book.book_publish LIKE '" 
-						          + book_publish + "'";
+				now_sql = sql + " AND library.lib_name LIKE '" + lib_name + "' AND book.book_name LIKE '" + book_name +
+						  "' AND book.book_author LIKE '" + book_author +  "' AND book.book_publish LIKE '" + 
+						  book_publish + "'";
 						
 			   /*sql = "SELECT library.lib_name, book.book_name, book.book_author, book.book_publish, lent.len_re_st " +
 					   "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
@@ -453,12 +502,24 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 					   " AND library.lib_name LIKE '" + lib_name + "' AND book.book_name LIKE '" + book_name + "' AND book.book_author LIKE '" + book_author 
 					   +  "' AND book.book_publish LIKE '" + book_publish + "'"; */
 				//System.out.println(sql);
-				LoadList(now_sql);
+				
 			}
 			else {
-				String now_sql = sql + " AND library.lib_no LIKE " + manager.foreignkey();
-				LoadList(now_sql);
+				now_sql = sql + " AND library.lib_no LIKE " + manager.foreignkey() + " AND book.book_name LIKE '%" +
+						  tf_bookname.getText() + "%'";
+				System.out.println(now_sql);
 			}
+			
+			LoadList(now_sql);
+			
+			try {
+				result.first();
+			} catch (SQLException e) {
+					// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+				
+			MoveData();
 		}
 	}
 	
@@ -634,6 +695,16 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		
 	}
 	
+	public class materialListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			si = new SwingItem(lib_Box, tf_bookname, tf_kind, tf_many);
+			LbDB_material_Frame material = new LbDB_material_Frame(si, "상세검색");
+			material.setVisible(true);
+		}
+	}
+	
 	public class tableListener implements ListSelectionListener{
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
@@ -653,6 +724,9 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 						tf_author.setText(table.getValueAt(selectedCol, 2).toString());
 						tf_publish.setText(table.getValueAt(selectedCol, 3).toString());
 					}
+					else if(menu_title.equals("상세검색")) {
+						tf_bookname.setText(table.getValueAt(selectedCol, 1).toString());
+					}
 					else {
 						tf_kind.setText(table.getValueAt(selectedCol, 1).toString());
 						tf_bookname.setText(table.getValueAt(selectedCol, 2).toString());
@@ -665,7 +739,16 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 					}
 					try {
 						result.absolute(selectedCol + 1);
-						MoveData();
+						if(menu_title.equals("상세검색")) {
+							si.set_lib_Box(result.getString("library.lib_name"));
+							si.set_bookname(result.getString("book.book_name"));
+							si.set_kind(result.getString("kind.kind_num"));
+							si.set_many(result.getString("material.mat_many"));
+							closeFrame();
+						}
+						else {
+							MoveData();
+						}
 					} catch (SQLException e1) {
 						e1.printStackTrace();
 					}

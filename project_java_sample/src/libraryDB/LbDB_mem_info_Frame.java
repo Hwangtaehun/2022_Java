@@ -148,7 +148,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 	
 	//나중
 	/*private void tableform() {
-		String columnName[] = {"이름", "아이디", "비밀번호", "우편번호", "주소", "상세주소", "대출권수", ""};
+		String columnName[] = {"이름", "아이디", "비밀번호", "우편번호", "주소", "상세주소", "대출가능수", "계정상태"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
 		table.setPreferredScrollableViewportSize(new Dimension(700, 14*16));
