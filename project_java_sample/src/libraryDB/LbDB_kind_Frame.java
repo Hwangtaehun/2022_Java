@@ -9,7 +9,7 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 	private JComboBox <String> one_Box, two_Box, three_Box;
 	private Combobox_Inheritance one_to_two, two_to_three;
 	private Combobox_Manager one_manager, two_manager, three_manager;
-	private JTextField tf_name, tf_kind_num, tf_research;
+	private JTextField tf_name, tf_kind_num;
 	private String last_sql;
 	private foreignkey fk;
 	

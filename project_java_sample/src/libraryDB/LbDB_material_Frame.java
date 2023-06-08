@@ -5,7 +5,27 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
-//학원에서 한번 더 테스트 해보기
+class SwingItem{
+	private JTextField tf_bookname, tf_kind, tf_many;
+	public JComboBox <String> lib_Box;
+	
+	public SwingItem() {}
+	public SwingItem(JComboBox <String> lb, JTextField bn, JTextField ki, JTextField ma) {
+		lib_Box = lb;
+		tf_bookname = bn;
+		tf_kind = ki;
+		tf_many = ma;
+	}
+	
+	public void set_lib_Box(String str) {
+		lib_Box.setSelectedItem(str);
+	}
+	
+	public void set_bookname(String str) {
+		tf_bookname.setText(str);
+	}
+	
+}
 
 public class LbDB_material_Frame extends LbDB_main_Frame {
 	private JTextField tf_bookname, tf_author, tf_publish, tf_kind, tf_many;
@@ -14,10 +34,16 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 	private foreignkey fk;
 	private Combobox_Manager manager;
 	private JButton reservationBt, deliveryBt;
-	private int over_num;
-	
 	
 	public LbDB_material_Frame () {}
+	public LbDB_material_Frame (int mat_no, String str) {
+		menu_title = str;
+		
+		Initform();
+		baseform();
+		researchform();
+		dialog(str);
+	}
 	public LbDB_material_Frame (LbDB_DAO db, Client cl, String str) {
 		this.db = db;
 		this.cl = cl;
@@ -32,6 +58,8 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		
 		if(menu_title.equals("자료검색")) {
 			researchform();
+			menu_researchform();
+			researchform_table();
 		}
 		else {
 			managerform();
@@ -93,11 +121,6 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		tf_publish = new JTextField(20);
 		gbl.setConstraints(tf_publish, gbc);
 		leftPanel.add(tf_publish);
-		setGrid(gbc,2,5,1,1);
-		deliveryBt = new JButton("상호대차");
-		deliveryBt.addActionListener(new deliveryButtonListener());
-		gbl.setConstraints(deliveryBt, gbc);
-		leftPanel.add(deliveryBt);
 		setGrid(gbc,0,6,1,1);
 		clearBt = new JButton("공백");
 		clearBt.addActionListener(new clearButtonListener());
@@ -108,12 +131,30 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		researchBt.addActionListener(new researchButtonListener());
 		gbl.setConstraints(researchBt, gbc);
 		leftPanel.add(researchBt);
+	}
+	
+	private void dialog_researchform() {
+		setGrid(gbc,2,6,1,1);
+		JButton completeBt = new JButton("예약");
+		completeBt.addActionListener(new reservationButtonListener());
+		gbl.setConstraints(completeBt, gbc);
+		leftPanel.add(completeBt);
+	}
+	
+	private void menu_researchform() {
+		setGrid(gbc,2,5,1,1);
+		deliveryBt = new JButton("상호대차");
+		deliveryBt.addActionListener(new deliveryButtonListener());
+		gbl.setConstraints(deliveryBt, gbc);
+		leftPanel.add(deliveryBt);
 		setGrid(gbc,2,6,1,1);
 		reservationBt = new JButton("예약");
 		reservationBt.addActionListener(new reservationButtonListener());
 		gbl.setConstraints(reservationBt, gbc);
 		leftPanel.add(reservationBt);
-		
+	}
+	
+	private void researchform_table() {
 		String columnName[] = {"도서관", "책 이름", "저자", "출판사", "대출가능"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
@@ -415,7 +456,8 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 				LoadList(now_sql);
 			}
 			else {
-				
+				String now_sql = sql + " AND library.lib_no LIKE " + manager.foreignkey();
+				LoadList(now_sql);
 			}
 		}
 	}
@@ -454,8 +496,10 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
 			String mat_many, mat_overlap, now_sql;			
-			int code = 0;
+			int book_no, kind_no, code = 0;
 			
+			book_no = fk.call_book_no();
+			kind_no = fk.call_kind_no();
 			if(selectedCol == -1) {
 				System.out.println("변경할 셀이 선택되지 않았습니다.");
 				return;
@@ -464,6 +508,12 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 			if(warning()) {
 				try {
 					code = result.getInt("mat_no");
+					if(book_no == 0) {
+						book_no = result.getInt("book_no");
+					}
+					if(kind_no == 0) {
+						kind_no = result.getInt("kind_no");
+					}
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -477,14 +527,15 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 				}
 				
 				mat_overlap = book_count();
-				now_sql = "UPDATE `material` SET `lib_no` = " + manager.foreignkey() + ", `book_no` = " + fk.call_book_no() +
-						  ", `kind_no` = " + fk.call_kind_no() + ", `mat_many` = '" + mat_many + "', `mat_overlap` = '" +
+				//요부분부터
+				now_sql = "UPDATE `material` SET `lib_no` = " + manager.foreignkey() + ", `book_no` = " + book_no +
+						  ", `kind_no` = " + kind_no + ", `mat_many` = '" + mat_many + "', `mat_overlap` = '" +
 						  mat_overlap + "' WHERE mat_no = " + code;
 				System.out.println(now_sql);
 				db.Excute(now_sql);
 				
 				now_sql = "UPDATE `material` SET `mat_overlap` = '" + mat_overlap + "' WHERE `lib_no` = " + manager.foreignkey() +
-						  " AND `book_no` = " + fk.call_book_no();
+						  " AND `book_no` = " + book_no;
 				System.out.println(now_sql);
 				db.Excute(now_sql);
 				
@@ -498,7 +549,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
 			String now_sql, mat_overlap;
-			int code = 0;
+			int book_no = 0, code = 0;
 			
 			if(selectedCol == -1) {
 				System.out.println("변경할 셀이 선택되지 않았습니다.");
@@ -507,22 +558,32 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 			
 			try {
 				code = result.getInt("mat_no");
+				book_no = result.getInt("book.book_no");
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			now_sql = "DELECT FROM `material` WHERE `mat_no` = " + code;
+			System.out.println("book_no = " + book_no);
+			now_sql = "DELETE FROM `material` WHERE `mat_no` = " + code;
 			System.out.println(now_sql);
 			db.Excute(now_sql);
 			
 			mat_overlap = book_count();
 			now_sql = "UPDATE `material` SET `mat_overlap` = '" + mat_overlap + "' WHERE `lib_no` = " + manager.foreignkey() +
-					  " AND `book_no` = " + fk.call_book_no();
+					  " AND `book_no` = " + book_no;
 			System.out.println(now_sql);
 			db.Excute(now_sql);
 			
 			LoadList(sql);
 		}	
+	}
+	
+	public class completeButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	public class clearButtonListener implements ActionListener{

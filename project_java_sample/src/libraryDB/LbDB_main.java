@@ -24,9 +24,8 @@ class Client{
 }
 
 class foreignkey{
-	private int add_no;
-	private int kind_no;
-	private int book_no;
+	private int add_no, kind_no, book_no;
+	public String kind_num, book_name;
 	
 	public foreignkey() {
 		add_no = 0;
