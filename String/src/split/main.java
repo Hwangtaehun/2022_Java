@@ -1,32 +1,32 @@
 package split;
 
 import java.sql.ResultSet;
+import java.time.*;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 public class main {	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		LbDB_DAO db = new LbDB_DAO();
-		String sql = "SELECT * FROM `material`";
+		String sql = "SELECT * " + "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
+				     "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no AND " +
+				     "len_no = 2";
 		ResultSet result = db.getResultSet(sql);
-		String mat_overlap = null;
-		String str_array[];
+		String state = null;
 		
 		try {
 			while(result.next()) {
-				mat_overlap = result.getString("mat_overlap");
+				state = result.getString("lent.len_re_st");
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		System.out.println("mat_overlap: " + mat_overlap);
-		str_array = mat_overlap.split("");
+		System.out.println(state);
 		
-		System.out.println("str_array의 크기: " + str_array.length);
-		for(int i = 0; i < str_array.length; i++) {
-			System.out.println("str_array[" + i + "]: " + str_array[i]);
-		}
+		LocalDate Now = LocalDate.now();
+		System.out.println(Now);
 	}
 }
