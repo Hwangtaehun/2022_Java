@@ -22,14 +22,10 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 		pk = cl.primarykey();
 		state = cl.state();
 		
-		if(menu_title.equals("배달관리")){
-			
-		}
-		else {
-			
-		}
 		setTitle(menu_title);
 		menuform();
+		Initform();
+		baseform();
 		addWindowListener(this);
 	}
 	LbDB_delivery_Frame(Client cl, String str, int mat_no){
@@ -43,6 +39,7 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 		dialog(menu_title);
 		transfer();
 		Initform();
+		baseform();
 		booksea();
 		addWindowListener(this);
 	}
