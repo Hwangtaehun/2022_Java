@@ -39,7 +39,6 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 	private JTextField tf_bookname, tf_author, tf_publish, tf_kind, tf_many;
 	private JButton bookBt, kindBt;
 	private JComboBox <String> lib_Box;
-	private foreignkey fk;
 	private SwingItem si;
 	private Combobox_Manager manager;
 	private JButton reservationBt, deliveryBt;

@@ -11,7 +11,6 @@ public class LbDB_kind_Frame extends LbDB_main_Frame {
 	private Combobox_Manager one_manager, two_manager, three_manager;
 	private JTextField tf_name, tf_kind_num;
 	private String last_sql;
-	private foreignkey fk;
 	
 	public LbDB_kind_Frame() {}
 	public LbDB_kind_Frame(String str, JTextField tf, foreignkey fk) {

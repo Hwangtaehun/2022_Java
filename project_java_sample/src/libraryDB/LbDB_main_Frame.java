@@ -230,6 +230,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
 	protected Client cl;
 	protected LbDB_DAO db;
 	protected int state, pk;
+	protected foreignkey fk;
 	protected Container cpane;
 	protected JPanel leftPanel, centerPanel;
 	protected GridBagLayout gbl;

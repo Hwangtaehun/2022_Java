@@ -8,7 +8,6 @@ import java.sql.*;
 public class LbDB_book_Frame extends LbDB_main_Frame{
 	private JTextField tf_bookname, tf_author, tf_publish, tf_price, tf_year;
 	private JButton sortBt;
-	private foreignkey fk;
 	private String sortsql = "";
 	private int sw = 1;
 	

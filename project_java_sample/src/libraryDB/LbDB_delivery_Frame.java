@@ -66,6 +66,7 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 		leftPanel.add(label);
 		setGrid(gbc,1,3,1,1);
 		tf_bookname = new JTextField(50);
+		tf_bookname.setEnabled(false);
 		gbl.setConstraints(tf_bookname, gbc);
 		leftPanel.add(tf_bookname);
 		setGrid(gbc,0,4,1,1);
@@ -74,8 +75,14 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 		leftPanel.add(label);
 		setGrid(gbc,1,4,1,1);
 		tf_memberid = new JTextField(10);
+		tf_memberid.setEnabled(false);
 		gbl.setConstraints(tf_memberid, gbc);
 		leftPanel.add(tf_memberid);
+	}
+	
+	private void editform() {
+		setGrid(gbc,1,3,1,1);
+		
 	}
 	
 	private void booksea() {
@@ -135,5 +142,21 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 				closeFrame();
 			}
 		}	
+	}
+	
+	public class updateButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+	}
+	
+	public class deleteButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 }

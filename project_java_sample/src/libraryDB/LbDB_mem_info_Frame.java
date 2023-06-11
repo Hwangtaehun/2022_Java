@@ -7,13 +7,18 @@ import java.sql.*;
 
 public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 	private JPanel northPanel, southPanel;
-	private JTextField tf_name, tf_Id, tf_zipcode, tf_address, tf_detail;
+	private JTextField tf_name, tf_Id, tf_zipcode, tf_address, tf_detail, tf_memberid;
 	private JPasswordField tf_Pw, tf_Pw2;
 	private JButton bt_complate;
-	private foreignkey fk;
 	private String title, sortsql = "";
 	
 	public LbDB_mem_info_Frame() {}
+	public LbDB_mem_info_Frame(String title, JTextField tf, foreignkey fk) {
+		this.tf_memberid = tf;
+		db = new LbDB_DAO();
+		this.fk = fk;
+		Initform();
+	}
 	public LbDB_mem_info_Frame(LbDB_DAO db, String title) {
 		this.db = db;
 		this.title = title;
