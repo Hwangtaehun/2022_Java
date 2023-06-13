@@ -3,15 +3,15 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-
-import libraryDB.LbDB_book_Frame.researchButtonListener;
-import libraryDB.LbDB_book_Frame.tableListener;
-
 import java.sql.*;
+import java.time.*;
 
 public class LbDB_lent_Frame extends LbDB_main_Frame {
 	private JPanel northPanel;
-	private JTextField tf_research, tf_book_name, tf_mem_id;
+	private JTextField tf_research, tf_book_name, tf_mem_id, tf_lent_re_date, tf_memo;
+	private JRadioButton rb_lent, rb_return, rb_etc, rb_normal, rb_extend;
+	private ButtonGroup gr_return, gr_extend;
+	private int ex, st;
 	private String sortsql;
 	
 	public LbDB_lent_Frame() {}
@@ -68,6 +68,73 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		northPanel = new JPanel();
 		northPanel.add("North", titlePanel);
 		northPanel.add("South", researchPanel);
+	}
+	
+	private void managerform() {
+		JLabel label;
+		JButton bt;
+		JPanel extendPanel;
+		
+		setGrid(gbc,1,1,1,1);
+		label = new JLabel("    "+ menu_title + "   ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,0,2,1,1);
+		label = new JLabel("    자료이름        ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,2,1,1);
+		tf_book_name = new JTextField(10);
+		gbl.setConstraints(tf_book_name, gbc);
+		leftPanel.add(tf_book_name);
+		setGrid(gbc,2,2,1,1);
+		bt = new JButton("자료검색");
+		bt.addActionListener(new materialButtonListener());
+		gbl.setConstraints(bt, gbc);
+		leftPanel.add(bt);
+		setGrid(gbc,0,2,1,1);
+		label = new JLabel("    회원아이디       ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,2,1,1);
+		tf_mem_id = new JTextField(10);
+		gbl.setConstraints(tf_mem_id, gbc);
+		leftPanel.add(tf_mem_id);
+		setGrid(gbc,2,2,1,1);
+		bt = new JButton("회원검색");
+		bt.addActionListener(new memberButtonListener());
+		gbl.setConstraints(bt, gbc);
+		leftPanel.add(bt);
+		setGrid(gbc,0,3,1,1);
+		label = new JLabel("    연장          ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,3,1,1);
+		extendPanel = new JPanel();
+		gr_extend = new ButtonGroup();
+		rb_normal = new JRadioButton("예", true);
+		rb_normal.addActionListener(new radiobuttonListener());
+		rb_normal.addItemListener(new radiobuttonListener());
+		rb_normal.setActionCommand("ex-7");
+		gr_extend.add(rb_normal);
+		extendPanel.add(rb_normal);
+		rb_extend = new JRadioButton("아니오", false);
+		rb_extend.addActionListener(new radiobuttonListener());
+		rb_extend.addItemListener(new radiobuttonListener());
+		rb_extend.setActionCommand("ex-0");
+		gr_extend.add(rb_extend);
+		extendPanel.add(rb_extend);
+		gbl.setConstraints(extendPanel, gbc);
+		leftPanel.add(extendPanel);
+	}
+	
+	private void addform() {
+		JButton bt;
+		
+		setGrid(gbc,1,4,1,1);
+		bt = new JButton("추가");
+		gbl.setConstraints(bt, gbc);
+		leftPanel.add(bt);
 	}
 	
 	private void tableform(String columnName[]) {
@@ -156,6 +223,30 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		
 	}
 	
+	public class addButtonListenr implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			String now_sql;
+			LocalDate len_date;
+			
+			len_date = LocalDate.now(); 
+			now_sql = "INSERT INTO `lent` ( mat_no, mem_no, len_ex, len_date ) VALUES(" + fk.call_mat_no() + ", "
+					+ fk.call_mem_no() + ", " + ex + ", '" + len_date + "')";
+		}
+	}
+	
+	public class updateButtonListenr implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			if(selectedCol == -1) {
+				System.out.println("변경할 셀이 선택되지 않았습니다.");
+				return;
+			}
+		}
+	}
+	
 	public class materialButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -170,7 +261,39 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
+			LbDB_mem_info_Frame men = new LbDB_mem_info_Frame("회원검색", tf_mem_id, fk);
+			men.setVisible(true);
+		}
+		
+	}
+	
+	public class radiobuttonListener implements ItemListener, ActionListener{
+
+		@Override
+		public void itemStateChanged(ItemEvent arg0) {
+			// TODO Auto-generated method stub
 			
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			String cmd, str_array[];
+			
+			cmd = e.getActionCommand();
+			str_array = cmd.split("-");
+			
+			for(int i = 0; i < str_array.length; i++) {
+				System.out.print(str_array[i]);
+			}
+			System.out.println();
+			
+			if(str_array[0].equals("state")) {
+				ex = Integer.parseInt(str_array[1]);
+			}
+			else {
+				st = Integer.parseInt(str_array[1]);
+			}
 		}
 		
 	}

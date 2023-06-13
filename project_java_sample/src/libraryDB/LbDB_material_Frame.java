@@ -819,7 +819,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 						}
 						else if(menu_title.equals("자료검색")) {
 							tf_bookname.setText(result.getString("book.bookname"));
-							fk.insert_mem_no(result.getInt("material.mat_no"));
+							fk.insert_mat_no(result.getInt("material.mat_no"));
 							closeFrame();
 						}
 						else {

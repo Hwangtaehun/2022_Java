@@ -12,13 +12,13 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 	private ButtonGroup gr_state, gr_lent;
 	private JPasswordField tf_Pw, tf_Pw2;
 	private JButton bt_complete;
-	private String title, sortsql = "";
+	private String sortsql = "";
 	private int mem_state, mem_lent;
 	
 	public LbDB_mem_info_Frame() {}
 	public LbDB_mem_info_Frame(LbDB_DAO db, String title) {
 		this.db = db;
-		this.title = title;
+		menu_title = title;
 		fk = new foreignkey();
 		Initform();
 		baseform();
@@ -27,7 +27,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 	}
 	public LbDB_mem_info_Frame(String title, JTextField tf, foreignkey fk) {
 		db = new LbDB_DAO();
-		this.title = title;
+		menu_title = title;
 		this.fk = fk;
 		tf_Id = tf;
 		Initform();
@@ -38,7 +38,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 	}
 	public LbDB_mem_info_Frame(LbDB_DAO db, Client cl,  String title) {
 		this.db = db;
-		this.title = title;
+		menu_title = title;
 		fk = new foreignkey();
 		pk = cl.primarykey();
 		state = cl.state();
@@ -66,7 +66,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		northPanel = new JPanel();
 		southPanel = new JPanel();
 		
-		label = new JLabel(title);
+		label = new JLabel(menu_title);
 		northPanel.add("Center", label);
 		
 		setGrid(gbc, 0, 0, 1, 1);
@@ -85,7 +85,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		tf_Id = new JTextField(5);
 		gbl.setConstraints(tf_Id, gbc);
 		leftPanel.add(tf_Id);
-		if(title.equals("회원 가입")) {
+		if(menu_title.equals("회원 가입")) {
 			setGrid(gbc, 2, 1, 1, 1);
 			duplicateBt = new JButton("중복 확인");
 			duplicateBt.addActionListener(new DuplicateButtonListener());
@@ -147,7 +147,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(tf_detail, gbc);
 		leftPanel.add(tf_detail);
 
-		if(title.equals("회원관리")) { //배치변경
+		if(menu_title.equals("회원관리")) { //배치변경
 			Panel state_pan, lent_pan;
 			state_pan = new Panel();
 			lent_pan = new Panel();
@@ -213,7 +213,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		JLabel label;
 		
 		northPanel = new JPanel();
-		label = new JLabel(title);
+		label = new JLabel(menu_title);
 		northPanel.add("Center", label);
 		
 		setGrid(gbc, 0, 1, 1, 1);
@@ -455,29 +455,29 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 			String now_sql;
 			
 			if(tf_name.getText().isEmpty()) {
-				JOptionPane.showMessageDialog(null, "이름을 입력해주세요.",  title + " 오류", JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(null, "이름을 입력해주세요.",  menu_title + " 오류", JOptionPane.PLAIN_MESSAGE);
 			}
 			else if(tf_Pw.getText().isEmpty())
 			{
-				JOptionPane.showMessageDialog(null, "비밀번호를 입력해주세요.",  title + " 오류", JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(null, "비밀번호를 입력해주세요.",  menu_title + " 오류", JOptionPane.PLAIN_MESSAGE);
 			}
 			else if(tf_zipcode.getText().isEmpty())
 			{
-				JOptionPane.showMessageDialog(null, "주소를 입력해주세요.",  title + " 오류", JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(null, "주소를 입력해주세요.",  menu_title + " 오류", JOptionPane.PLAIN_MESSAGE);
 			}
 			else if(!tf_Pw.getText().equals(tf_Pw2.getText())) {
-				JOptionPane.showMessageDialog(null, "비밀번호를 다시 입력해주세요.",  title + " 오류", JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(null, "비밀번호를 다시 입력해주세요.",  menu_title + " 오류", JOptionPane.PLAIN_MESSAGE);
 			}
 			else {
 				add_no = fk.call_add_no();
-				if(title.equals("회원 가입")) {
+				if(menu_title.equals("회원 가입")) {
 					now_sql = "INSERT INTO `member` (`mem_name`, `mem_id`, `mem_pw`, `add_no`, `mem_detail`) VALUES ('" + tf_name.getText() + 
 							     "', '" + tf_Id.getText() + "', '" + tf_Pw.getText() + "', " + add_no + ", '" + tf_detail.getText() + "')";
 					System.out.println(now_sql);
 					db.Excute(now_sql);
 					closeFrame();
 				}
-				if(title.equals("회원관리")) {
+				if(menu_title.equals("회원관리")) {
 					try {
 						code = result.getInt("mem_no");
 					} catch (SQLException e1) {
@@ -523,7 +523,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 			tf_zipcode.setText("");
 			tf_address.setText("");
 			tf_detail.setText("");
-			if(title.equals("회원 가입")) {
+			if(menu_title.equals("회원 가입")) {
 				tf_Id.setText("");
 				tf_Pw.setText("");
 				tf_Pw2.setText("");
@@ -542,7 +542,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			if(tf_Id.getText().isEmpty()) {
-				JOptionPane.showMessageDialog(null, "아이디를 입력해주세요.",  title + " 오류", JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(null, "아이디를 입력해주세요.",  menu_title + " 오류", JOptionPane.PLAIN_MESSAGE);
 			}
 			else {
 				sql = "SELECT `mem_id` FROM `member`";
@@ -624,7 +624,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 				e.printStackTrace();
 			}
 			
-			if(title.equals("회원관리")) {
+			if(menu_title.equals("회원관리")) {
 				MoveData();
 			}
 		}
