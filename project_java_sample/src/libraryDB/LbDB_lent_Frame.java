@@ -10,8 +10,9 @@ import libraryDB.LbDB_book_Frame.tableListener;
 import java.sql.*;
 
 public class LbDB_lent_Frame extends LbDB_main_Frame {
-	private JTextField tf_research;
-	
+	private JPanel northPanel;
+	private JTextField tf_research, tf_book_name, tf_mem_id;
+	private String sortsql;
 	
 	public LbDB_lent_Frame() {}
 	public LbDB_lent_Frame(LbDB_DAO db, Client cl, String title) {
@@ -20,6 +21,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		menu_title = title;
 		pk = cl.primarykey();
 		state = cl.state();
+		fk = new foreignkey();
 		menuform();
 		Initform();
 		baseform();
@@ -32,14 +34,14 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 				sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no" +
 					  " AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no" + 
 					  " AND lent.mem_no = " + pk + " AND lent.lent_re_state = 0";
-				String columnName[] = {"책 이름", "도서관 이름", "대출일", "반납일예정"};
+				String columnName[] = {"책 이름", "소장도서관", "대출일", "반납일예정"};
 				tableform(columnName);
 			}
 			else {
 				sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no" +
 					  " AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no" + 
 					  " AND lent.mem_no = " + pk;
-				String columnName[] = {"책 이름", "대출일", "반납일", "반납상태", "소장도서관"};
+				String columnName[] = {"책 이름", "소장도서관", "대출일", "반납일", "반납상태"};
 				tableform(columnName);
 			}
 			
@@ -47,26 +49,59 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 	}
 	
 	private void baseform() {
-		JPanel northPanel;
+		JPanel titlePanel, researchPanel;
 		JLabel label;
 		
-		northPanel = new JPanel();
+		titlePanel = new JPanel();
+		label = new JLabel(menu_title);
+		titlePanel.add(label);
+		
+		researchPanel = new JPanel();
 		label = new JLabel("검색");
-		northPanel.add(label);
+		researchPanel.add(label);
 		tf_research = new JTextField(20);
-		northPanel.add(tf_research);
+		researchPanel.add(tf_research);
 		researchBt = new JButton();
 		researchBt.addActionListener(new researchButtonListener());
-		northPanel.add(researchBt);
+		researchPanel.add(researchBt);
+		
+		northPanel = new JPanel();
+		northPanel.add("North", titlePanel);
+		northPanel.add("South", researchPanel);
 	}
 	
 	private void tableform(String columnName[]) {
+		String now_sql;
+		
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
 		table.setPreferredScrollableViewportSize(new Dimension(700, 14*16));
 		table.getSelectionModel().addListSelectionListener(new tableListener());
 		JScrollPane scrollPane = new JScrollPane(table);
 		centerPanel.add(scrollPane);
+		
+		sortsql = " ORDER BY `mem_name`";
+		now_sql = sql + sortsql;
+		LoadList(now_sql);
+	}
+	
+	private void tablefocus() {
+		try {
+			result.first();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		MoveData();
+	}
+	
+	private void baseform_fianl() {
+		cpane.add("North", northPanel);
+		cpane.add("West", leftPanel);
+		cpane.add("Center", centerPanel);
+		//cpane.add("South", southPanel);
+		pack();
 	}
 	
 	private void removeTableRow(int row) {
@@ -84,6 +119,10 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			table.setValueAt(null, row, 4);
 			table.setValueAt(null, row, 5);
 		}
+	}
+	
+	private void MoveData() {
+		
 	}
 	
 	private void LoadList(String now_sql) {
@@ -108,6 +147,25 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 	}
 	
 	public class researchButtonListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
+	public class materialButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			LbDB_material_Frame mat = new LbDB_material_Frame("자료검색", tf_book_name, fk);
+			mat.setVisible(true);
+		}
+	}
+	
+	public class memberButtonListener implements ActionListener{
 
 		@Override
 		public void actionPerformed(ActionEvent e) {

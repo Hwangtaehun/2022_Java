@@ -461,6 +461,8 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				break;
 			case "회원관리":
 				System.out.println("회원관리");
+				LbDB_mem_info_Frame frame11 =  new LbDB_mem_info_Frame(db, cl, command);
+				frame11.setVisible(true);
 				break;
 			case "대출관리": 
 				System.out.println("대출관리");

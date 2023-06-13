@@ -255,8 +255,8 @@ public class LbDB_library_Frame extends LbDB_main_Frame {
 			bool = false;
 		}
 		else if(tf_lib_date.getText().isEmpty()) {
-			LocalDate now = LocalDate.now();
-			tf_lib_date.setText(now.toString());
+			LocalDate localDateNow = LocalDate.now();
+			tf_lib_date.setText(localDateNow.toString());
 		}
 		else if(array_str.length < 3) {
 			JOptionPane.showMessageDialog(null, "날짜형식이 잘못됬습니다.(형식: 년-월-일, 예시: 2023-05-30)",  menu_title + " 오류", JOptionPane.PLAIN_MESSAGE);

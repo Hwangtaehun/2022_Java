@@ -5,20 +5,17 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
-public class LbDB_mem_info_Frame extends LbDB_main_Frame{
+public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 	private JPanel northPanel, southPanel;
-	private JTextField tf_name, tf_Id, tf_zipcode, tf_address, tf_detail, tf_memberid;
+	private JTextField tf_name, tf_Id, tf_zipcode, tf_address, tf_detail, tf_research;
+	private JRadioButton rb_active, rb_stop, rb_normal, rb_special;
+	private ButtonGroup gr_state, gr_lent;
 	private JPasswordField tf_Pw, tf_Pw2;
-	private JButton bt_complate;
+	private JButton bt_complete;
 	private String title, sortsql = "";
+	private int mem_state, mem_lent;
 	
 	public LbDB_mem_info_Frame() {}
-	public LbDB_mem_info_Frame(String title, JTextField tf, foreignkey fk) {
-		this.tf_memberid = tf;
-		db = new LbDB_DAO();
-		this.fk = fk;
-		Initform();
-	}
 	public LbDB_mem_info_Frame(LbDB_DAO db, String title) {
 		this.db = db;
 		this.title = title;
@@ -27,6 +24,17 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 		baseform();
 		baseform_fianl();
 		dialog("회원 가입");
+	}
+	public LbDB_mem_info_Frame(String title, JTextField tf, foreignkey fk) {
+		db = new LbDB_DAO();
+		this.title = title;
+		this.fk = fk;
+		tf_Id = tf;
+		Initform();
+		dialogform();
+		tableform();
+		dialogform_fianl();
+		dialog(title);
 	}
 	public LbDB_mem_info_Frame(LbDB_DAO db, Client cl,  String title) {
 		this.db = db;
@@ -37,14 +45,22 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 		menuform();
 		Initform();
 		baseform();
-		baseform_fianl();
-		textfield_setText();
+		textfield_controller();
+		if(state == 1) {
+			tableform();
+			tableform_final();
+			baseform_fianl();
+		}
+		else {
+			baseform_fianl();
+			textfield_setText();
+		}
 		setTitle(title);
 		addWindowListener(this);
 	}
 	
 	private void baseform() {
-		JButton bt_clear, bt_duplicate, bt_address, bt_pw;
+		JButton bt_clear, duplicateBt, addressBt, passwordBt;
 		JLabel label;
 		
 		northPanel = new JPanel();
@@ -53,7 +69,6 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 		label = new JLabel(title);
 		northPanel.add("Center", label);
 		
-		leftPanel.setLayout(gbl);
 		setGrid(gbc, 0, 0, 1, 1);
 		label = new JLabel("이 름");
 		gbl.setConstraints(label, gbc);
@@ -72,17 +87,17 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 		leftPanel.add(tf_Id);
 		if(title.equals("회원 가입")) {
 			setGrid(gbc, 2, 1, 1, 1);
-			bt_duplicate = new JButton("중복 확인");
-			bt_duplicate.addActionListener(new DuplicateButtonListener());
-			gbl.setConstraints(bt_duplicate, gbc);
-			leftPanel.add(bt_duplicate);
+			duplicateBt = new JButton("중복 확인");
+			duplicateBt.addActionListener(new DuplicateButtonListener());
+			gbl.setConstraints(duplicateBt, gbc);
+			leftPanel.add(duplicateBt);
 		}
 		else {
 			setGrid(gbc, 2, 2, 1, 1);
-			bt_pw = new JButton("비밀번호수정");
-			bt_pw.addActionListener(new PasswordChangeButtonListener());
-			gbl.setConstraints(bt_pw, gbc);
-			leftPanel.add(bt_pw);
+			passwordBt = new JButton("비밀번호수정");
+			passwordBt.addActionListener(new PasswordChangeButtonListener());
+			gbl.setConstraints(passwordBt, gbc);
+			leftPanel.add(passwordBt);
 		}
 		setGrid(gbc, 0, 2, 1, 1);
 		label = new JLabel("비밀번호");
@@ -110,10 +125,10 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 		gbl.setConstraints(tf_zipcode, gbc);
 		leftPanel.add(tf_zipcode);
 		setGrid(gbc, 2, 4, 1, 1);
-		bt_address = new JButton("우편검색");
-		bt_address.addActionListener(new AddressButtonListener());
-		gbl.setConstraints(bt_address, gbc);
-		leftPanel.add(bt_address);
+		addressBt = new JButton("우편검색");
+		addressBt.addActionListener(new AddressButtonListener());
+		gbl.setConstraints(addressBt, gbc);
+		leftPanel.add(addressBt);
 		setGrid(gbc, 0, 5, 1, 1);
 		label = new JLabel("주소");
 		gbl.setConstraints(label, gbc);
@@ -131,28 +146,107 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 		tf_detail = new JTextField(50);
 		gbl.setConstraints(tf_detail, gbc);
 		leftPanel.add(tf_detail);
+
+		if(title.equals("회원관리")) { //배치변경
+			Panel state_pan, lent_pan;
+			state_pan = new Panel();
+			lent_pan = new Panel();
+			
+			setGrid(gbc, 0,7,1,1);
+			label = new JLabel("반납상태");
+			gbl.setConstraints(label, gbc);
+			leftPanel.add(label);
+			state_pan = new Panel();
+			gr_state = new ButtonGroup();
+			rb_active = new JRadioButton("활성화", true);
+			rb_active.addActionListener(new radiobuttonListener());
+			rb_active.addItemListener(new radiobuttonListener());
+			rb_active.setActionCommand("state-0");
+			gr_state.add(rb_active);
+			state_pan.add(rb_active);
+			rb_stop = new JRadioButton("정지", false);
+			rb_stop.addActionListener(new radiobuttonListener());
+			rb_stop.addItemListener(new radiobuttonListener());
+			rb_stop.setActionCommand("state-2");
+			gr_state.add(rb_stop);
+			state_pan.add(rb_stop);
+			setGrid(gbc, 1,7,1,1);
+			gbl.setConstraints(state_pan, gbc);
+			leftPanel.add(state_pan);
+			
+			setGrid(gbc, 0,8,1,1);
+			label = new JLabel("회원구분");
+			gbl.setConstraints(label, gbc);
+			leftPanel.add(label);
+			lent_pan = new Panel();
+			gr_lent = new ButtonGroup();
+			rb_normal = new JRadioButton("일반", true);
+			rb_normal.addActionListener(new radiobuttonListener());
+			rb_normal.addItemListener(new radiobuttonListener());
+			rb_normal.setActionCommand("lent-5");
+			gr_lent.add(rb_normal);
+			lent_pan.add(rb_normal);
+			rb_special = new JRadioButton("특별", true);
+			rb_special.addActionListener(new radiobuttonListener());
+			rb_special.addItemListener(new radiobuttonListener());
+			rb_special.setActionCommand("lent-10");
+			gr_lent.add(rb_special);
+			lent_pan.add(rb_special);
+			setGrid(gbc, 1,8,1,1);
+			gbl.setConstraints(lent_pan, gbc);
+			leftPanel.add(lent_pan);
+		}
 		
 		southPanel.setLayout(gbl);
 		setGrid(gbc, 0,0,1,1);
-		bt_complate = new JButton("완료");
-		bt_complate.addActionListener(new ComplateButtonListener()); 
-		bt_complate.setEnabled(false);
-		southPanel.add(bt_complate);
+		bt_complete = new JButton("완료");
+		bt_complete.addActionListener(new CompleteButtonListener()); 
+		bt_complete.setEnabled(false);
+		southPanel.add(bt_complete);
 		setGrid(gbc, 1,0,1,1);
 		bt_clear = new JButton("지우기");
 		bt_clear.addActionListener(new ClearButtonListener());
 		southPanel.add(bt_clear);
 	}
 	
+	private void dialogform() {
+		JLabel label;
+		
+		northPanel = new JPanel();
+		label = new JLabel(title);
+		northPanel.add("Center", label);
+		
+		setGrid(gbc, 0, 1, 1, 1);
+		label = new JLabel("검색");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc, 1, 1, 1, 1);
+		tf_Id = new JTextField(20);
+		gbl.setConstraints(tf_research, gbc);
+		leftPanel.add(tf_research);
+		setGrid(gbc, 2, 1, 1, 1);
+		researchBt = new JButton("검색");
+		researchBt.addActionListener(new ResearchButtonListener());
+		gbl.setConstraints(researchBt, gbc);
+		leftPanel.add(researchBt);
+	}
+	
 	private void baseform_fianl() {
 		cpane.add("North", northPanel);
 		cpane.add("West", leftPanel);
+		cpane.add("Center", centerPanel);
 		cpane.add("South", southPanel);
 		pack();
 	}
 	
-	//나중
-	/*private void tableform() {
+	private void dialogform_fianl() {
+		cpane.add("North", northPanel);
+		cpane.add("Center", leftPanel);
+		cpane.add("South", centerPanel);
+		pack();
+	}
+	
+	private void tableform() {
 		String columnName[] = {"이름", "아이디", "비밀번호", "우편번호", "주소", "상세주소", "대출가능수", "계정상태"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
@@ -165,7 +259,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 	private void tableform_final() {
 		String now_sql;
 		
-		sql = "SELECT * FROM `member`";
+		sql = "SELECT * FROM `member`, `address` WHERE `member`.`add_no` = `address`.`add_no` AND NOT `mem_state` = 1";
 		sortsql = " ORDER BY `mem_name`";
 		now_sql = sql + sortsql;
 		LoadList(now_sql);
@@ -178,27 +272,26 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 		}
 		
 		MoveData();
-	}*/
+	}
 	
 	private void textfield_setText() {
-		String now_sql, address, under = "";
+		String now_sql, address;
 		int add_no = 0;
 		
-		tf_Id.setEnabled(false);
-		tf_Pw.setEnabled(false);
-		tf_Pw2.setEnabled(false);
-		bt_complate.setEnabled(true);
-		now_sql = "SELECT * FROM `member` WHERE `mem_no` = " + pk;
+		now_sql = "SELECT * FROM `member`, `adress` WHERE `member`.`add_no` = `address`.`add_no` AND `mem_no` = " + pk;
 		result = db.getResultSet(now_sql);
 		
 		try {
 			while(result.next()) {
-				tf_name.setText(result.getString("mem_name"));
-				tf_Id.setText(result.getString("mem_id"));
-				tf_Pw.setText(result.getString("mem_pw"));
-				tf_Pw2.setText(result.getString("mem_pw"));
-				add_no = result.getInt("add_no");
+				tf_name.setText(result.getString("member.mem_name"));
+				tf_Id.setText(result.getString("member.mem_id"));
+				tf_Pw.setText(result.getString("member.mem_pw"));
+				tf_Pw2.setText(result.getString("member.mem_pw"));
+				add_no = result.getInt("member.add_no");
 				fk.insert_add_no(add_no);
+				address = address(result);
+				tf_address.setText(address);
+				tf_zipcode.setText(result.getString("address.zipcode"));
 				tf_detail.setText(result.getString("mem_detail"));
 			}
 		} catch (SQLException e) {
@@ -206,29 +299,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 			e.printStackTrace();
 		}
 		
-		now_sql = "SELECT * FROM `address` WHERE `add_no` = " + add_no;
-		result = db.getResultSet(now_sql);
 		
-		try {
-			while(result.next()) {
-				tf_zipcode.setText(result.getNString("zipcode"));
-				
-				if(result.getString("under_yn").equals("1")) {
-					under = "지하";
-				}
-				
-				address = result.getString("sido") + " " + result.getString("sigungu") + " " + 
-						  result.getString("doro") + " " + under + " " +
-						  result.getString("buildno1") + "-" + result.getString("buildno2") + "(" +
-						  result.getString("eupmyun") + " " + result.getString("dong") + " " + 
-				          result.getString("ri") + " " + result.getString("jibun1") + "-" + result.getString("jibun2") + ")";
-				
-				tf_address.setText(address);
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 	
 	private void removeTableRow(int row) {
@@ -237,28 +308,65 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 		table.setValueAt(null, row, 2);
 		table.setValueAt(null, row, 3);
 		table.setValueAt(null, row, 4);
+		table.setValueAt(null, row, 5);
+		table.setValueAt(null, row, 6);
+		table.setValueAt(null, row, 7);
 	}
 	
-	//나중
-	/*private void MoveData() {
+	private void MoveData() {
 		try {
-			String bookname = result.getString("book_name");
-			String author = result.getString("book_author");
-			String publish = result.getString("book_publish");
-			int price = result.getInt("book_price");
-			int year = result.getInt("book_year");
-			tf_bookname.setText(bookname);
-			tf_author.setText(author);
-			tf_publish.setText(publish);
-			tf_price.setText(Integer.toString(price));
-			tf_year.setText(Integer.toString(year));
+			String mem_name = result.getString("member.mem_name");
+			String mem_id = result.getString("member.mem_id");
+			String mem_pw = result.getString("member.mem_pw");
+			String mem_detail = result.getString("member.mem_detail");
+			String address = address(result);
+			String zipcode = result.getString("address.zipcode");
+			int add_no = result.getInt("address.add_no");
+			int mem_lent = result.getInt("member.mem_lent");
+			int mem_state = result.getInt("member.mem_state");
+			tf_name.setText(mem_name);
+			tf_Id.setText(mem_id);
+			tf_Pw.setText(mem_pw);
+			tf_Pw2.setText(mem_pw);
+			tf_detail.setText(mem_detail);
+			fk.insert_add_no(add_no);
+			this.mem_lent = mem_lent;
+			this.mem_state = mem_state;
+			if(mem_lent == 0) {
+				rb_active.setSelectedIcon(null);
+			}
+			else {
+				rb_stop.setSelectedIcon(null);
+			}
+			
+			if(mem_state == 5) {
+				rb_normal.setSelectedIcon(null);
+			}
+			else {
+				rb_special.setSelectedIcon(null);
+			}
+			tf_address.setText(address);
+			tf_zipcode.setText(zipcode);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}*/
+	}
+	
+	private void OutData() {
+		try {
+			tf_Id.setText(result.getString("member.mem_id"));
+			fk.insert_mem_no(result.getInt("member.mem_no"));
+			closeFrame();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	private void LoadList(String now_sql) {
+		String state, lent, address;
+		System.out.println(now_sql);
 		result = db.getResultSet(now_sql);
 		
 		for(int i = 0; i < dataCount; i++) {
@@ -266,17 +374,65 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 		}
 		try {
 			for(dataCount = 0; result.next(); dataCount++) {
-				table.setValueAt(result.getString("book_name"), dataCount, 0);
-				table.setValueAt(result.getString("book_author"), dataCount, 1);
-				table.setValueAt(result.getString("book_publish"), dataCount, 2);
-				table.setValueAt(result.getInt("book_price"), dataCount, 3);
-				table.setValueAt(result.getInt("book_year"), dataCount, 4);
+				int mem_lent = result.getInt("member.mem_lent");
+				int mem_state = result.getInt("member.mem_state");
+				address = address(result);
+				
+				if(mem_state == 0) {
+					state = "활성화";
+				}
+				else {
+					state = "정지";
+				}
+				
+				if(mem_lent == 5) {
+					lent = "일반";
+				}
+				else {
+					lent = "특별";
+				}
+				
+				table.setValueAt(result.getString("member.mem_name"), dataCount, 0);
+				table.setValueAt(result.getString("member.mem_id"), dataCount, 1);
+				table.setValueAt(result.getString("member.mem_pw"), dataCount, 2);
+				table.setValueAt(result.getString("address.zipcode"), dataCount, 3);
+				table.setValueAt(address, dataCount, 4);
+				table.setValueAt(result.getString("member.mem_detail"), dataCount, 5);
+				table.setValueAt(lent, dataCount, 6);
+				table.setValueAt(state, dataCount, 7);
 			}
 			repaint();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private String address(ResultSet rs) {
+		String address = null, under = "";
+		
+		try {
+			if(rs.getString("under_yn").equals("1")) {
+				under = "지하";
+			}
+			address = rs.getString("sido") + " " + rs.getString("sigungu") + " " + 
+					  rs.getString("doro") + " " + under + " " +
+					  rs.getString("buildno1") + "-" + rs.getString("buildno2") + "(" +
+					  rs.getString("eupmyun") + " " + rs.getString("dong") + " " + 
+			          rs.getString("ri") + " " + rs.getString("jibun1") + "-" + rs.getString("jibun2") + ")";
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return address;
+	}
+	
+	private void textfield_controller() {
+		tf_Id.setEnabled(false);
+		tf_Pw.setEnabled(false);
+		tf_Pw2.setEnabled(false);
+		bt_complete.setEnabled(true);
 	}
 	
 	class AddressButtonListener implements ActionListener{
@@ -290,13 +446,13 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 		
 	}
 	
-	class ComplateButtonListener implements ActionListener{
+	class CompleteButtonListener implements ActionListener{
 		@SuppressWarnings("deprecation")
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			int add_no;
-			String sql;
+			int add_no, code = 0;
+			String now_sql;
 			
 			if(tf_name.getText().isEmpty()) {
 				JOptionPane.showMessageDialog(null, "이름을 입력해주세요.",  title + " 오류", JOptionPane.PLAIN_MESSAGE);
@@ -315,17 +471,40 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 			else {
 				add_no = fk.call_add_no();
 				if(title.equals("회원 가입")) {
-					sql = "INSERT INTO `member` (`mem_name`, `mem_id`, `mem_pw`, `add_no`, `mem_detail`) VALUES ('" + tf_name.getText() + 
+					now_sql = "INSERT INTO `member` (`mem_name`, `mem_id`, `mem_pw`, `add_no`, `mem_detail`) VALUES ('" + tf_name.getText() + 
 							     "', '" + tf_Id.getText() + "', '" + tf_Pw.getText() + "', " + add_no + ", '" + tf_detail.getText() + "')";
-					System.out.println(sql);
-					
-					db.Excute(sql);
+					System.out.println(now_sql);
+					db.Excute(now_sql);
 					closeFrame();
 				}
+				if(title.equals("회원관리")) {
+					try {
+						code = result.getInt("mem_no");
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+					now_sql = "UPDATE `member` SET `mem_name` = '" + tf_name.getText() + "', `mem_pw` = '" + tf_Pw.getText() 
+						+ "', `add_no` = " + add_no + ", `mem_detail` = '" + tf_detail.getText() + "', `mem_lent` = " + mem_lent 
+						+ ", `mem_state` = " + mem_state + " WHERE `mem_no` = " + code;
+					System.out.println(now_sql);
+					db.Excute(now_sql);
+					tf_Pw.setEnabled(false);
+					tf_Pw2.setEnabled(false);
+					LoadList(sql + sortsql);
+					
+					try {
+						result.first();
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 				else {
-					sql = "UPDATE `member` SET `mem_name` = '" + tf_name.getText() + "', `mem_pw` = '" + tf_Pw.getText() +
+					now_sql = "UPDATE `member` SET `mem_name` = '" + tf_name.getText() + "', `mem_pw` = '" + tf_Pw.getText() +
 						  "', `add_no` = " + add_no + ", `mem_detail` = '" + tf_detail.getText() + "' WHERE `mem_no` = " + pk;
-					db.Excute(sql);
+					db.Excute(now_sql);
 					tf_name.setEnabled(false);
 					tf_Pw.setEnabled(false);
 					tf_Pw2.setEnabled(false);
@@ -336,7 +515,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 		
 	}
 	
-	class ClearButtonListener implements ActionListener{ //요부분 수정
+	class ClearButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
@@ -348,7 +527,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 				tf_Id.setText("");
 				tf_Pw.setText("");
 				tf_Pw2.setText("");
-				bt_complate.setEnabled(false);
+				bt_complete.setEnabled(false);
 			}
 		}
 		
@@ -380,7 +559,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 				}
 				
 				if(check) {
-					bt_complate.setEnabled(true);
+					bt_complete.setEnabled(true);
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "아이디 중복 되었습니다. 다른 아이디를 입력해주세요.",  "아이디 중복", JOptionPane.PLAIN_MESSAGE);
@@ -400,26 +579,40 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 		}
 	}
 	
-	class DeleteButtonListener implements ActionListener{
+	/*class DeleteButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
+			String now_sql;
+			int code = 0;
 			
+			try {
+				code = result.getInt("mem_no");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			if(selectedCol == -1) {
+				System.out.println("변경할 셀이 선택되지 않았습니다.");
+				return;
+			}
+			
+			now_sql = "DELETE FROM `member` WHERE `mem_no` = " + code;
+			db.Excute(now_sql);
+			now_sql = sql + sortsql;
+			LoadList(now_sql);
 		}
-	}
+	}*/
 	
-	//나중
-	/*
-	public class researchButtonListener implements ActionListener{
+	public class ResearchButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
-			String book_name = "%" + tf_research.getText() + "%";
-			String book_author = "%" + tf_research.getText() + "%";
-			String book_publish = "%" + tf_research.getText() + "%";
+			String mem_name = "%" + tf_research.getText() + "%";
+			String mem_id = "%" + tf_research.getText() + "%";
 			
-			sql = "SELECT * FROM book WHERE `book_name` LIKE '" + book_name + "' OR `book_author` LIKE '" +
-				  book_author + "' OR `book_publish` LIKE '" + book_publish + "'";
+			sql = "SELECT * FROM `member` WHERE `mem_name` LIKE '" + mem_name + "' OR `mem_id` LIKE '" + mem_id + "'";
 			String now_sql = sql + sortsql;
 			System.out.println(now_sql);
 			LoadList(now_sql);
@@ -431,10 +624,41 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 				e.printStackTrace();
 			}
 			
-			if(menu_title.equals("책관리")) {
+			if(title.equals("회원관리")) {
 				MoveData();
 			}
 		}
+	}
+	
+	public class radiobuttonListener implements ItemListener, ActionListener{
+
+		@Override
+		public void itemStateChanged(ItemEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			String cmd, str_array[];
+			
+			cmd = e.getActionCommand();
+			str_array = cmd.split("-");
+			
+			for(int i = 0; i < str_array.length; i++) {
+				System.out.print(str_array[i]);
+			}
+			System.out.println();
+			
+			if(str_array[0].equals("state")) {
+				mem_state = Integer.parseInt(str_array[1]);
+			}
+			else {
+				mem_lent = Integer.parseInt(str_array[1]);
+			}
+		}
+		
 	}
 	
 	public class tableListener implements ListSelectionListener{
@@ -450,14 +674,36 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 				if(selectedCol >= dataCount)
 					System.out.println("data is Empty");
 				else {
-					tf_bookname.setText(table.getValueAt(selectedCol, 0).toString());
-					tf_author.setText(table.getValueAt(selectedCol, 1).toString());
-					tf_publish.setText(table.getValueAt(selectedCol, 2).toString());
-					tf_price.setText(table.getValueAt(selectedCol, 3).toString());
-					tf_year.setText(table.getValueAt(selectedCol, 4).toString());
+					tf_name.setText(table.getValueAt(selectedCol, 0).toString());
+					tf_Id.setText(table.getValueAt(selectedCol, 1).toString());
+					tf_Pw.setText(table.getValueAt(selectedCol, 2).toString());
+					tf_Pw2.setText(table.getValueAt(selectedCol, 2).toString());
+					tf_zipcode.setText(table.getValueAt(selectedCol, 3).toString());
+					tf_address.setText(table.getValueAt(selectedCol, 4).toString());
+					tf_detail.setText(table.getValueAt(selectedCol, 5).toString());
+					
+					if(table.getValueAt(selectedCol, 6).toString().equals("일반")) {
+						rb_normal.setSelected(true);
+					}
+					else {
+						rb_special.setSelected(true);
+					}
+					
+					if(table.getValueAt(selectedCol, 7).toString().equals("활성화")) {
+						rb_active.setSelected(true);
+					}
+					else {
+						rb_stop.setSelected(true);
+					}
+					
 					try {
 						result.absolute(selectedCol + 1);
-						MoveData();
+						if(menu_title.equals("회원검색")) {
+							OutData();
+						}
+						else {
+							MoveData();
+						}						
 					} catch (SQLException e1) {
 						e1.printStackTrace();
 					}
@@ -466,5 +712,4 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame{
 			}
 		}
 	}
-	*/
 }

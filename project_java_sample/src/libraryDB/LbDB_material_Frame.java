@@ -44,14 +44,24 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 	private JButton reservationBt, deliveryBt;
 	
 	public LbDB_material_Frame () {}
-	public LbDB_material_Frame (SwingItem si, String str) {
+	public LbDB_material_Frame (SwingItem si, String title) {
 		db = new LbDB_DAO();
-		menu_title = str;
+		menu_title = title;
 		this.si = si;
 		Initform();
 		baseform();
 		dialogform();
-		dialog(str);
+		dialog(title);
+	}
+	public LbDB_material_Frame (String title, JTextField tf, foreignkey fk) {
+		db = new LbDB_DAO();
+		menu_title = title;
+		tf_bookname = tf;
+		this.fk = fk;
+		Initform();
+		baseform();
+		dialogform();
+		dialog(title);
 	}
 	public LbDB_material_Frame (LbDB_DAO db, Client cl, String str) {
 		this.db = db;
@@ -785,10 +795,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 							reservationBt.setEnabled(true);
 						}
 					}
-					else if(menu_title.equals("상세검색")) {
-						tf_bookname.setText(table.getValueAt(selectedCol, 1).toString());
-					}
-					else {
+					else if(menu_title.equals("자료관리")){
 						tf_kind.setText(table.getValueAt(selectedCol, 1).toString());
 						tf_bookname.setText(table.getValueAt(selectedCol, 2).toString());
 						if(table.getValueAt(selectedCol, 5).toString().equals("0")) {
@@ -798,6 +805,9 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 							tf_many.setText(table.getValueAt(selectedCol, 5).toString());
 						}	
 					}
+					else{
+						tf_bookname.setText(table.getValueAt(selectedCol, 1).toString());
+					}
 					try {
 						result.absolute(selectedCol + 1);
 						if(menu_title.equals("상세검색")) {
@@ -805,6 +815,11 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 							si.set_bookname(result.getString("book.book_name"));
 							si.set_kind(result.getString("kind.kind_num"));
 							si.set_many(result.getString("material.mat_many"));
+							closeFrame();
+						}
+						else if(menu_title.equals("자료검색")) {
+							tf_bookname.setText(result.getString("book.bookname"));
+							fk.insert_mem_no(result.getInt("material.mat_no"));
 							closeFrame();
 						}
 						else {
