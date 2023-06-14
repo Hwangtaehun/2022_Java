@@ -6,7 +6,7 @@ import javax.swing.event.*;
 import java.sql.*;
 import java.time.*;
 
-public class LbDB_lent_Frame extends LbDB_main_Frame {
+public class LbDB_lent_Frame extends LbDB_main_Frame { //반납과 반납장소 생각해보기
 	private JPanel northPanel;
 	private Combobox_Manager lib_research, lib_select;
 	private JTextField tf_research, tf_book_name, tf_mem_id, tf_lent_re_date, tf_memo;
@@ -58,7 +58,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		titlePanel.add(label);
 		
 		researchPanel = new JPanel();
-		if(state == 1) {
+		if(menu_title.equals("대출관리")) {
 			JComboBox <String> lib_Box = null;
 			
 			label = new JLabel("도서관");
@@ -392,7 +392,10 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			
+			tf_book_name.setText("");
+			tf_mem_id.setText("");
+			tf_lent_re_date.setText("");
+			tf_memo.setText("");
 		}
 	}
 	
