@@ -54,6 +54,18 @@ class Combobox_Manager {
 		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
 		combox.addItemListener(new ComboboxListener());
 	}
+	public Combobox_Manager(JComboBox <String> cb, String table, String key, boolean bool) {
+		combox = cb;
+		fk = 0;
+		db = new LbDB_DAO();
+		this.table = table;
+		this.key = key;
+		String str = "없음";
+		
+		makearray(str, bool);
+		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
+		combox.addItemListener(new ComboboxListener());
+	}
 	public Combobox_Manager(JComboBox <String> cb, String table, String key, String where, boolean bool) {
 		combox = cb;
 		db = new LbDB_DAO();
@@ -122,6 +134,9 @@ class Combobox_Manager {
 		if(str.isEmpty()) {
 			return;
 		}
+		else if(str.equals("없음")) {
+			str = "";
+		}
 		
 		if(bool) {
 			sentence = "없음-";
@@ -183,10 +198,20 @@ class Combobox_Manager {
 	public class ComboboxListener implements ItemListener{
 		@Override
 		public void itemStateChanged(ItemEvent e) {
-			String choice_str, terms = "", num = "";
 			// TODO Auto-generated method stub
+			String choice_str, terms = "", num = "";
+			boolean fk_zero = false;
+			
+			if(fk == 0) {
+				fk_zero = true;
+			}
+			
 			if(e.getStateChange() == ItemEvent.SELECTED) {
 				choice_str = e.getItem().toString();
+				
+				if(fk_zero) {
+					fk = 0;
+				}
 				
 				if(pa_exist) {
 					if(ci_exist) {

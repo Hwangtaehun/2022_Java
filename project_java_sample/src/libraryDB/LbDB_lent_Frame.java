@@ -8,6 +8,7 @@ import java.time.*;
 
 public class LbDB_lent_Frame extends LbDB_main_Frame {
 	private JPanel northPanel;
+	private Combobox_Manager lib_research, lib_select;
 	private JTextField tf_research, tf_book_name, tf_mem_id, tf_lent_re_date, tf_memo;
 	private JRadioButton rb_lent, rb_return, rb_etc, rb_normal, rb_extend;
 	private ButtonGroup gr_return, gr_extend;
@@ -57,6 +58,15 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		titlePanel.add(label);
 		
 		researchPanel = new JPanel();
+		if(state == 1) {
+			JComboBox <String> lib_Box = null;
+			
+			label = new JLabel("도서관");
+			researchPanel.add(label);
+			lib_research = new Combobox_Manager(lib_Box, "library", "lib_no");
+			lib_Box = lib_research.combox;
+			researchPanel.add(lib_Box);
+		}
 		label = new JLabel("검색");
 		researchPanel.add(label);
 		tf_research = new JTextField(20);
@@ -128,11 +138,92 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		leftPanel.add(extendPanel);
 	}
 	
+	private void editform() {
+		JLabel label;
+		JButton bt;
+		JPanel extendPanel;
+		JComboBox <String> lib_Box = null;
+		
+		setGrid(gbc,0,4,1,1);
+		label = new JLabel("    반납도서관       ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,4,1,1);
+		lib_select = new Combobox_Manager(lib_Box, "library", "lib_no", true);
+		lib_Box = lib_select.combox;
+		gbl.setConstraints(lib_Box, gbc);
+		leftPanel.add(lib_Box);
+		setGrid(gbc,0,5,1,1);
+		label = new JLabel("    반납일         ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,5,1,1);
+		tf_lent_re_date = new JTextField(10);
+		gbl.setConstraints(tf_lent_re_date, gbc);
+		leftPanel.add(tf_lent_re_date);
+		setGrid(gbc,2,5,1,1);
+		bt = new JButton("오늘");
+		bt.addActionListener(new todayButtonListener());
+		gbl.setConstraints(bt, gbc);
+		leftPanel.add(bt);
+		setGrid(gbc,0,6,1,1);
+		label = new JLabel("    반납상태        ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,6,1,1);
+		extendPanel = new JPanel();
+		gr_return = new ButtonGroup();
+		rb_lent = new JRadioButton("대출중", true);
+		rb_lent.addActionListener(new radiobuttonListener());
+		rb_lent.addItemListener(new radiobuttonListener());
+		rb_lent.setActionCommand("st-0");
+		gr_return.add(rb_lent);
+		extendPanel.add(rb_lent);
+		rb_return = new JRadioButton("반납", true);
+		rb_return.addActionListener(new radiobuttonListener());
+		rb_return.addItemListener(new radiobuttonListener());
+		rb_return.setActionCommand("st-1");
+		gr_return.add(rb_return);
+		extendPanel.add(rb_return);
+		rb_etc = new JRadioButton("기타", true);
+		rb_etc.addActionListener(new radiobuttonListener());
+		rb_etc.addItemListener(new radiobuttonListener());
+		rb_etc.setActionCommand("st-2");
+		gr_return.add(rb_etc);
+		extendPanel.add(rb_etc);
+		gbl.setConstraints(extendPanel, gbc);
+		leftPanel.add(extendPanel);
+		setGrid(gbc,0,7,1,1);
+		label = new JLabel("    메모          ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,7,1,1);
+		tf_memo = new JTextField(20);
+		gbl.setConstraints(tf_memo, gbc);
+		leftPanel.add(tf_memo);
+		setGrid(gbc,0,8,1,1);
+		bt = new JButton("삭제");
+		bt.addActionListener(new deleteButtonListener());
+		gbl.setConstraints(bt, gbc);
+		leftPanel.add(bt);
+		setGrid(gbc,1,8,1,1);
+		bt = new JButton("수정");
+		bt.addActionListener(new updateButtonListener());
+		gbl.setConstraints(bt, gbc);
+		leftPanel.add(bt);
+		setGrid(gbc,2,8,1,1);
+		bt = new JButton("공백");
+		bt.addActionListener(new clearButtonListener());
+		gbl.setConstraints(bt, gbc);
+		leftPanel.add(bt);
+	}
+	
 	private void addform() {
 		JButton bt;
 		
-		setGrid(gbc,1,4,1,1);
+		setGrid(gbc,2,4,1,1);
 		bt = new JButton("추가");
+		bt.addActionListener(new addButtonListener());
 		gbl.setConstraints(bt, gbc);
 		leftPanel.add(bt);
 	}
@@ -213,30 +304,69 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		}
 	}
 	
+	private boolean warning() {
+		boolean bool;
+		if(tf_book_name.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "책정보를 찾아주세요.", "추가 오류", JOptionPane.WARNING_MESSAGE);
+			bool = false;
+		}
+		else if(tf_mem_id.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "회원정보를 찾아주세요.", "추가 오류", JOptionPane.WARNING_MESSAGE);
+			bool = false;
+		}
+		else {
+			bool = true;
+		}
+		
+		return bool;
+	}
+	
 	public class researchButtonListener implements ActionListener{
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
+			String basic_sql, now_sql, book_sql, mem_sql;
+			String research;
 			
+			research = tf_research.getText();
+			basic_sql = "SELECT * FROM lent, member, material, book, library "
+					+ "WHERE lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no AND material.book_no = book.book_no "
+					+ "AND material.lib_no = library.lib_no ";
+			book_sql = "AND book.book_name LIKE '%" + research + "%'";
+			mem_sql = "AND member.mem_id LIKE '%" + research + "%'";
+			
+			
+			if(state == 1) {
+				String str;
+				str = "AND `material`.`lib_no` = " + lib_research.foreignkey();
+				now_sql = basic_sql + str + book_sql + " UNION " + basic_sql + mem_sql;
+			}
+			else {
+				now_sql = basic_sql + book_sql + " UNION " + basic_sql + mem_sql;
+			}
 		}
-		
 	}
 	
-	public class addButtonListenr implements ActionListener{
+	public class addButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			String now_sql;
 			LocalDate len_date;
 			
-			len_date = LocalDate.now(); 
-			now_sql = "INSERT INTO `lent` ( mat_no, mem_no, len_ex, len_date ) VALUES(" + fk.call_mat_no() + ", "
-					+ fk.call_mem_no() + ", " + ex + ", '" + len_date + "')";
+			if(warning()) {
+				len_date = LocalDate.now(); 
+				now_sql = "INSERT INTO `lent` ( mat_no, mem_no, len_ex, len_date ) VALUES(" + fk.call_mat_no() + ", "
+						+ fk.call_mem_no() + ", " + ex + ", '" + len_date + "')";
+				System.out.println(now_sql);
+				db.Excute(now_sql);
+				now_sql = sql + sortsql;
+				LoadList(now_sql);
+			}
 		}
 	}
 	
-	public class updateButtonListenr implements ActionListener{
+	public class updateButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
@@ -244,6 +374,25 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 				System.out.println("변경할 셀이 선택되지 않았습니다.");
 				return;
 			}
+		}
+	}
+	
+	public class deleteButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			if(selectedCol == -1) {
+				System.out.println("변경할 셀이 선택되지 않았습니다.");
+				return;
+			}
+		}
+	}
+	
+	public class clearButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	
@@ -265,6 +414,16 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			men.setVisible(true);
 		}
 		
+	}
+	
+	public class todayButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			LocalDate len_date;
+			len_date = LocalDate.now(); 
+			tf_lent_re_date.setText(len_date.toString());
+		}
 	}
 	
 	public class radiobuttonListener implements ItemListener, ActionListener{
