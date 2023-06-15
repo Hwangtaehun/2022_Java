@@ -27,34 +27,34 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		Initform();
 		baseform();
 		
-		if(menu_title.equals("´ëÃâÁßµµ¼­")) {
+		if(menu_title.equals("ëŒ€ì¶œì¤‘ë„ì„œ")) {
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
 				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no " + 
 				  "AND lent.mem_no = " + pk + " AND lent.lent_re_state = 0";
-			String columnName[] = {"Ã¥ ÀÌ¸§", "¼ÒÀåµµ¼­°ü", "´ëÃâÀÏ", "¹İ³³ÀÏ¿¹Á¤"};
+			String columnName[] = {"ì±… ì´ë¦„", "ì†Œì¥ë„ì„œê´€", "ëŒ€ì¶œì¼", "ë°˜ë‚©ì¼ì˜ˆì •"};
 			tableform(columnName);
 		}
-		else if(menu_title.equals("¸ğµç´ëÃâ³»¿ª")) {
+		else if(menu_title.equals("ëª¨ë“ ëŒ€ì¶œë‚´ì—­")) {
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
 				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no " + 
 				  "AND lent.mem_no = " + pk;
-			String columnName[] = {"Ã¥ ÀÌ¸§", "¼ÒÀåµµ¼­°ü", "´ëÃâÀÏ", "¹İ³³ÀÏ", "¹İ³³»óÅÂ"};
+			String columnName[] = {"ì±… ì´ë¦„", "ì†Œì¥ë„ì„œê´€", "ëŒ€ì¶œì¼", "ë°˜ë‚©ì¼", "ë°˜ë‚©ìƒíƒœ"};
 			tableform(columnName);
 		}
-		else if(menu_title.equals("´ëÃâ°ü¸®")) {
+		else if(menu_title.equals("ëŒ€ì¶œê´€ë¦¬")) {
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
 				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no ";
-			String columnName[] = {"È¸¿ø¾ÆÀÌµğ", "Ã¥ ÀÌ¸§", "¼ÒÀåµµ¼­°ü", "´ëÃâÀÏ", "¹İ³³ÀÏ", "¹İ³³»óÅÂ"};
+			String columnName[] = {"íšŒì›ì•„ì´ë””", "ì±… ì´ë¦„", "ì†Œì¥ë„ì„œê´€", "ëŒ€ì¶œì¼", "ë°˜ë‚©ì¼", "ë°˜ë‚©ìƒíƒœ"};
 			tableform(columnName);
 		}
-		else if(menu_title.equals("´ëÃâÃß°¡")) {
+		else if(menu_title.equals("ëŒ€ì¶œì¶”ê°€")) {
 			
 		}
 		else {
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " 
 				+ "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no "
 				+ "AND `len_re_st` = 0";
-				String columnName[] = {"È¸¿ø¾ÆÀÌµğ", "Ã¥ ÀÌ¸§", "¼ÒÀåµµ¼­°ü"};
+				String columnName[] = {"íšŒì›ì•„ì´ë””", "ì±… ì´ë¦„", "ì†Œì¥ë„ì„œê´€"};
 				tableform(columnName);
 		}
 	}
@@ -68,16 +68,16 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		titlePanel.add(label);
 		
 		researchPanel = new JPanel();
-		if(menu_title.equals("´ëÃâ°ü¸®") || menu_title.equals("¹İ³³Ãß°¡")) {
+		if(menu_title.equals("ëŒ€ì¶œê´€ë¦¬") || menu_title.equals("ë°˜ë‚©ì¶”ê°€")) {
 			JComboBox <String> lib_Box = null;
 			
-			label = new JLabel("µµ¼­°ü");
+			label = new JLabel("ë„ì„œê´€");
 			researchPanel.add(label);
 			lib_research = new Combobox_Manager(lib_Box, "library", "lib_no");
 			lib_Box = lib_research.combox;
 			researchPanel.add(lib_Box);
 		}
-		label = new JLabel("°Ë»ö");
+		label = new JLabel("ê²€ìƒ‰");
 		researchPanel.add(label);
 		tf_research = new JTextField(20);
 		researchPanel.add(tf_research);
@@ -99,9 +99,9 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		label = new JLabel("    "+ menu_title + "   ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		if(menu_title.equals("´ëÃâÃß°¡")) {
+		if(menu_title.equals("ëŒ€ì¶œì¶”ê°€")) {
 			setGrid(gbc,0,2,1,1);
-			label = new JLabel("    ´ëÃâµµ¼­°ü       ");
+			label = new JLabel("    ëŒ€ì¶œë„ì„œê´€       ");
 			gbl.setConstraints(label, gbc);
 			leftPanel.add(label);
 			setGrid(gbc,1,2,1,1);
@@ -110,13 +110,13 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			gbl.setConstraints(lib_Box, gbc);
 			leftPanel.add(lib_Box);
 			setGrid(gbc,2,2,1,1);
-			bt = new JButton("»óÈ£´ëÂ÷");
+			bt = new JButton("ìƒí˜¸ëŒ€ì°¨");
 			bt.addActionListener(new bookseaButtonListener());
 			gbl.setConstraints(bt, gbc);
 			leftPanel.add(bt);
 		}
 		setGrid(gbc,0,3,1,1);
-		label = new JLabel("    ÀÚ·áÀÌ¸§        ");
+		label = new JLabel("    ìë£Œì´ë¦„        ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,3,1,1);
@@ -124,7 +124,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(tf_book_name, gbc);
 		leftPanel.add(tf_book_name);
 		setGrid(gbc,0,4,1,1);
-		label = new JLabel("    È¸¿ø¾ÆÀÌµğ       ");
+		label = new JLabel("    íšŒì›ì•„ì´ë””       ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,4,1,1);
@@ -139,29 +139,29 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		JPanel extendPanel;
 		
 		setGrid(gbc,2,3,1,1);
-		bt = new JButton("ÀÚ·á°Ë»ö");
+		bt = new JButton("ìë£Œê²€ìƒ‰");
 		bt.addActionListener(new materialButtonListener());
 		gbl.setConstraints(bt, gbc);
 		leftPanel.add(bt);
 		setGrid(gbc,2,4,1,1);
-		bt = new JButton("È¸¿ø°Ë»ö");
+		bt = new JButton("íšŒì›ê²€ìƒ‰");
 		bt.addActionListener(new memberButtonListener());
 		gbl.setConstraints(bt, gbc);
 		leftPanel.add(bt);
 		setGrid(gbc,0,5,1,1);
-		label = new JLabel("    ¿¬Àå          ");
+		label = new JLabel("    ì—°ì¥          ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,5,1,1);
 		extendPanel = new JPanel();
 		gr_extend = new ButtonGroup();
-		rb_normal = new JRadioButton("¿¹", true);
+		rb_normal = new JRadioButton("ì˜ˆ", true);
 		rb_normal.addActionListener(new radiobuttonListener());
 		rb_normal.addItemListener(new radiobuttonListener());
 		rb_normal.setActionCommand("ex-7");
 		gr_extend.add(rb_normal);
 		extendPanel.add(rb_normal);
-		rb_extend = new JRadioButton("¾Æ´Ï¿À", false);
+		rb_extend = new JRadioButton("ì•„ë‹ˆì˜¤", false);
 		rb_extend.addActionListener(new radiobuttonListener());
 		rb_extend.addItemListener(new radiobuttonListener());
 		rb_extend.setActionCommand("ex-0");
@@ -177,7 +177,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		JPanel extendPanel = null;
 		
 		setGrid(gbc,0,6,1,1);
-		label = new JLabel("    ¹İ³³ÀÏ         ");
+		label = new JLabel("    ë°˜ë‚©ì¼         ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,6,1,1);
@@ -185,12 +185,12 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(tf_lent_re_date, gbc);
 		leftPanel.add(tf_lent_re_date);
 		setGrid(gbc,2,6,1,1);
-		bt = new JButton("¿À´Ã");
+		bt = new JButton("ì˜¤ëŠ˜");
 		bt.addActionListener(new todayButtonListener());
 		gbl.setConstraints(bt, gbc);
 		leftPanel.add(bt);
 		setGrid(gbc,0,7,1,1);
-		label = new JLabel("    ¹İ³³»óÅÂ        ");
+		label = new JLabel("    ë°˜ë‚©ìƒíƒœ        ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,7,1,1);
@@ -198,7 +198,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(extendPanel, gbc);
 		leftPanel.add(extendPanel);
 		setGrid(gbc,0,8,1,1);
-		label = new JLabel("    ¸Ş¸ğ          ");
+		label = new JLabel("    ë©”ëª¨          ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,8,1,1);
@@ -206,17 +206,17 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(tf_memo, gbc);
 		leftPanel.add(tf_memo);
 		setGrid(gbc,0,9,1,1);
-		bt = new JButton("»èÁ¦");
+		bt = new JButton("ì‚­ì œ");
 		bt.addActionListener(new deleteButtonListener());
 		gbl.setConstraints(bt, gbc);
 		leftPanel.add(bt);
 		setGrid(gbc,1,9,1,1);
-		bt = new JButton("¼öÁ¤");
+		bt = new JButton("ìˆ˜ì •");
 		bt.addActionListener(new updateButtonListener());
 		gbl.setConstraints(bt, gbc);
 		leftPanel.add(bt);
 		setGrid(gbc,2,9,1,1);
-		bt = new JButton("°ø¹é");
+		bt = new JButton("ê³µë°±");
 		bt.addActionListener(new clearButtonListener());
 		gbl.setConstraints(bt, gbc);
 		leftPanel.add(bt);
@@ -226,7 +226,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		JButton bt;
 		
 		setGrid(gbc,2,6,1,1);
-		bt = new JButton("Ãß°¡");
+		bt = new JButton("ì¶”ê°€");
 		bt.addActionListener(new addButtonListener());
 		gbl.setConstraints(bt, gbc);
 		leftPanel.add(bt);
@@ -238,7 +238,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		JPanel extendPanel = null;
 		
 		setGrid(gbc,0,5,1,1);
-		label = new JLabel("    ¹İ³³»óÅÂ        ");
+		label = new JLabel("    ë°˜ë‚©ìƒíƒœ        ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,5,1,1);
@@ -246,7 +246,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(extendPanel, gbc);
 		leftPanel.add(extendPanel);
 		setGrid(gbc,2,6,1,1);
-		bt = new JButton("Ãß°¡");
+		bt = new JButton("ì¶”ê°€");
 		bt.addActionListener(new addButtonListener());
 		gbl.setConstraints(bt, gbc);
 		leftPanel.add(bt);
@@ -255,19 +255,19 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 	private JPanel extendpanelform(JPanel extendPanel) {
 		extendPanel = new JPanel();
 		gr_return = new ButtonGroup();
-		rb_lent = new JRadioButton("´ëÃâÁß", true);
+		rb_lent = new JRadioButton("ëŒ€ì¶œì¤‘", true);
 		rb_lent.addActionListener(new radiobuttonListener());
 		rb_lent.addItemListener(new radiobuttonListener());
 		rb_lent.setActionCommand("st-0");
 		gr_return.add(rb_lent);
 		extendPanel.add(rb_lent);
-		rb_return = new JRadioButton("¹İ³³", true);
+		rb_return = new JRadioButton("ë°˜ë‚©", true);
 		rb_return.addActionListener(new radiobuttonListener());
 		rb_return.addItemListener(new radiobuttonListener());
 		rb_return.setActionCommand("st-1");
 		gr_return.add(rb_return);
 		extendPanel.add(rb_return);
-		rb_etc = new JRadioButton("±âÅ¸", true);
+		rb_etc = new JRadioButton("ê¸°íƒ€", true);
 		rb_etc.addActionListener(new radiobuttonListener());
 		rb_etc.addItemListener(new radiobuttonListener());
 		rb_etc.setActionCommand("st-2");
@@ -311,7 +311,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 	}
 	
 	private void removeTableRow(int row) {
-		if(menu_title.equals("´ëÃâÁßµµ¼­")) {
+		if(menu_title.equals("ëŒ€ì¶œì¤‘ë„ì„œ")) {
 			table.setValueAt(null, row, 0);
 			table.setValueAt(null, row, 1);
 			table.setValueAt(null, row, 2);
@@ -355,11 +355,11 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 	private boolean warning() {
 		boolean bool;
 		if(tf_book_name.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Ã¥Á¤º¸¸¦ Ã£¾ÆÁÖ¼¼¿ä.", "Ãß°¡ ¿À·ù", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null, "ì±…ì •ë³´ë¥¼ ì°¾ì•„ì£¼ì„¸ìš”.", "ì¶”ê°€ ì˜¤ë¥˜", JOptionPane.WARNING_MESSAGE);
 			bool = false;
 		}
 		else if(tf_mem_id.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "È¸¿øÁ¤º¸¸¦ Ã£¾ÆÁÖ¼¼¿ä.", "Ãß°¡ ¿À·ù", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null, "íšŒì›ì •ë³´ë¥¼ ì°¾ì•„ì£¼ì„¸ìš”.", "ì¶”ê°€ ì˜¤ë¥˜", JOptionPane.WARNING_MESSAGE);
 			bool = false;
 		}
 		else {
@@ -419,7 +419,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			if(selectedCol == -1) {
-				System.out.println("º¯°æÇÒ ¼¿ÀÌ ¼±ÅÃµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+				System.out.println("ë³€ê²½í•  ì…€ì´ ì„ íƒë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
 				return;
 			}
 		}
@@ -430,7 +430,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			if(selectedCol == -1) {
-				System.out.println("º¯°æÇÒ ¼¿ÀÌ ¼±ÅÃµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+				System.out.println("ë³€ê²½í•  ì…€ì´ ì„ íƒë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
 				return;
 			}
 		}
@@ -451,7 +451,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			LbDB_material_Frame mat = new LbDB_material_Frame("ÀÚ·á°Ë»ö", tf_book_name, fk);
+			LbDB_material_Frame mat = new LbDB_material_Frame("ìë£Œê²€ìƒ‰", tf_book_name, fk);
 			mat.setVisible(true);
 		}
 	}
@@ -460,7 +460,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			LbDB_mem_info_Frame men = new LbDB_mem_info_Frame("È¸¿ø°Ë»ö", tf_mem_id, fk);
+			LbDB_mem_info_Frame men = new LbDB_mem_info_Frame("íšŒì›ê²€ìƒ‰", tf_mem_id, fk);
 			men.setVisible(true);
 		}
 	}

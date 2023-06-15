@@ -60,7 +60,7 @@ class Combobox_Manager {
 		db = new LbDB_DAO();
 		this.table = table;
 		this.key = key;
-		String str = "¾øÀ½";
+		String str = "ì—†ìŒ";
 		
 		makearray(str, bool);
 		combox = new JComboBox<String>(new DefaultComboBoxModel<String>(arraystring));
@@ -134,12 +134,12 @@ class Combobox_Manager {
 		if(str.isEmpty()) {
 			return;
 		}
-		else if(str.equals("¾øÀ½")) {
+		else if(str.equals("ì—†ìŒ")) {
 			str = "";
 		}
 		
 		if(bool) {
-			sentence = "¾øÀ½-";
+			sentence = "ì—†ìŒ-";
 		}
 		key_name = changenamekey();
 		sql = "SELECT `" + key_name + "` FROM `" + table + "` " + str;
@@ -174,11 +174,11 @@ class Combobox_Manager {
 		String now_sql = "", pn;
 		
 		pn = ci.call_parent_name();
-		if(pn.equals("´ëºĞ·ù")) {
+		if(pn.equals("ëŒ€ë¶„ë¥˜")) {
 		    now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) + "_0'";
 		    //System.out.println(now_sql);
 		}
-		else if(pn.equals("ÁßºĞ·ù")) {
+		else if(pn.equals("ì¤‘ë¶„ë¥˜")) {
 			now_sql = "WHERE `kind_num` LIKE '" + String.valueOf(num.charAt(0)) + String.valueOf(num.charAt(1)); 
 			if(dialog) {
 				now_sql += "_%'";
@@ -279,7 +279,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		menuform();
 		Initform();
 		baseform();
-		setTitle("¸ŞÀÎÈ­¸é");
+		setTitle("ë©”ì¸í™”ë©´");
 		addWindowListener(this);
 	}
 	
@@ -310,7 +310,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		String text;
 		
 		setGrid(gbc,2,0,1,1);
-		text = "À§¿¡ ÀÖ´Â ¸Ş´º¸¦ Å¬¸¯ÇØÁÖ¼¼¿ä.";
+		text = "ìœ„ì— ìˆëŠ” ë©”ë‰´ë¥¼ í´ë¦­í•´ì£¼ì„¸ìš”.";
 		context = new JLabel(text);
 		context.setFont(new Font("SansSerif", Font.PLAIN, 30));
 		gbl.setConstraints(context, gbc);
@@ -318,7 +318,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		
 		if(state == 2) {
 			setGrid(gbc,2,1,1,1);
-		    text = "Á¤ÁöµÈ °èÁ¤ÀÔ´Ï´Ù.";
+		    text = "ì •ì§€ëœ ê³„ì •ì…ë‹ˆë‹¤.";
 		    context = new JLabel(text);
 			context.setFont(new Font("SansSerif", Font.PLAIN, 30));
 			gbl.setConstraints(context, gbc);
@@ -331,18 +331,18 @@ public class LbDB_main_Frame extends LbDB_Frame {
 	
 	protected void manager_Initform(){
 		JMenuBar menuBar = new JMenuBar(); 
-        JMenu bookMenu = new JMenu("Ã¥");
-        JMenu kindMenu = new JMenu("Á¾·ù");
-        JMenu libraryMenu = new JMenu("µµ¼­°ü");
-        JMenu memberMenu = new JMenu("ÀÚ·á ¹× È¸¿ø");
-        JMenu lentMenu = new JMenu("´ëÃâ ¹× ¹İ³³");
-        JMenu deliveryMenu = new JMenu("¿¹¾à ¹× ¹è¼Û");
+        JMenu bookMenu = new JMenu("ì±…");
+        JMenu kindMenu = new JMenu("ì¢…ë¥˜");
+        JMenu libraryMenu = new JMenu("ë„ì„œê´€");
+        JMenu memberMenu = new JMenu("ìë£Œ ë° íšŒì›");
+        JMenu lentMenu = new JMenu("ëŒ€ì¶œ ë° ë°˜ë‚©");
+        JMenu deliveryMenu = new JMenu("ì˜ˆì•½ ë° ë°°ì†¡");
         
         JMenuItem[] menuItems = new JMenuItem[13];
-        String[] items = {"Ã¥°ü¸®", "Ã¥Ãß°¡", "Á¾·ù°ü¸®", "Á¾·ùÃß°¡", "µµ¼­°ü°ü¸®", "µµ¼­°üÃß°¡", "È¸¿ø°ü¸®", "ÀÚ·á°ü¸®", "ÀÚ·áÃß°¡", "´ëÃâ°ü¸®", "´ëÃâÃß°¡", "¹İ³³Ãß°¡", "¿¹¾à°ü¸®", "»óÈ£´ëÂ÷°ü¸®", "´ëÃâÀå¼Ò°ü¸®"};
+        String[] items = {"ì±…ê´€ë¦¬", "ì±…ì¶”ê°€", "ì¢…ë¥˜ê´€ë¦¬", "ì¢…ë¥˜ì¶”ê°€", "ë„ì„œê´€ê´€ë¦¬", "ë„ì„œê´€ì¶”ê°€", "íšŒì›ê´€ë¦¬", "ìë£Œê´€ë¦¬", "ìë£Œì¶”ê°€", "ëŒ€ì¶œê´€ë¦¬", "ëŒ€ì¶œì¶”ê°€", "ë°˜ë‚©ì¶”ê°€", "ì˜ˆì•½ê´€ë¦¬", "ìƒí˜¸ëŒ€ì°¨ê´€ë¦¬", "ëŒ€ì¶œì¥ì†Œê´€ë¦¬"};
         
         for(int i=0; i<menuItems.length; i++) {
-        	 menuItems[i] = new JMenuItem(items[i]); // ¸Ş´º ¾ÆÀÌÅÛ ÄÄÆ÷³ÍÆ® »ı¼º
+        	 menuItems[i] = new JMenuItem(items[i]); // ë©”ë‰´ ì•„ì´í…œ ì»´í¬ë„ŒíŠ¸ ìƒì„±
              menuItems[i].addActionListener(new MenuAction()); 
         }        
         
@@ -379,24 +379,24 @@ public class LbDB_main_Frame extends LbDB_Frame {
 	
 	protected void member_Initform() {
 		JMenuBar menuBar = new JMenuBar(); 
-        JMenu materialMenu = new JMenu("ÀÚ·á°Ë»ö");
-        JMenuItem m = new JMenuItem("ÀÚ·á°Ë»ö");
+        JMenu materialMenu = new JMenu("ìë£Œê²€ìƒ‰");
+        JMenuItem m = new JMenuItem("ìë£Œê²€ìƒ‰");
         m.addActionListener(new MenuAction());
         materialMenu.add(m);
         
-        JMenu libraryMenu = new JMenu("³»¼­Àç");
+        JMenu libraryMenu = new JMenu("ë‚´ì„œì¬");
         JMenuItem[] menuItems = new JMenuItem[4];
-        String[] items = {"´ëÃâÁßµµ¼­", "¸ğµç´ëÃâ³»¿ª", "¿¹¾à³»¿ª", "»óÈ£´ëÂ÷"};
+        String[] items = {"ëŒ€ì¶œì¤‘ë„ì„œ", "ëª¨ë“ ëŒ€ì¶œë‚´ì—­", "ì˜ˆì•½ë‚´ì—­", "ìƒí˜¸ëŒ€ì°¨"};
         
         for(int i=0; i<menuItems.length; i++) {
-        	 menuItems[i] = new JMenuItem(items[i]); // ¸Ş´º ¾ÆÀÌÅÛ ÄÄÆ÷³ÍÆ® »ı¼º
+        	 menuItems[i] = new JMenuItem(items[i]); // ë©”ë‰´ ì•„ì´í…œ ì»´í¬ë„ŒíŠ¸ ìƒì„±
              menuItems[i].addActionListener(new MenuAction());
              libraryMenu.add(menuItems[i]);
         }
         
-        JMenu memberMenu = new JMenu("¸¶ÀÌÆäÀÌÁö");
+        JMenu memberMenu = new JMenu("ë§ˆì´í˜ì´ì§€");
         JMenuItem[] memberItems = new JMenuItem[2];
-        String[] items2 = {"È¸¿øÁ¤º¸¼öÁ¤", "È¸¿øÅ»Åğ"};
+        String[] items2 = {"íšŒì›ì •ë³´ìˆ˜ì •", "íšŒì›íƒˆí‡´"};
         
         for(int i=0; i < memberItems.length; i++) {
         	memberItems[i] = new JMenuItem(items2[i]);
@@ -449,106 +449,106 @@ public class LbDB_main_Frame extends LbDB_Frame {
 			String command = e.getActionCommand();
 			
 			switch(command) {
-			case "ÀÚ·á°ü¸®": 
-				System.out.println("ÀÚ·á°ü¸®");
+			case "ìë£Œê´€ë¦¬": 
+				System.out.println("ìë£Œê´€ë¦¬");
 				LbDB_material_Frame frame1 = new LbDB_material_Frame(db, cl, command);
 				frame1.setVisible(true);
 				break;
-			case "ÀÚ·áÃß°¡": 
-				System.out.println("ÀÚ·áÃß°¡");
+			case "ìë£Œì¶”ê°€": 
+				System.out.println("ìë£Œì¶”ê°€");
 				LbDB_material_Frame frame2 = new LbDB_material_Frame(db, cl, command);
 				frame2.setVisible(true);
 				break;
-			case "µµ¼­°ü°ü¸®": 
-				System.out.println("µµ¼­°ü°ü¸®");
+			case "ë„ì„œê´€ê´€ë¦¬": 
+				System.out.println("ë„ì„œê´€ê´€ë¦¬");
 				LbDB_library_Frame frame4 = new LbDB_library_Frame(db, cl, command);
 				frame4.setVisible(true);
 				break;
-			case "µµ¼­°üÃß°¡": 
-				System.out.println("µµ¼­°üÃß°¡");
+			case "ë„ì„œê´€ì¶”ê°€": 
+				System.out.println("ë„ì„œê´€ì¶”ê°€");
 				LbDB_library_Frame frame5 = new LbDB_library_Frame(db, cl, command);
 				frame5.setVisible(true);
 				break;
-			case "È¸¿øÁ¤º¸¼öÁ¤": 
-				System.out.println("È¸¿øÁ¤º¸¼öÁ¤");
+			case "íšŒì›ì •ë³´ìˆ˜ì •": 
+				System.out.println("íšŒì›ì •ë³´ìˆ˜ì •");
 				LbDB_mem_info_Frame frame10 = new LbDB_mem_info_Frame(db, cl, command);
 				frame10.setVisible(true);
 				break;
-			case "È¸¿øÅ»Åğ":
-				System.out.println("È¸¿øÅ»Åğ");
-				int answer = JOptionPane.showConfirmDialog(null, "Å»ÅğÇÏ½Ã°Ú½À´Ï±î?", "È¸¿øÅ»Åğ", JOptionPane.YES_NO_OPTION );
+			case "íšŒì›íƒˆí‡´":
+				System.out.println("íšŒì›íƒˆí‡´");
+				int answer = JOptionPane.showConfirmDialog(null, "íƒˆí‡´í•˜ì‹œê² ìŠµë‹ˆê¹Œ?", "íšŒì›íƒˆí‡´", JOptionPane.YES_NO_OPTION );
 				if(answer == JOptionPane.YES_OPTION){
-					//»ç¿ëÀÚ°¡ yes¸¦ ´­·¶À» ‹š
+					//ì‚¬ìš©ìê°€ yesë¥¼ ëˆŒë €ì„ ë–„
 					pk = cl.primarykey();
 					String sql = "DELETE FROM `member` WHERE `mem_no` = " + pk;
 					db.Excute(sql);
-					System.out.println("È¸¿øÁ¤º¸ »èÁ¦");
+					System.out.println("íšŒì›ì •ë³´ ì‚­ì œ");
 					closeFrame();
 				} else{
-					//»ç¿ëÀÚ°¡ Yes ¿Ü °ª ÀÔ·Â½Ã
-					System.out.println("ÀÛ¾÷Ãë¼Ò");
+					//ì‚¬ìš©ìê°€ Yes ì™¸ ê°’ ì…ë ¥ì‹œ
+					System.out.println("ì‘ì—…ì·¨ì†Œ");
 				}
 				break;
-			case "È¸¿ø°ü¸®":
-				System.out.println("È¸¿ø°ü¸®");
+			case "íšŒì›ê´€ë¦¬":
+				System.out.println("íšŒì›ê´€ë¦¬");
 				LbDB_mem_info_Frame frame11 =  new LbDB_mem_info_Frame(db, cl, command);
 				frame11.setVisible(true);
 				break;
-			case "´ëÃâ°ü¸®": 
-				System.out.println("´ëÃâ°ü¸®");
+			case "ëŒ€ì¶œê´€ë¦¬": 
+				System.out.println("ëŒ€ì¶œê´€ë¦¬");
 				break;
-			case "´ëÃâÃß°¡": 
-				System.out.println("´ëÃâ°ü¸®");
+			case "ëŒ€ì¶œì¶”ê°€": 
+				System.out.println("ëŒ€ì¶œê´€ë¦¬");
 				break;
-			case "¿¹¾à°ü¸®":
-				System.out.println("¿¹¾à°ü¸®");
+			case "ì˜ˆì•½ê´€ë¦¬":
+				System.out.println("ì˜ˆì•½ê´€ë¦¬");
 				break;
-			case "ÀÚ·á°Ë»ö":
-				System.out.println("ÀÚ·á°Ë»ö");
+			case "ìë£Œê²€ìƒ‰":
+				System.out.println("ìë£Œê²€ìƒ‰");
 				LbDB_material_Frame frame3 = new LbDB_material_Frame(db, cl, command);
 				frame3.setVisible(true);
 				break;
-			case "´ëÃâÁßµµ¼­":
-				System.out.println("´ëÃâÁßµµ¼­");
+			case "ëŒ€ì¶œì¤‘ë„ì„œ":
+				System.out.println("ëŒ€ì¶œì¤‘ë„ì„œ");
 				break;
-			case "¸ğµç´ëÃâ³»¿ª":
-				System.out.println("¸ğµç´ëÃâ³»¿ª");
+			case "ëª¨ë“ ëŒ€ì¶œë‚´ì—­":
+				System.out.println("ëª¨ë“ ëŒ€ì¶œë‚´ì—­");
 				break;
-			case "¿¹¾à³»¿ª":
-				System.out.println("¿¹¾à³»¿ª");
+			case "ì˜ˆì•½ë‚´ì—­":
+				System.out.println("ì˜ˆì•½ë‚´ì—­");
 				break;
-			case "»óÈ£´ëÂ÷":
-				System.out.println("»óÈ£´ëÂ÷");
+			case "ìƒí˜¸ëŒ€ì°¨":
+				System.out.println("ìƒí˜¸ëŒ€ì°¨");
 				break;
-			case "»óÈ£´ëÂ÷°ü¸®":
-				System.out.println("»óÈ£´ëÂ÷");
+			case "ìƒí˜¸ëŒ€ì°¨ê´€ë¦¬":
+				System.out.println("ìƒí˜¸ëŒ€ì°¨");
 				break;
-			case "Á¾·ù°ü¸®":
-				System.out.println("Á¾·ù°ü¸®");
+			case "ì¢…ë¥˜ê´€ë¦¬":
+				System.out.println("ì¢…ë¥˜ê´€ë¦¬");
 				LbDB_kind_Frame frame6 = new LbDB_kind_Frame(db, cl, command);
 				frame6.setVisible(true);
 				break;
-			case "Á¾·ùÃß°¡":
-				System.out.println("Á¾·ùÃß°¡");
+			case "ì¢…ë¥˜ì¶”ê°€":
+				System.out.println("ì¢…ë¥˜ì¶”ê°€");
 				LbDB_kind_Frame frame7 = new LbDB_kind_Frame(db, cl, command);
 				frame7.setVisible(true);
 				break;
-			case "Ã¥°ü¸®":
-				System.out.println("Ã¥°ü¸®");
+			case "ì±…ê´€ë¦¬":
+				System.out.println("ì±…ê´€ë¦¬");
 				LbDB_book_Frame frame8 = new LbDB_book_Frame(db, cl, command);
 				frame8.setVisible(true);
 				break;
-			case "Ã¥Ãß°¡":
-				System.out.println("Ã¥Ãß°¡");
+			case "ì±…ì¶”ê°€":
+				System.out.println("ì±…ì¶”ê°€");
 				LbDB_book_Frame frame9 = new LbDB_book_Frame(db, cl, command);
 				frame9.setVisible(true);
 				break;
-			case "¹İ³³Ãß°¡":
-				System.out.println("¹İ³³Ãß°¡");
+			case "ë°˜ë‚©ì¶”ê°€":
+				System.out.println("ë°˜ë‚©ì¶”ê°€");
 				break;
 			}
 			
-			if(!command.equals("È¸¿øÅ»Åğ"))
+			if(!command.equals("íšŒì›íƒˆí‡´"))
 			closeFrame();
 		}
 	}
