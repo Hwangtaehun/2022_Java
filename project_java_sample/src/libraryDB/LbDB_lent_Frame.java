@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 import java.time.*;
+import java.time.format.*;
 
 public class LbDB_lent_Frame extends LbDB_main_Frame {
 	private JPanel northPanel;
@@ -42,21 +43,25 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			tableform(columnName);
 		}
 		else if(menu_title.equals("대출관리")) {
+			managerform();
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
 				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no ";
 			String columnName[] = {"회원아이디", "책 이름", "소장도서관", "대출일", "반납일", "반납상태"};
 			tableform(columnName);
 		}
 		else if(menu_title.equals("대출추가")) {
-			
+			managerform();
 		}
 		else {
+			managerform();
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " 
 				+ "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no "
 				+ "AND `len_re_st` = 0";
-				String columnName[] = {"회원아이디", "책 이름", "소장도서관"};
-				tableform(columnName);
+			String columnName[] = {"회원아이디", "책 이름", "소장도서관", "대출일"};
+			tableform(columnName);
 		}
+		baseform_fianl();
+		tablefocus();
 	}
 	
 	private void baseform() {
@@ -236,16 +241,26 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		JButton bt;
 		JLabel label;
 		JPanel extendPanel = null;
+		JComboBox <String> lib_Box = null;
 		
 		setGrid(gbc,0,5,1,1);
-		label = new JLabel("    반납상태        ");
+		label = new JLabel("    반납도서관       ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,5,1,1);
+		lib_select = new Combobox_Manager(lib_Box, "library", "lib_no", false);
+		lib_Box = lib_select.combox;
+		gbl.setConstraints(lib_Box, gbc);
+		leftPanel.add(lib_Box);
+		setGrid(gbc,0,6,1,1);
+		label = new JLabel("    반납상태        ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,6,1,1);
 		extendPanel = extendpanelform(extendPanel);
 		gbl.setConstraints(extendPanel, gbc);
 		leftPanel.add(extendPanel);
-		setGrid(gbc,2,6,1,1);
+		setGrid(gbc,2,7,1,1);
 		bt = new JButton("추가");
 		bt.addActionListener(new addButtonListener());
 		gbl.setConstraints(bt, gbc);
@@ -261,13 +276,13 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		rb_lent.setActionCommand("st-0");
 		gr_return.add(rb_lent);
 		extendPanel.add(rb_lent);
-		rb_return = new JRadioButton("반납", true);
+		rb_return = new JRadioButton("반납", false);
 		rb_return.addActionListener(new radiobuttonListener());
 		rb_return.addItemListener(new radiobuttonListener());
 		rb_return.setActionCommand("st-1");
 		gr_return.add(rb_return);
 		extendPanel.add(rb_return);
-		rb_etc = new JRadioButton("기타", true);
+		rb_etc = new JRadioButton("기타", false);
 		rb_etc.addActionListener(new radiobuttonListener());
 		rb_etc.addItemListener(new radiobuttonListener());
 		rb_etc.setActionCommand("st-2");
@@ -311,13 +326,14 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 	}
 	
 	private void removeTableRow(int row) {
-		if(menu_title.equals("대출중도서")) {
+		if(menu_title.equals("모든대출내역")) {
 			table.setValueAt(null, row, 0);
 			table.setValueAt(null, row, 1);
 			table.setValueAt(null, row, 2);
 			table.setValueAt(null, row, 3);
+			table.setValueAt(null, row, 4);
 		}
-		else {
+		else if(menu_title.equals("대출관리")) {
 			table.setValueAt(null, row, 0);
 			table.setValueAt(null, row, 1);
 			table.setValueAt(null, row, 2);
@@ -325,25 +341,71 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			table.setValueAt(null, row, 4);
 			table.setValueAt(null, row, 5);
 		}
+		else {
+			table.setValueAt(null, row, 0);
+			table.setValueAt(null, row, 1);
+			table.setValueAt(null, row, 2);
+			table.setValueAt(null, row, 3);
+		}
 	}
 	
 	private void MoveData() {
+		String memberid, bookname, returnstate;
 		
+		try {
+			if(!menu_title.equals("반납추가")) {
+				returnstate = result.getString("lent.len_re_st");
+				tf_lent_re_date.setText(returnstate);
+			}
+			memberid = result.getString("member.mem_id");
+			bookname = result.getString("book.book_name");
+			tf_mem_id.setText(memberid);
+			tf_book_name.setText(bookname);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void LoadList(String now_sql) {
-		result = db.getResultSet(now_sql);
+		String date, len_state;
 		
+		result = db.getResultSet(now_sql);
 		for(int i = 0; i < dataCount; i++) {
 			removeTableRow(i);
 		}
 		try {
 			for(dataCount = 0; result.next(); dataCount++) {
-				table.setValueAt(result.getString("book_name"), dataCount, 0);
-				table.setValueAt(result.getString("book_author"), dataCount, 1);
-				table.setValueAt(result.getString("book_publish"), dataCount, 2);
-				table.setValueAt(result.getInt("book_price"), dataCount, 3);
-				table.setValueAt(result.getInt("book_year"), dataCount, 4);
+				if(menu_title.equals("대출중도서")) {
+					table.setValueAt(result.getString("book.book_name"), dataCount, 0);
+					table.setValueAt(result.getString("library.lib_name"), dataCount, 1);
+					table.setValueAt(result.getString("lent.len_date"), dataCount, 2);
+					date = estimate_return_date(result.getString("lent.len_date"), result.getInt("lent.len_ex"));
+					table.setValueAt(date, dataCount, 3);
+				}
+				else if(menu_title.equals("모든대출내역")) {
+					table.setValueAt(result.getString("book.book_name"), dataCount, 0);
+					table.setValueAt(result.getString("library.lib_name"), dataCount, 1);
+					table.setValueAt(result.getString("lent.len_date"), dataCount, 2);
+					table.setValueAt(result.getString("lent.len_re_date"), dataCount, 3);
+					len_state = return_state(result.getInt("lent.len_re_st"));
+					table.setValueAt(len_state, dataCount, 4);
+				}
+				else if(menu_title.equals("대출관리")) {
+					table.setValueAt(result.getString("member.mem_id"), dataCount, 0);
+					table.setValueAt(result.getString("book.book_name"), dataCount, 1);
+					table.setValueAt(result.getString("library.lib_name"), dataCount, 2);
+					table.setValueAt(result.getString("lent.len_date"), dataCount, 3);
+					table.setValueAt(result.getString("lent.len_re_date"), dataCount, 4);
+					len_state = return_state(result.getInt("lent.len_re_st"));
+					table.setValueAt(len_state, dataCount, 5);
+				}
+				else {
+					table.setValueAt(result.getString("member.mem_id"), dataCount, 0);
+					table.setValueAt(result.getString("book.book_name"), dataCount, 1);
+					table.setValueAt(result.getString("library.lib_name"), dataCount, 2);
+					table.setValueAt(result.getString("lent.len_date"), dataCount, 3);
+				}
 			}
 			repaint();
 		} catch (SQLException e) {
@@ -367,6 +429,35 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		}
 		
 		return bool;
+	}
+	
+	private String estimate_return_date(String len_date, int len_ex) {
+		LocalDate date;
+		String return_date = "";
+		int day = 15;
+		
+		date = LocalDate.parse(len_date, DateTimeFormatter.ISO_DATE);
+		day += len_ex;
+		date.plusDays(day);
+		return_date = date.toString();
+		
+		return return_date;
+	}
+	
+	private String return_state(int num) {
+		String len_state;
+		
+		if(num == 0) {
+			len_state = "대출중";
+		}
+		else if(num == 1) {
+			len_state = "반납";
+		}
+		else {
+			len_state = "기타";
+		}
+		
+		return len_state;
 	}
 	
 	public class researchButtonListener implements ActionListener{
@@ -399,17 +490,61 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			String now_sql;
+			int code = 0;
+			String now_sql, next_sql;
 			LocalDate len_date;
 			
 			if(warning()) {
 				len_date = LocalDate.now(); 
-				now_sql = "INSERT INTO `lent` ( mat_no, mem_no, len_ex, len_date ) VALUES(" + fk.call_mat_no() + ", "
-						+ fk.call_mem_no() + ", " + ex + ", '" + len_date + "')";
+				if(menu_title.equals("대출추가")) {
+					now_sql = "INSERT INTO `lent` ( mat_no, mem_no, len_ex, len_date ) VALUES(" + fk.call_mat_no() + ", "
+							+ fk.call_mem_no() + ", " + ex + ", '" + len_date + "')";
+					next_sql = "SELECT `len_no` FROM `lent` WHERE `mat_no` = " + fk.call_mat_no() + " AND `mem_no` = "
+							 + fk.call_mem_no() + " AND `len_date` = '" + len_date + "'";
+					result = db.getResultSet(next_sql);
+					
+					try {
+						while(result.next()) {
+							code = result.getInt("len_no");
+						}
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					next_sql = "INSERT INTO `place` (`len_no`, `lib_no_len`) VALUES(" + code +", " + lib_select.foreignkey() + ")";
+				}
+				else {
+					if(selectedCol == -1) {
+						System.out.println("변경할 셀이 선택되지 않았습니다.");
+						return;
+					}
+					try {
+						code = result.getInt("lent.len_no");
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					now_sql = "UPDATE `lent` SET `len_re_date` = '" + len_date + "', `len_re_st` = " + st + ", len_memo = '"
+							+ tf_memo.getText() + "' WHERE len_no = " + code;
+					next_sql = "SELECT `pla_no` FROM `place` WHERE `len_no` = " + code;
+					result = db.getResultSet(next_sql);
+					try {
+						while(result.next()) {
+							code = result.getInt("pla_no");
+						}
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					next_sql = "UPDATE `place` SET `lib_no_re` = " + lib_select.foreignkey() + " WHERE `pla_no` = " + code;
+				}
 				System.out.println(now_sql);
 				db.Excute(now_sql);
+				System.out.println(next_sql);
+				db.Excute(next_sql);
 				now_sql = sql + sortsql;
 				LoadList(now_sql);
+				tablefocus();
 			}
 		}
 	}
