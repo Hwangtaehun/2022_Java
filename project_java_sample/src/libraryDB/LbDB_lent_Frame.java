@@ -44,6 +44,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		}
 		else if(menu_title.equals("대출관리")) {
 			managerform();
+			editform();
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
 				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no ";
 			String columnName[] = {"회원아이디", "책 이름", "소장도서관", "대출일", "반납일", "반납상태"};
@@ -51,9 +52,11 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		}
 		else if(menu_title.equals("대출추가")) {
 			managerform();
+			lentaddform();
 		}
 		else {
 			managerform();
+			returnaddform();
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " 
 				+ "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no "
 				+ "AND `len_re_st` = 0";
@@ -340,6 +343,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			table.setValueAt(null, row, 3);
 			table.setValueAt(null, row, 4);
 			table.setValueAt(null, row, 5);
+			table.setValueAt(null, row, 6);
 		}
 		else {
 			table.setValueAt(null, row, 0);
@@ -351,11 +355,29 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 	
 	private void MoveData() {
 		String memberid, bookname, returnstate;
+		int len_ex, len_re_st;
 		
 		try {
-			if(!menu_title.equals("반납추가")) {
+			if(menu_title.equals("대출관리")) {
 				returnstate = result.getString("lent.len_re_st");
 				tf_lent_re_date.setText(returnstate);
+				len_ex = result.getInt("len.len_ex");
+				len_re_st = result.getInt("lent.len_re_st");
+				if(len_ex == 0) {
+					rb_normal.setSelectedIcon(null);
+				}
+				else {
+					rb_extend.setSelectedIcon(null);
+				}
+				if(len_re_st == 0) {
+					rb_lent.setSelectedIcon(null);
+				}
+				else if(len_re_st == 1) {
+					rb_return.setSelectedIcon(null);
+				}
+				else {
+					rb_etc.setSelectedIcon(null);
+				}
 			}
 			memberid = result.getString("member.mem_id");
 			bookname = result.getString("book.book_name");
@@ -396,9 +418,10 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 					table.setValueAt(result.getString("book.book_name"), dataCount, 1);
 					table.setValueAt(result.getString("library.lib_name"), dataCount, 2);
 					table.setValueAt(result.getString("lent.len_date"), dataCount, 3);
-					table.setValueAt(result.getString("lent.len_re_date"), dataCount, 4);
+					table.setValueAt(result.getString("lent.len_ex"), dataCount, 4);
+					table.setValueAt(result.getString("lent.len_re_date"), dataCount, 5);
 					len_state = return_state(result.getInt("lent.len_re_st"));
-					table.setValueAt(len_state, dataCount, 5);
+					table.setValueAt(len_state, dataCount, 6);
 				}
 				else {
 					table.setValueAt(result.getString("member.mem_id"), dataCount, 0);
@@ -662,16 +685,27 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 				if(selectedCol >= dataCount)
 					System.out.println("data is Empty");
 				else {
-					/*
-					 * tf_bookname.setText(table.getValueAt(selectedCol, 0).toString());
-					 * tf_author.setText(table.getValueAt(selectedCol, 1).toString());
-					 * tf_publish.setText(table.getValueAt(selectedCol, 2).toString());
-					 * tf_price.setText(table.getValueAt(selectedCol, 3).toString());
-					 * tf_year.setText(table.getValueAt(selectedCol, 4).toString());
-					 */
+					tf_mem_id.setText(table.getValueAt(selectedCol, 0).toString());
+					tf_book_name.setText(table.getValueAt(selectedCol, 1).toString());
+					if(table.getValueAt(selectedCol, 4).toString().equals("0")) {
+						rb_normal.setSelected(true);
+					}
+					else {
+						rb_extend.setSelected(true);
+					}
+					tf_lent_re_date.setText(table.getValueAt(selectedCol, 5).toString());
+					if(table.getValueAt(selectedCol, 6).toString().equals("대출중")) {
+						rb_normal.setSelected(true);
+					}
+					else if(table.getValueAt(selectedCol, 6).toString().equals("반납")) {
+						rb_return.setSelected(true);
+					}
+					else {
+						rb_etc.setSelected(true);
+					}
 					try {
 						result.absolute(selectedCol + 1);
-						//MoveData();
+						MoveData();
 					} catch (SQLException e1) {
 						e1.printStackTrace();
 					}
