@@ -52,7 +52,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			lentform();
 			editform();
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
-				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no ";
+				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no";
 			String str = "회원아이디,책 이름,소장도서관,대출일,연장여부,반납일,반납상태,메모";
 			columnName = str.split(",");
 			tableform(columnName);
@@ -528,21 +528,51 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			String  now_sql, book_sql, mem_sql;
-			String research;
-			
-			research = tf_research.getText();
-			book_sql = " AND book.book_name LIKE '%" + research + "%'";
-			mem_sql = "AND member.mem_id LIKE '%" + research + "%'";
-			
+			String  now_sql, sub_sql;
+			int mat_no, mem_no;
 			
 			if(state == 1) {
-				String str;
-				str = "AND `material`.`lib_no` = " + lib_research.foreignkey();
-				now_sql = sql + str + book_sql + " UNION " + sql + mem_sql;
+				mat_no = 0;
+				mem_no = 0;
+				
+				sub_sql = "SELECT * FROM material, book WHERE material.book_no = book.book_no AND " 
+						 + "material.lib_no = " + lib_research.foreignkey() 
+						 + " AND book_name LIKE '%" + tf_research.getText() + "%'";
+				result = db.getResultSet(sub_sql);
+				
+				try {
+					while(result.next()) {
+						mat_no = result.getInt("material.mat_no");
+					}
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				sub_sql = "SELECT * FROM member WHERE mem_id LIKE '%" + tf_research.getText() + "%'";
+				result = db.getResultSet(sub_sql);
+				
+				try {
+					while(result.next()) {
+						mem_no = result.getInt("mem_no");
+					}
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				if(mat_no == 0) {
+					now_sql = sql + " AND lent.mem_no = " + mem_no;
+				}
+				else if(mem_no == 0) {
+					now_sql = sql + " AND lent.mat_no = " + mat_no;
+				}
+				else {
+					now_sql = sql + " AND lent.mat_no = " + mat_no + " UNION " + sql + " AND lent.mem_no = " + mem_no;
+				}
 			}
 			else {
-				now_sql = sql + book_sql + " UNION " + sql + mem_sql;
+				now_sql = sql + "AND book.book_name LIKE '%" + tf_research.getText() + "%'";
 			}
 			System.out.println(now_sql);
 			LoadList(now_sql);
@@ -682,7 +712,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			LbDB_material_Frame mat = new LbDB_material_Frame("자료검색", tf_book_name, fk);
+			LbDB_material_Frame mat = new LbDB_material_Frame("자료찾기", tf_book_name, fk);
 			mat.setVisible(true);
 		}
 	}
@@ -691,7 +721,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			LbDB_mem_info_Frame men = new LbDB_mem_info_Frame("회원검색", tf_mem_id, fk);
+			LbDB_mem_info_Frame men = new LbDB_mem_info_Frame("회원찾기", tf_mem_id, fk);
 			men.setVisible(true);
 		}
 	}

@@ -125,7 +125,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(researchBt, gbc);
 		leftPanel.add(researchBt);
 		
-		String columnName[] = {"도서관", "책 이름", "저자", "출판사", "종류"};
+		String columnName[] = {"도서관", "책 이름", "저자", "출판사", "종류", "예약상태"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
 		table.setPreferredScrollableViewportSize(new Dimension(700, 14*16));
@@ -137,8 +137,8 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		cpane.add("Center", centerPanel);
 		pack();
 		
-		sql = "SELECT * " + "FROM library, book, kind, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
-			  " WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no AND kind.kind_no = material.kind_no";
+		sql = "SELECT * " + "FROM library, book, kind, material LEFT JOIN reservation ON material.mat_no = reservation.mat_no " + 
+			  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no AND kind.kind_no = material.kind_no";
 		System.out.println(sql);
 		LoadList(sql);
 		
