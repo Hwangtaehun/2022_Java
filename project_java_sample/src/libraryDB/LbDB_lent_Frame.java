@@ -14,7 +14,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 	private JRadioButton rb_lent, rb_return, rb_etc, rb_normal, rb_extend;
 	private ButtonGroup gr_return, gr_extend;
 	private int ex, st;
-	private String sortsql;
+	private String sortsql, columnName[];
 	
 	public LbDB_lent_Frame() {}
 	public LbDB_lent_Frame(LbDB_DAO db, Client cl, String title) {
@@ -31,27 +31,32 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		if(menu_title.equals("대출중도서")) {
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
 				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no " + 
-				  "AND lent.mem_no = " + pk + " AND lent.lent_re_state = 0";
-			String columnName[] = {"책 이름", "소장도서관", "대출일", "반납일예정"};
+				  "AND lent.mem_no = " + pk + " AND lent.len_re_st = 0";
+			String str = "책 이름,소장도서관,대출일,반납일예정";
+			columnName = str.split(",");
 			tableform(columnName);
 		}
 		else if(menu_title.equals("모든대출내역")) {
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
 				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no " + 
 				  "AND lent.mem_no = " + pk;
-			String columnName[] = {"책 이름", "소장도서관", "대출일", "반납일", "반납상태"};
+			String str = "책 이름,소장도서관,대출일,반납일,반납상태";
+			columnName = str.split(",");
 			tableform(columnName);
 		}
 		else if(menu_title.equals("대출관리")) {
 			managerform();
+			lentform();
 			editform();
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
 				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no ";
-			String columnName[] = {"회원아이디", "책 이름", "소장도서관", "대출일", "반납일", "반납상태"};
+			String str = "회원아이디,책 이름,소장도서관,대출일,연장여부,반납일,반납상태,메모";
+			columnName = str.split(",");
 			tableform(columnName);
 		}
 		else if(menu_title.equals("대출추가")) {
 			managerform();
+			lentform();
 			lentaddform();
 		}
 		else {
@@ -60,11 +65,29 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " 
 				+ "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no "
 				+ "AND `len_re_st` = 0";
-			String columnName[] = {"회원아이디", "책 이름", "소장도서관", "대출일"};
+			String str = "회원아이디,책 이름,소장도서관,대출일";
+			columnName = str.split(",");
 			tableform(columnName);
 		}
 		baseform_fianl();
-		tablefocus();
+		
+		String now_sql;
+		if(state == 1) {
+			if(menu_title.equals("대출관리") || menu_title.equals("반납추가")) {
+				sortsql = " ORDER BY `mem_name`";
+				now_sql = sql + sortsql;
+				LoadList(now_sql);
+				tablefocus();
+			}
+		}
+		else {
+			sortsql = " ORDER BY `mem_name`";
+			now_sql = sql + sortsql;
+			LoadList(now_sql);
+		}
+		
+		setTitle(menu_title);
+		addWindowListener(this);
 	}
 	
 	private void baseform() {
@@ -89,7 +112,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		researchPanel.add(label);
 		tf_research = new JTextField(20);
 		researchPanel.add(tf_research);
-		researchBt = new JButton();
+		researchBt = new JButton("검색");
 		researchBt.addActionListener(new researchButtonListener());
 		researchPanel.add(researchBt);
 		
@@ -117,7 +140,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			lib_Box = lib_select.combox;
 			gbl.setConstraints(lib_Box, gbc);
 			leftPanel.add(lib_Box);
-			setGrid(gbc,2,2,1,1);
+			setGrid(gbc,3,2,1,1);
 			bt = new JButton("상호대차");
 			bt.addActionListener(new bookseaButtonListener());
 			gbl.setConstraints(bt, gbc);
@@ -182,7 +205,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 	private void editform() {
 		JLabel label;
 		JButton bt;
-		JPanel extendPanel = null;
+		JPanel statePanel = null;
 		
 		setGrid(gbc,0,6,1,1);
 		label = new JLabel("    반납일         ");
@@ -202,9 +225,9 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,7,1,1);
-		extendPanel = extendpanelform(extendPanel);
-		gbl.setConstraints(extendPanel, gbc);
-		leftPanel.add(extendPanel);
+		statePanel = extendpanelform(statePanel);
+		gbl.setConstraints(statePanel, gbc);
+		leftPanel.add(statePanel);
 		setGrid(gbc,0,8,1,1);
 		label = new JLabel("    메모          ");
 		gbl.setConstraints(label, gbc);
@@ -295,18 +318,12 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 	}
 	
 	private void tableform(String columnName[]) {
-		String now_sql;
-		
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
 		table.setPreferredScrollableViewportSize(new Dimension(700, 14*16));
 		table.getSelectionModel().addListSelectionListener(new tableListener());
 		JScrollPane scrollPane = new JScrollPane(table);
 		centerPanel.add(scrollPane);
-		
-		sortsql = " ORDER BY `mem_name`";
-		now_sql = sql + sortsql;
-		LoadList(now_sql);
 	}
 	
 	private void tablefocus() {
@@ -344,6 +361,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			table.setValueAt(null, row, 4);
 			table.setValueAt(null, row, 5);
 			table.setValueAt(null, row, 6);
+			table.setValueAt(null, row, 7);
 		}
 		else {
 			table.setValueAt(null, row, 0);
@@ -353,36 +371,40 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		}
 	}
 	
-	private void MoveData() {
-		String memberid, bookname, returnstate;
-		int len_ex, len_re_st;
-		
+	private void MoveData() {		
 		try {
-			if(menu_title.equals("대출관리")) {
-				returnstate = result.getString("lent.len_re_st");
-				tf_lent_re_date.setText(returnstate);
-				len_ex = result.getInt("len.len_ex");
-				len_re_st = result.getInt("lent.len_re_st");
-				if(len_ex == 0) {
-					rb_normal.setSelectedIcon(null);
-				}
-				else {
-					rb_extend.setSelectedIcon(null);
-				}
-				if(len_re_st == 0) {
-					rb_lent.setSelectedIcon(null);
-				}
-				else if(len_re_st == 1) {
-					rb_return.setSelectedIcon(null);
-				}
-				else {
-					rb_etc.setSelectedIcon(null);
-				}
-			}
-			memberid = result.getString("member.mem_id");
-			bookname = result.getString("book.book_name");
+			String memberid = result.getString("member.mem_id");
+			String bookname = result.getString("book.book_name");
+
 			tf_mem_id.setText(memberid);
 			tf_book_name.setText(bookname);
+			
+			if(menu_title.equals("대출관리")) {
+				String returndate = result.getString("lent.len_re_date");
+				String memo = result.getString("lent.len_memo");
+				int len_ex = result.getInt("lent.len_ex");
+				int len_re_st = result.getInt("lent.len_re_st");
+				
+				tf_lent_re_date.setText(returndate);
+				tf_memo.setText(memo);
+				
+				if(len_ex == 0) {
+					rb_extend.setSelected(true);
+				}
+				else {
+					rb_normal.setSelected(true);
+				}
+				
+				if(len_re_st == 0) {
+					rb_lent.setSelected(true);
+				}
+				else if(len_re_st == 1) {
+					rb_return.setSelected(true);
+				}
+				else {
+					rb_etc.setSelected(true);
+				}
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -390,7 +412,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 	}
 	
 	private void LoadList(String now_sql) {
-		String date, len_state;
+		String date, len_state, memo;
 		
 		result = db.getResultSet(now_sql);
 		for(int i = 0; i < dataCount; i++) {
@@ -419,9 +441,22 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 					table.setValueAt(result.getString("library.lib_name"), dataCount, 2);
 					table.setValueAt(result.getString("lent.len_date"), dataCount, 3);
 					table.setValueAt(result.getString("lent.len_ex"), dataCount, 4);
-					table.setValueAt(result.getString("lent.len_re_date"), dataCount, 5);
+					if(result.getString("lent.len_re_date") == null) {
+						date = "";
+					}
+					else {
+						date = result.getString("lent.len_re_date");
+					}
+					table.setValueAt(date, dataCount, 5);
 					len_state = return_state(result.getInt("lent.len_re_st"));
 					table.setValueAt(len_state, dataCount, 6);
+					if(result.getString("lent.len_memo") ==  null) {
+						memo = "";
+					}
+					else {
+						memo = result.getString("lent.len_memo");
+					}
+					table.setValueAt(memo, dataCount, 7);
 				}
 				else {
 					table.setValueAt(result.getString("member.mem_id"), dataCount, 0);
@@ -494,7 +529,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			basic_sql = "SELECT * FROM lent, member, material, book, library "
 					+ "WHERE lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no AND material.book_no = book.book_no "
 					+ "AND material.lib_no = library.lib_no ";
-			book_sql = "AND book.book_name LIKE '%" + research + "%'";
+			book_sql = " AND book.book_name LIKE '%" + research + "%'";
 			mem_sql = "AND member.mem_id LIKE '%" + research + "%'";
 			
 			
@@ -506,6 +541,9 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			else {
 				now_sql = basic_sql + book_sql + " UNION " + basic_sql + mem_sql;
 			}
+			System.out.println(now_sql);
+			LoadList(now_sql);
+			tablefocus();
 		}
 	}
 	
@@ -576,10 +614,27 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
+			int code = 0;
+			String now_sql;
+			
 			if(selectedCol == -1) {
 				System.out.println("변경할 셀이 선택되지 않았습니다.");
 				return;
 			}
+			
+			try {
+				code = result.getInt("lent.len_no");
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			now_sql = "UPDATE `lent` SET mem_no = " + fk.call_mem_no() + ", mat_no = " + fk.call_mat_no() + ", len_ex = " + ex + ", len_re_date = '"
+					+ tf_lent_re_date.getText() + "', len_re_st = " + st + ", len_memo = '" + tf_memo.getText() + "' WHERE len_no = " + code;
+			System.out.println(now_sql);
+			db.Excute(now_sql);
+			LoadList(sql + sortsql);
+			tablefocus();
 		}
 	}
 	
@@ -587,10 +642,25 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
+			int code = 0;
+			String now_sql;
+			
 			if(selectedCol == -1) {
 				System.out.println("변경할 셀이 선택되지 않았습니다.");
 				return;
 			}
+			
+			try {
+				code = result.getInt("lent.len_no");
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			now_sql = "DELETE FROM `lent` WHERE len_no = " + code;
+			db.Excute(now_sql);
+			LoadList(sql + sortsql);
+			tablefocus();
 		}
 	}
 	
@@ -662,7 +732,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			}
 			System.out.println();
 			
-			if(str_array[0].equals("state")) {
+			if(str_array[0].equals("ex")) {
 				ex = Integer.parseInt(str_array[1]);
 			}
 			else {
@@ -685,31 +755,38 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 				if(selectedCol >= dataCount)
 					System.out.println("data is Empty");
 				else {
-					tf_mem_id.setText(table.getValueAt(selectedCol, 0).toString());
-					tf_book_name.setText(table.getValueAt(selectedCol, 1).toString());
-					if(table.getValueAt(selectedCol, 4).toString().equals("0")) {
-						rb_normal.setSelected(true);
+					if(state == 1) {
+						tf_mem_id.setText(table.getValueAt(selectedCol, 0).toString());
+						tf_book_name.setText(table.getValueAt(selectedCol, 1).toString());
+						
+						if(table.getValueAt(selectedCol, 4).toString().equals("0")) {
+							rb_normal.setSelected(true);
+						}
+						else {
+							rb_extend.setSelected(true);
+						}
+						
+						tf_lent_re_date.setText(table.getValueAt(selectedCol, 5).toString());
+						
+						if(table.getValueAt(selectedCol, 6).toString().equals("대출중")) {
+							rb_normal.setSelected(true);
+						}
+						else if(table.getValueAt(selectedCol, 6).toString().equals("반납")) {
+							rb_return.setSelected(true);
+						}
+						else {
+							rb_etc.setSelected(true);
+						}
+						
+						tf_memo.setText(table.getValueAt(selectedCol, 7).toString());
+						try {
+							result.absolute(selectedCol + 1);
+							MoveData();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+						repaint();
 					}
-					else {
-						rb_extend.setSelected(true);
-					}
-					tf_lent_re_date.setText(table.getValueAt(selectedCol, 5).toString());
-					if(table.getValueAt(selectedCol, 6).toString().equals("대출중")) {
-						rb_normal.setSelected(true);
-					}
-					else if(table.getValueAt(selectedCol, 6).toString().equals("반납")) {
-						rb_return.setSelected(true);
-					}
-					else {
-						rb_etc.setSelected(true);
-					}
-					try {
-						result.absolute(selectedCol + 1);
-						MoveData();
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
-					repaint();
 				}
 			}
 		}

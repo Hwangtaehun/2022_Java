@@ -338,7 +338,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
         JMenu lentMenu = new JMenu("대출 및 반납");
         JMenu deliveryMenu = new JMenu("예약 및 배송");
         
-        JMenuItem[] menuItems = new JMenuItem[13];
+        JMenuItem[] menuItems = new JMenuItem[15];
         String[] items = {"책관리", "책추가", "종류관리", "종류추가", "도서관관리", "도서관추가", "회원관리", "자료관리", "자료추가", "대출관리", "대출추가", "반납추가", "예약관리", "상호대차관리", "대출장소관리"};
         
         for(int i=0; i<menuItems.length; i++) {
@@ -496,9 +496,13 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				break;
 			case "대출관리": 
 				System.out.println("대출관리");
+				LbDB_lent_Frame frame14 = new LbDB_lent_Frame(db, cl, command);
+				frame14.setVisible(true);
 				break;
 			case "대출추가": 
-				System.out.println("대출관리");
+				System.out.println("대출추가");
+				LbDB_lent_Frame frame15 = new LbDB_lent_Frame(db, cl, command);
+				frame15.setVisible(true);
 				break;
 			case "예약관리":
 				System.out.println("예약관리");
@@ -510,9 +514,13 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				break;
 			case "대출중도서":
 				System.out.println("대출중도서");
+				LbDB_lent_Frame frame12 = new LbDB_lent_Frame(db, cl, command);
+				frame12.setVisible(true);
 				break;
 			case "모든대출내역":
 				System.out.println("모든대출내역");
+				LbDB_lent_Frame frame13 = new LbDB_lent_Frame(db, cl, command);
+				frame13.setVisible(true);
 				break;
 			case "예약내역":
 				System.out.println("예약내역");
@@ -545,6 +553,8 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				break;
 			case "반납추가":
 				System.out.println("반납추가");
+				LbDB_lent_Frame frame16 = new LbDB_lent_Frame(db, cl, command);
+				frame16.setVisible(true);
 				break;
 			}
 			
