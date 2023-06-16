@@ -29,6 +29,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		baseform();
 		
 		if(menu_title.equals("대출중도서")) {
+			baseform();
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
 				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no " + 
 				  "AND lent.mem_no = " + pk + " AND lent.len_re_st = 0";
@@ -37,6 +38,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			tableform(columnName);
 		}
 		else if(menu_title.equals("모든대출내역")) {
+			baseform();
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
 				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no " + 
 				  "AND lent.mem_no = " + pk;
@@ -45,6 +47,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			tableform(columnName);
 		}
 		else if(menu_title.equals("대출관리")) {
+			baseform();
 			managerform();
 			lentform();
 			editform();
@@ -55,11 +58,13 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			tableform(columnName);
 		}
 		else if(menu_title.equals("대출추가")) {
+			northPanel = new JPanel();
 			managerform();
 			lentform();
 			lentaddform();
 		}
 		else {
+			baseform();
 			managerform();
 			returnaddform();
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " 
@@ -415,6 +420,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		String date, len_state, memo;
 		
 		result = db.getResultSet(now_sql);
+		
 		for(int i = 0; i < dataCount; i++) {
 			removeTableRow(i);
 		}
@@ -522,13 +528,10 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			String basic_sql, now_sql, book_sql, mem_sql;
+			String  now_sql, book_sql, mem_sql;
 			String research;
 			
 			research = tf_research.getText();
-			basic_sql = "SELECT * FROM lent, member, material, book, library "
-					+ "WHERE lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no AND material.book_no = book.book_no "
-					+ "AND material.lib_no = library.lib_no ";
 			book_sql = " AND book.book_name LIKE '%" + research + "%'";
 			mem_sql = "AND member.mem_id LIKE '%" + research + "%'";
 			
@@ -536,10 +539,10 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			if(state == 1) {
 				String str;
 				str = "AND `material`.`lib_no` = " + lib_research.foreignkey();
-				now_sql = basic_sql + str + book_sql + " UNION " + basic_sql + mem_sql;
+				now_sql = sql + str + book_sql + " UNION " + sql + mem_sql;
 			}
 			else {
-				now_sql = basic_sql + book_sql + " UNION " + basic_sql + mem_sql;
+				now_sql = sql + book_sql + " UNION " + sql + mem_sql;
 			}
 			System.out.println(now_sql);
 			LoadList(now_sql);

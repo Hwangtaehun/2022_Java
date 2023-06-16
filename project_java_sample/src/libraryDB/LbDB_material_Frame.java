@@ -137,7 +137,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		cpane.add("Center", centerPanel);
 		pack();
 		
-		sql = "SELECT * " + "FROM library, book, material, kind" + 
+		sql = "SELECT * " + "FROM library, book, kind, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
 			  " WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no AND kind.kind_no = material.kind_no";
 		System.out.println(sql);
 		LoadList(sql);
