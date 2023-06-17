@@ -7,13 +7,14 @@ import java.sql.*;
 
 public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 	private JPanel northPanel, southPanel;
-	private JTextField tf_name, tf_Id, tf_zipcode, tf_address, tf_detail, tf_research;
+	private JTextField tf_name, tf_Id, tf_zipcode, tf_address, tf_detail, tf_research, tf_dialog;
 	private JRadioButton rb_active, rb_stop, rb_normal, rb_special;
 	private ButtonGroup gr_state, gr_lent;
 	private JPasswordField tf_Pw, tf_Pw2;
 	private JButton bt_complete;
 	private String sortsql = "";
 	private int mem_state, mem_lent;
+	private boolean state_bool = false;
 	
 	public LbDB_mem_info_Frame() {}
 	public LbDB_mem_info_Frame(LbDB_DAO db, String title) {
@@ -22,18 +23,21 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		fk = new foreignkey();
 		Initform();
 		baseform();
-		baseform_fianl();
+		baseform_final();
 		dialog("회원 가입");
 	}
-	public LbDB_mem_info_Frame(String title, JTextField tf, foreignkey fk) {
+	public LbDB_mem_info_Frame(String title, JTextField tf, foreignkey fk, boolean bool) {
 		db = new LbDB_DAO();
 		menu_title = title;
 		this.fk = fk;
-		tf_Id = tf;
+		tf_dialog = tf;
+		state_bool = bool;
+		sql = "SELECT * FROM `member`, `address` WHERE `member`.`add_no` = `address`.`add_no` AND NOT `mem_state` = 1";
+		sortsql = " ORDER BY `mem_name`";
 		Initform();
 		dialogform();
 		tableform();
-		dialogform_fianl();
+		dialogform_final();
 		dialog(title);
 	}
 	public LbDB_mem_info_Frame(LbDB_DAO db, Client cl,  String title) {
@@ -49,10 +53,10 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		if(state == 1) {
 			tableform();
 			tableform_final();
-			baseform_fianl();
+			baseform_final();
 		}
 		else {
-			baseform_fianl();
+			baseform_final();
 			textfield_setText();
 		}
 		setTitle(title);
@@ -221,7 +225,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc, 1, 1, 1, 1);
-		tf_Id = new JTextField(20);
+		tf_research = new JTextField(20);
 		gbl.setConstraints(tf_research, gbc);
 		leftPanel.add(tf_research);
 		setGrid(gbc, 2, 1, 1, 1);
@@ -231,7 +235,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		leftPanel.add(researchBt);
 	}
 	
-	private void baseform_fianl() {
+	private void baseform_final() {
 		cpane.add("North", northPanel);
 		cpane.add("West", leftPanel);
 		cpane.add("Center", centerPanel);
@@ -239,7 +243,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		pack();
 	}
 	
-	private void dialogform_fianl() {
+	private void dialogform_final() {
 		cpane.add("North", northPanel);
 		cpane.add("Center", leftPanel);
 		cpane.add("South", centerPanel);
@@ -355,7 +359,13 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 	
 	private void OutData() {
 		try {
-			tf_Id.setText(result.getString("member.mem_id"));
+			if(state_bool) {
+				if(result.getInt("member.mem_state") == 2) {
+					JOptionPane.showMessageDialog(null, "정지된 계정입니다.",  menu_title + " 오류", JOptionPane.PLAIN_MESSAGE);
+					return;
+				}
+			}
+			tf_dialog.setText(result.getString("member.mem_id"));
 			fk.insert_mem_no(result.getInt("member.mem_no"));
 			closeFrame();
 		} catch (SQLException e) {
@@ -609,11 +619,13 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
-			String mem_name = "%" + tf_research.getText() + "%";
-			String mem_id = "%" + tf_research.getText() + "%";
+			String mem_name, mem_id, now_sql, in_sql;
 			
-			sql = "SELECT * FROM `member` WHERE `mem_name` LIKE '" + mem_name + "' OR `mem_id` LIKE '" + mem_id + "'";
-			String now_sql = sql + sortsql;
+			mem_name = "%" + tf_research.getText() + "%";
+			mem_id = "%" + tf_research.getText() + "%";
+			
+			in_sql = "SELECT `mem_no` FROM `member` WHERE `mem_name` LIKE '" + mem_name + "' OR `mem_id` LIKE '" + mem_id + "'";
+			now_sql = sql + " AND member.mem_no IN (" + in_sql + ")" + sortsql;
 			System.out.println(now_sql);
 			LoadList(now_sql);
 			
@@ -674,31 +686,33 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 				if(selectedCol >= dataCount)
 					System.out.println("data is Empty");
 				else {
-					tf_name.setText(table.getValueAt(selectedCol, 0).toString());
-					tf_Id.setText(table.getValueAt(selectedCol, 1).toString());
-					tf_Pw.setText(table.getValueAt(selectedCol, 2).toString());
-					tf_Pw2.setText(table.getValueAt(selectedCol, 2).toString());
-					tf_zipcode.setText(table.getValueAt(selectedCol, 3).toString());
-					tf_address.setText(table.getValueAt(selectedCol, 4).toString());
-					tf_detail.setText(table.getValueAt(selectedCol, 5).toString());
-					
-					if(table.getValueAt(selectedCol, 6).toString().equals("일반")) {
-						rb_normal.setSelected(true);
-					}
-					else {
-						rb_special.setSelected(true);
-					}
-					
-					if(table.getValueAt(selectedCol, 7).toString().equals("활성화")) {
-						rb_active.setSelected(true);
-					}
-					else {
-						rb_stop.setSelected(true);
+					if(!menu_title.equals("회원찾기")) {
+						tf_name.setText(table.getValueAt(selectedCol, 0).toString());
+						tf_Id.setText(table.getValueAt(selectedCol, 1).toString());
+						tf_Pw.setText(table.getValueAt(selectedCol, 2).toString());
+						tf_Pw2.setText(table.getValueAt(selectedCol, 2).toString());
+						tf_zipcode.setText(table.getValueAt(selectedCol, 3).toString());
+						tf_address.setText(table.getValueAt(selectedCol, 4).toString());
+						tf_detail.setText(table.getValueAt(selectedCol, 5).toString());
+						
+						if(table.getValueAt(selectedCol, 6).toString().equals("일반")) {
+							rb_normal.setSelected(true);
+						}
+						else {
+							rb_special.setSelected(true);
+						}
+						
+						if(table.getValueAt(selectedCol, 7).toString().equals("활성화")) {
+							rb_active.setSelected(true);
+						}
+						else {
+							rb_stop.setSelected(true);
+						}
 					}
 					
 					try {
 						result.absolute(selectedCol + 1);
-						if(menu_title.equals("회원검색")) {
+						if(menu_title.equals("회원찾기")) {
 							OutData();
 						}
 						else {

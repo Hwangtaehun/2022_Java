@@ -157,6 +157,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		leftPanel.add(label);
 		setGrid(gbc,1,3,1,1);
 		tf_book_name = new JTextField(10);
+		tf_book_name.setEnabled(false);
 		gbl.setConstraints(tf_book_name, gbc);
 		leftPanel.add(tf_book_name);
 		setGrid(gbc,0,4,1,1);
@@ -165,6 +166,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		leftPanel.add(label);
 		setGrid(gbc,1,4,1,1);
 		tf_mem_id = new JTextField(10);
+		tf_mem_id.setEnabled(false);
 		gbl.setConstraints(tf_mem_id, gbc);
 		leftPanel.add(tf_mem_id);
 	}
@@ -721,7 +723,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			LbDB_mem_info_Frame men = new LbDB_mem_info_Frame("회원찾기", tf_mem_id, fk);
+			LbDB_mem_info_Frame men = new LbDB_mem_info_Frame("회원찾기", tf_mem_id, fk, true);
 			men.setVisible(true);
 		}
 	}

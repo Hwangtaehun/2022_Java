@@ -36,7 +36,7 @@ class SwingItem{
 }
 
 public class LbDB_material_Frame extends LbDB_main_Frame {
-	private JTextField tf_bookname, tf_author, tf_publish, tf_kind, tf_many;
+	private JTextField tf_bookname, tf_author, tf_publish, tf_kind, tf_many, tf_dialog;
 	private JButton bookBt, kindBt;
 	private JComboBox <String> lib_Box;
 	private SwingItem si;
@@ -56,7 +56,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 	public LbDB_material_Frame (String title, JTextField tf, foreignkey fk) {
 		db = new LbDB_DAO();
 		menu_title = title;
-		tf_bookname = tf;
+		tf_dialog = tf;
 		this.fk = fk;
 		Initform();
 		baseform();
@@ -125,7 +125,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(researchBt, gbc);
 		leftPanel.add(researchBt);
 		
-		String columnName[] = {"도서관", "책 이름", "저자", "출판사", "종류", "예약상태"};
+		String columnName[] = {"도서관", "종류번호", "책 이름", "저자", "출판사"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
 		table.setPreferredScrollableViewportSize(new Dimension(700, 14*16));
@@ -137,8 +137,9 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		cpane.add("Center", centerPanel);
 		pack();
 		
-		sql = "SELECT * " + "FROM library, book, kind, material LEFT JOIN reservation ON material.mat_no = reservation.mat_no " + 
-			  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no AND kind.kind_no = material.kind_no";
+		sql = "SELECT * " + "FROM library, book, kind, material " + 
+			  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no AND kind.kind_no = material.kind_no " +
+			  "AND material.mat_no NOT IN (SELECT mat_no FROM lent WHERE len_re_st = 0 UNION SELECT mat_no FROM reservation)";
 		System.out.println(sql);
 		LoadList(sql);
 		
@@ -455,10 +456,25 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 			try {
 				for(dataCount = 0; result.next(); dataCount++) {
 					table.setValueAt(result.getString("library.lib_name"), dataCount, 0);
-					table.setValueAt(result.getString("book.book_name"), dataCount, 1);
-					table.setValueAt(result.getString("book.book_author"), dataCount, 2);
-					table.setValueAt(result.getString("book.book_publish"), dataCount, 3);
-					table.setValueAt(result.getString("kind.kind_num"), dataCount, 4);
+					table.setValueAt(result.getString("kind.kind_num"), dataCount, 1);
+					table.setValueAt(result.getString("book.book_name"), dataCount, 2);
+					table.setValueAt(result.getString("book.book_author"), dataCount, 3);
+					table.setValueAt(result.getString("book.book_publish"), dataCount, 4);
+				}
+				repaint();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else if(menu_title.equals("자료찾기")) {
+			try {
+				for(dataCount = 0; result.next(); dataCount++) {
+					table.setValueAt(result.getString("library.lib_name"), dataCount, 0);
+					table.setValueAt(result.getString("kind.kind_num"), dataCount, 1);
+					table.setValueAt(result.getString("book.book_name"), dataCount, 2);
+					table.setValueAt(result.getString("book.book_author"), dataCount, 3);
+					table.setValueAt(result.getString("book.book_publish"), dataCount, 4);
 				}
 				repaint();
 			} catch (SQLException e) {
@@ -717,15 +733,6 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 				//사용자가 Yes 외 값 입력시
 				System.out.println("예약취소");
 			}
-			
-			/*
-			if(state == null || state.equals("1")) {
-				JOptionPane.showMessageDialog(null, "대출이 가능한 책입니다.", "예약불가", JOptionPane.PLAIN_MESSAGE);
-			}
-			else {
-				
-			}
-			*/
 		}
 	}
 	
@@ -771,6 +778,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			String state = "";
+			boolean res_exist = true; 
 			
 			if(e.getValueIsAdjusting())
 				return;
@@ -806,7 +814,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 						}	
 					}
 					else{
-						tf_bookname.setText(table.getValueAt(selectedCol, 1).toString());
+						tf_bookname.setText(table.getValueAt(selectedCol, 2).toString());
 					}
 					try {
 						result.absolute(selectedCol + 1);
@@ -817,10 +825,12 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 							si.set_many(result.getString("material.mat_many"));
 							closeFrame();
 						}
-						else if(menu_title.equals("자료검색")) {
-							tf_bookname.setText(result.getString("book.bookname"));
-							fk.insert_mat_no(result.getInt("material.mat_no"));
-							closeFrame();
+						else if(menu_title.equals("자료검색") || menu_title.equals("자료찾기")) {
+							if(res_exist) {
+								tf_dialog.setText(result.getString("book.book_name"));
+								fk.insert_mat_no(result.getInt("material.mat_no"));
+								closeFrame();
+							}
 						}
 						else {
 							MoveData();
