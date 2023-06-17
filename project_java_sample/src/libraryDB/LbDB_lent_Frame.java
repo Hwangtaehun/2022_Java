@@ -156,7 +156,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,3,1,1);
-		tf_book_name = new JTextField(10);
+		tf_book_name = new JTextField(20);
 		tf_book_name.setEnabled(false);
 		gbl.setConstraints(tf_book_name, gbc);
 		leftPanel.add(tf_book_name);
@@ -285,15 +285,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		lib_Box = lib_select.combox;
 		gbl.setConstraints(lib_Box, gbc);
 		leftPanel.add(lib_Box);
-		setGrid(gbc,0,6,1,1);
-		label = new JLabel("    반납상태        ");
-		gbl.setConstraints(label, gbc);
-		leftPanel.add(label);
-		setGrid(gbc,1,6,1,1);
-		extendPanel = extendpanelform(extendPanel);
-		gbl.setConstraints(extendPanel, gbc);
-		leftPanel.add(extendPanel);
-		setGrid(gbc,2,7,1,1);
+		setGrid(gbc,2,6,1,1);
 		bt = new JButton("추가");
 		bt.addActionListener(new addButtonListener());
 		gbl.setConstraints(bt, gbc);
@@ -595,6 +587,8 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 				if(menu_title.equals("대출추가")) {
 					now_sql = "INSERT INTO `lent` ( mat_no, mem_no, len_ex, len_date ) VALUES(" + fk.call_mat_no() + ", "
 							+ fk.call_mem_no() + ", " + ex + ", '" + len_date + "')";
+					System.out.println(now_sql);
+					db.Excute(now_sql);
 					next_sql = "SELECT `len_no` FROM `lent` WHERE `mat_no` = " + fk.call_mat_no() + " AND `mem_no` = "
 							 + fk.call_mem_no() + " AND `len_date` = '" + len_date + "'";
 					result = db.getResultSet(next_sql);
@@ -620,8 +614,9 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					now_sql = "UPDATE `lent` SET `len_re_date` = '" + len_date + "', `len_re_st` = " + st + ", len_memo = '"
-							+ tf_memo.getText() + "' WHERE len_no = " + code;
+					now_sql = "UPDATE `lent` SET `len_re_date` = '" + len_date + "', `len_re_st` = 1 WHERE len_no = " + code;
+					System.out.println(now_sql);
+					db.Excute(now_sql);
 					next_sql = "SELECT `pla_no` FROM `place` WHERE `len_no` = " + code;
 					result = db.getResultSet(next_sql);
 					try {
@@ -634,8 +629,6 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 					}
 					next_sql = "UPDATE `place` SET `lib_no_re` = " + lib_select.foreignkey() + " WHERE `pla_no` = " + code;
 				}
-				System.out.println(now_sql);
-				db.Excute(now_sql);
 				System.out.println(next_sql);
 				db.Excute(next_sql);
 				now_sql = sql + sortsql;
@@ -794,26 +787,29 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 						tf_mem_id.setText(table.getValueAt(selectedCol, 0).toString());
 						tf_book_name.setText(table.getValueAt(selectedCol, 1).toString());
 						
-						if(table.getValueAt(selectedCol, 4).toString().equals("0")) {
-							rb_normal.setSelected(true);
-						}
-						else {
-							rb_extend.setSelected(true);
+						if(!menu_title.equals("반납추가")) {
+							if(table.getValueAt(selectedCol, 4).toString().equals("0")) {
+								rb_normal.setSelected(true);
+							}
+							else {
+								rb_extend.setSelected(true);
+							}
+							
+							tf_lent_re_date.setText(table.getValueAt(selectedCol, 5).toString());
+							
+							if(table.getValueAt(selectedCol, 6).toString().equals("대출중")) {
+								rb_normal.setSelected(true);
+							}
+							else if(table.getValueAt(selectedCol, 6).toString().equals("반납")) {
+								rb_return.setSelected(true);
+							}
+							else {
+								rb_etc.setSelected(true);
+							}
+							
+							tf_memo.setText(table.getValueAt(selectedCol, 7).toString());
 						}
 						
-						tf_lent_re_date.setText(table.getValueAt(selectedCol, 5).toString());
-						
-						if(table.getValueAt(selectedCol, 6).toString().equals("대출중")) {
-							rb_normal.setSelected(true);
-						}
-						else if(table.getValueAt(selectedCol, 6).toString().equals("반납")) {
-							rb_return.setSelected(true);
-						}
-						else {
-							rb_etc.setSelected(true);
-						}
-						
-						tf_memo.setText(table.getValueAt(selectedCol, 7).toString());
 						try {
 							result.absolute(selectedCol + 1);
 							MoveData();
