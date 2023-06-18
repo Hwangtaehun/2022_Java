@@ -139,7 +139,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		
 		sql = "SELECT * " + "FROM library, book, kind, material " + 
 			  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no AND kind.kind_no = material.kind_no " +
-			  "AND material.mat_no NOT IN (SELECT mat_no FROM lent WHERE len_re_st = 0 UNION SELECT mat_no FROM reservation)";
+			  "AND material.mat_no NOT IN (SELECT mat_no FROM lent WHERE len_re_st = 0 OR len_re_st = 2 UNION SELECT mat_no FROM reservation)";
 		System.out.println(sql);
 		LoadList(sql);
 		

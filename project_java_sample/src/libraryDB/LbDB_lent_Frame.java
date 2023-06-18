@@ -281,7 +281,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,5,1,1);
-		lib_select = new Combobox_Manager(lib_Box, "library", "lib_no", false);
+		lib_select = new Combobox_Manager(lib_Box, "library", "lib_no");
 		lib_Box = lib_select.combox;
 		gbl.setConstraints(lib_Box, gbc);
 		leftPanel.add(lib_Box);
@@ -627,6 +627,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
+					System.out.println("lib_no_re = " + lib_select.foreignkey());
 					next_sql = "UPDATE `place` SET `lib_no_re` = " + lib_select.foreignkey() + " WHERE `pla_no` = " + code;
 				}
 				System.out.println(next_sql);
@@ -652,13 +653,26 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			
 			try {
 				code = result.getInt("lent.len_no");
+				fk.insert_mem_no(result.getInt("lent.mem_no"));
+				fk.insert_mat_no(result.getInt("lent.mat_no"));
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			
-			now_sql = "UPDATE `lent` SET mem_no = " + fk.call_mem_no() + ", mat_no = " + fk.call_mat_no() + ", len_ex = " + ex + ", len_re_date = '"
-					+ tf_lent_re_date.getText() + "', len_re_st = " + st + ", len_memo = '" + tf_memo.getText() + "' WHERE len_no = " + code;
+			System.out.println("tf_memo의 내용: " + tf_memo.getText() + ", bool의 값" + tf_memo.getText().equals(""));
+			
+			if(tf_memo.getText().equals("")) {
+				now_sql = "UPDATE `lent` SET mem_no = " + fk.call_mem_no() + ", mat_no = " + fk.call_mat_no() + ", len_ex = " 
+						+ ex + ", len_re_date = null, len_re_st = " + st + ", len_memo = '" + tf_memo.getText() 
+						+ "' WHERE len_no = " + code;
+			}
+			else {
+				now_sql = "UPDATE `lent` SET mem_no = " + fk.call_mem_no() + ", mat_no = " + fk.call_mat_no() + ", len_ex = " 
+						+ ex + ", len_re_date = '" + tf_memo.getText() + "', len_re_st = " + st + ", len_memo = '" 
+						+ tf_memo.getText() + "' WHERE len_no = " + code;
+			}
+			
 			System.out.println(now_sql);
 			db.Excute(now_sql);
 			LoadList(sql + sortsql);
@@ -740,11 +754,9 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 	}
 	
 	public class radiobuttonListener implements ItemListener, ActionListener{
-
 		@Override
 		public void itemStateChanged(ItemEvent arg0) {
 			// TODO Auto-generated method stub
-			
 		}
 
 		@Override
@@ -766,8 +778,15 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			else {
 				st = Integer.parseInt(str_array[1]);
 			}
+			
+			if(cmd.equals("st-0")) {
+				tf_lent_re_date.setText("");
+				tf_memo.setText("");
+			}
+			else if(cmd.equals("st-1")) {
+				tf_memo.setText("");
+			}
 		}
-		
 	}
 	
 	public class tableListener implements ListSelectionListener{
