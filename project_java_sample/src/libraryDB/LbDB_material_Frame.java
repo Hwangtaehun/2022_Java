@@ -6,35 +6,6 @@ import javax.swing.event.*;
 import java.sql.*;
 import java.time.*;
 
-class SwingItem{
-	private JTextField tf_bookname, tf_kind, tf_many;
-	private JComboBox <String> lib_Box;
-	
-	public SwingItem() {}
-	public SwingItem(JComboBox <String> lb, JTextField bn, JTextField ki, JTextField ma) {
-		lib_Box = lb;
-		tf_bookname = bn;
-		tf_kind = ki;
-		tf_many = ma;
-	}
-	
-	public void set_lib_Box(String str) {
-		lib_Box.setSelectedItem(str);
-	}
-	
-	public void set_bookname(String str) {
-		tf_bookname.setText(str);
-	}
-	
-	public void set_kind(String str) {
-		tf_kind.setText(str);
-	}
-	
-	public void set_many(String str) {
-		tf_many.setText(str);
-	}
-}
-
 public class LbDB_material_Frame extends LbDB_main_Frame {
 	private JTextField tf_bookname, tf_author, tf_publish, tf_kind, tf_many, tf_dialog;
 	private JButton bookBt, kindBt;
@@ -825,7 +796,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 							si.set_many(result.getString("material.mat_many"));
 							closeFrame();
 						}
-						else if(menu_title.equals("자료검색") || menu_title.equals("자료찾기")) {
+						else if(menu_title.equals("자료찾기")) {
 							if(res_exist) {
 								tf_dialog.setText(result.getString("book.book_name"));
 								fk.insert_mat_no(result.getInt("material.mat_no"));

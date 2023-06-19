@@ -1,9 +1,10 @@
 package libraryDB;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.*;
 import javax.swing.*;
 import javax.swing.event.*;
+import java.sql.*;
+import java.time.LocalDate;
 
 class Combobox_Inheritance{
 	private String parent_name;
@@ -251,6 +252,45 @@ class Combobox_Manager {
 	}
 }
 
+class SwingItem{
+	private JTextField tf_bookname, tf_kind, tf_many, tf_mem_id;
+	private JComboBox <String> lib_Box;
+	
+	public SwingItem() {}
+	public SwingItem(JComboBox <String> lb, JTextField bn, JTextField ki, JTextField ma) {
+		lib_Box = lb;
+		tf_bookname = bn;
+		tf_kind = ki;
+		tf_many = ma;
+	}
+	
+	public SwingItem(JComboBox <String> lb, JTextField bn, JTextField id) {
+		lib_Box = lb;
+		tf_bookname = bn;
+		tf_mem_id = id;
+	}
+	
+	public void set_lib_Box(String str) {
+		lib_Box.setSelectedItem(str);
+	}
+	
+	public void set_bookname(String str) {
+		tf_bookname.setText(str);
+	}
+	
+	public void set_kind(String str) {
+		tf_kind.setText(str);
+	}
+	
+	public void set_many(String str) {
+		tf_many.setText(str);
+	}
+	
+	public void set_memid(String str) {
+		tf_mem_id.setText(str);
+	}
+}
+
 public class LbDB_main_Frame extends LbDB_Frame {
 	protected Client cl;
 	protected LbDB_DAO db;
@@ -264,10 +304,10 @@ public class LbDB_main_Frame extends LbDB_Frame {
 	protected LbDB_TableMode tablemodel;
 	protected ResultSet result;
 	protected JTable table;
-	protected int dataCount, selectedCol;
-	protected String sql, menu_title;
+	protected int dataCount, selectedCol, ex, st;
+	protected String menu_title, sql, sortsql = "";
 	protected JButton addBt, updateBt, deleteBt, researchBt, clearBt;
-	protected JTextField tf_research;
+	protected JTextField tf_research, tf_date, tf_memo;
 	
 	public LbDB_main_Frame() {}
 	public LbDB_main_Frame(LbDB_DAO db, Client cl) {
@@ -560,6 +600,56 @@ public class LbDB_main_Frame extends LbDB_Frame {
 			
 			if(!command.equals("회원탈퇴"))
 			closeFrame();
+		}
+	}
+	
+	public class todayButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			LocalDate len_date;
+			len_date = LocalDate.now(); 
+			tf_date.setText(len_date.toString());
+		}
+	}
+	
+	public class radiobuttonListener implements ItemListener, ActionListener{
+		@Override
+		public void itemStateChanged(ItemEvent arg0) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			String cmd, str_array[];
+			
+			cmd = e.getActionCommand();
+			str_array = cmd.split("-");
+			
+			for(int i = 0; i < str_array.length; i++) {
+				System.out.print(str_array[i]);
+			}
+			System.out.println();
+			
+			if(str_array[0].equals("ex")) {
+				ex = Integer.parseInt(str_array[1]);
+			}
+			else {
+				st = Integer.parseInt(str_array[1]);
+			}
+			
+			if(cmd.equals("st-0")) {
+				tf_date.setText("");
+				if(menu_title.equals("대출관리") || menu_title.equals("반납추가")) {
+					tf_memo.setText("");
+				}
+			}
+			else if(cmd.equals("st-1")) {
+				if(menu_title.equals("대출관리") || menu_title.equals("반납추가")) {
+					tf_memo.setText("");
+				}
+			}
 		}
 	}
 }

@@ -10,11 +10,10 @@ import java.time.format.*;
 public class LbDB_lent_Frame extends LbDB_main_Frame {
 	private JPanel northPanel;
 	private Combobox_Manager lib_research, lib_select;
-	private JTextField tf_research, tf_book_name, tf_mem_id, tf_lent_re_date, tf_memo;
+	private JTextField tf_research, tf_book_name, tf_mem_id;
 	private JRadioButton rb_lent, rb_return, rb_etc, rb_normal, rb_extend;
 	private ButtonGroup gr_return, gr_extend;
-	private int ex, st;
-	private String sortsql, columnName[];
+	private String columnName[];
 	
 	public LbDB_lent_Frame() {}
 	public LbDB_lent_Frame(LbDB_DAO db, Client cl, String title) {
@@ -219,9 +218,9 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,1,6,1,1);
-		tf_lent_re_date = new JTextField(10);
-		gbl.setConstraints(tf_lent_re_date, gbc);
-		leftPanel.add(tf_lent_re_date);
+		tf_date = new JTextField(10);
+		gbl.setConstraints(tf_date, gbc);
+		leftPanel.add(tf_date);
 		setGrid(gbc,2,6,1,1);
 		bt = new JButton("오늘");
 		bt.addActionListener(new todayButtonListener());
@@ -384,7 +383,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 				int len_ex = result.getInt("lent.len_ex");
 				int len_re_st = result.getInt("lent.len_re_st");
 				
-				tf_lent_re_date.setText(returndate);
+				tf_date.setText(returndate);
 				tf_memo.setText(memo);
 				
 				if(len_ex == 0) {
@@ -712,7 +711,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			// TODO Auto-generated method stub
 			tf_book_name.setText("");
 			tf_mem_id.setText("");
-			tf_lent_re_date.setText("");
+			tf_date.setText("");
 			tf_memo.setText("");
 		}
 	}
@@ -743,52 +742,6 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		}		
 	}
 	
-	public class todayButtonListener implements ActionListener{
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			LocalDate len_date;
-			len_date = LocalDate.now(); 
-			tf_lent_re_date.setText(len_date.toString());
-		}
-	}
-	
-	public class radiobuttonListener implements ItemListener, ActionListener{
-		@Override
-		public void itemStateChanged(ItemEvent arg0) {
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			String cmd, str_array[];
-			
-			cmd = e.getActionCommand();
-			str_array = cmd.split("-");
-			
-			for(int i = 0; i < str_array.length; i++) {
-				System.out.print(str_array[i]);
-			}
-			System.out.println();
-			
-			if(str_array[0].equals("ex")) {
-				ex = Integer.parseInt(str_array[1]);
-			}
-			else {
-				st = Integer.parseInt(str_array[1]);
-			}
-			
-			if(cmd.equals("st-0")) {
-				tf_lent_re_date.setText("");
-				tf_memo.setText("");
-			}
-			else if(cmd.equals("st-1")) {
-				tf_memo.setText("");
-			}
-		}
-	}
-	
 	public class tableListener implements ListSelectionListener{
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
@@ -814,7 +767,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 								rb_extend.setSelected(true);
 							}
 							
-							tf_lent_re_date.setText(table.getValueAt(selectedCol, 5).toString());
+							tf_date.setText(table.getValueAt(selectedCol, 5).toString());
 							
 							if(table.getValueAt(selectedCol, 6).toString().equals("대출중")) {
 								rb_normal.setSelected(true);

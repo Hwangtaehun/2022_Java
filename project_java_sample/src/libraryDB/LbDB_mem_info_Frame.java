@@ -12,7 +12,6 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 	private ButtonGroup gr_state, gr_lent;
 	private JPasswordField tf_Pw, tf_Pw2;
 	private JButton bt_complete;
-	private String sortsql = "";
 	private int mem_state, mem_lent;
 	private boolean state_bool = false;
 	
