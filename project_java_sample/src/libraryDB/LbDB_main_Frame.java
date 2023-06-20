@@ -482,6 +482,23 @@ public class LbDB_main_Frame extends LbDB_Frame {
 	    }
 	}
 	
+	protected boolean dateformat_check(String date_string) {
+		boolean bool = false;
+		String date_array[];
+		
+		date_array = date_string.split("-");
+		
+		if(isInteger(date_array[0])) {
+			if(isInteger(date_array[1])) {
+				if(isInteger(date_array[2])) {
+					bool = true;
+				}
+			}
+		}
+		
+		return bool;
+	}
+	
 	public class MenuAction implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {

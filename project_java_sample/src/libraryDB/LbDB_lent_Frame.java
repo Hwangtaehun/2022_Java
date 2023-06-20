@@ -633,7 +633,6 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 				db.Excute(next_sql);
 				now_sql = sql + sortsql;
 				LoadList(now_sql);
-				tablefocus();
 			}
 		}
 	}
@@ -675,7 +674,6 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			System.out.println(now_sql);
 			db.Excute(now_sql);
 			LoadList(sql + sortsql);
-			tablefocus();
 		}
 	}
 	
@@ -701,7 +699,6 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			now_sql = "DELETE FROM `lent` WHERE len_no = " + code;
 			db.Excute(now_sql);
 			LoadList(sql + sortsql);
-			tablefocus();
 		}
 	}
 	
