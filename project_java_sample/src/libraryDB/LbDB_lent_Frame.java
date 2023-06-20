@@ -649,6 +649,11 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 				return;
 			}
 			
+			if(dateformat_check(tf_date.getText())) {
+				JOptionPane.showMessageDialog(null, "날짜형식이 잘못되었습니다.", "수정 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			
 			try {
 				code = result.getInt("lent.len_no");
 				fk.insert_mem_no(result.getInt("lent.mem_no"));
@@ -667,7 +672,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			}
 			else {
 				now_sql = "UPDATE `lent` SET mem_no = " + fk.call_mem_no() + ", mat_no = " + fk.call_mat_no() + ", len_ex = " 
-						+ ex + ", len_re_date = '" + tf_memo.getText() + "', len_re_st = " + st + ", len_memo = '" 
+						+ ex + ", len_re_date = '" + tf_date.getText() + "', len_re_st = " + st + ", len_memo = '" 
 						+ tf_memo.getText() + "' WHERE len_no = " + code;
 			}
 			

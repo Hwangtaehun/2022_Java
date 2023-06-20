@@ -362,30 +362,32 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 			removeTableRow(i);
 		}
 		try {
-			for(dataCount = 0; result.next(); dataCount++) {
-				lib_no = result.getInt("material.lib_no");
-				lib_no_arr = result.getInt("delivery.lib_no_arr");
-				table.setValueAt(result.getString("book.book_name"), dataCount, 0);
-				table.setValueAt(lib_name_array[lib_no + 1], dataCount, 1);
-				table.setValueAt(lib_name_array[lib_no_arr + 1], dataCount, 2);
-				if(menu_title.equals("상호대차관리")) {
-					int app;
-					String app_str;
-					
-					table.setValueAt(result.getString("delivery.del_arr_date"), dataCount, 3);
-					app = result.getInt("delivery.del_app");
-					
-					if(app == 0) {
-						app_str = "거절";
+			if(now_sql.equals("")) {
+				for(dataCount = 0; result.next(); dataCount++) {
+					lib_no = result.getInt("material.lib_no");
+					lib_no_arr = result.getInt("delivery.lib_no_arr");
+					table.setValueAt(result.getString("book.book_name"), dataCount, 0);
+					table.setValueAt(lib_name_array[lib_no + 1], dataCount, 1);
+					table.setValueAt(lib_name_array[lib_no_arr + 1], dataCount, 2);
+					if(menu_title.equals("상호대차관리")) {
+						int app;
+						String app_str;
+						
+						table.setValueAt(result.getString("delivery.del_arr_date"), dataCount, 3);
+						app = result.getInt("delivery.del_app");
+						
+						if(app == 0) {
+							app_str = "거절";
+						}
+						else if(app == 1) {
+							app_str = "승인";
+						}
+						else {
+							app_str = "반송";
+						}
+						
+						table.setValueAt(app_str, dataCount, 4);
 					}
-					else if(app == 1) {
-						app_str = "승인";
-					}
-					else {
-						app_str = "반송";
-					}
-					
-					table.setValueAt(app_str, dataCount, 4);
 				}
 			}
 			repaint();
@@ -437,13 +439,19 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			String now_sql;
 			int code = 0;
+			String now_sql;
 			
 			if(selectedCol == -1) {
 				System.out.println("변경할 셀이 선택되지 않았습니다.");
 				return;
 			}
+			
+			if(dateformat_check(tf_date.getText())) {
+				JOptionPane.showMessageDialog(null, "날짜형식이 잘못되었습니다.", "수정 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			
 			try {
 				code = result.getInt("delivery.del_no");
 			} catch (SQLException e1) {
@@ -451,7 +459,12 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 				e1.printStackTrace();
 			}
 			
-			now_sql = "UPDATE delivery SET mat_no = " + fk.call_mat_no() + ", lib_no_arr = '" + tf_date.getText() + "', del_app = " + st + " WHERE del_no = " + code;
+			now_sql = "UPDATE delivery SET mat_no = " + fk.call_mat_no() + ", lib_no_arr = '" + tf_date.getText() 
+					+ "', del_app = " + st + " WHERE del_no = " + code;
+			System.out.println(now_sql);
+			db.Excute(now_sql);
+			now_sql = "";
+			LoadList(now_sql);
 		}
 	}
 	
@@ -459,7 +472,26 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
+			int code = 0;
+			String now_sql;
 			
+			if(selectedCol == -1) {
+				System.out.println("변경할 셀이 선택되지 않았습니다.");
+				return;
+			}
+			
+			try {
+				code = result.getInt("delivery.del_no");
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			now_sql = "DELECT FROM delivery WHERE del_no = " + code;
+			System.out.println(now_sql);
+			db.Excute(now_sql);
+			now_sql = "";
+			LoadList(now_sql);
 		}
 	}
 	

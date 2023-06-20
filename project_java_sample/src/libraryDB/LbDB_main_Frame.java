@@ -483,7 +483,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
 	}
 	
 	protected boolean dateformat_check(String date_string) {
-		boolean bool = false;
+		boolean bool = true;
 		String date_array[];
 		
 		date_array = date_string.split("-");
@@ -491,7 +491,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		if(isInteger(date_array[0])) {
 			if(isInteger(date_array[1])) {
 				if(isInteger(date_array[2])) {
-					bool = true;
+					bool = false;
 				}
 			}
 		}
