@@ -426,7 +426,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
         
         JMenu libraryMenu = new JMenu("내서재");
         JMenuItem[] menuItems = new JMenuItem[4];
-        String[] items = {"대출중도서", "모든대출내역", "예약내역", "상호대차"};
+        String[] items = {"대출중도서", "모든대출내역", "예약내역", "상호대차내역"};
         
         for(int i=0; i<menuItems.length; i++) {
         	 menuItems[i] = new JMenuItem(items[i]); // 메뉴 아이템 컴포넌트 생성
@@ -582,11 +582,15 @@ public class LbDB_main_Frame extends LbDB_Frame {
 			case "예약내역":
 				System.out.println("예약내역");
 				break;
-			case "상호대차":
-				System.out.println("상호대차");
+			case "상호대차내역":
+				System.out.println("상호대차내역");
+				LbDB_delivery_Frame frame17 = new LbDB_delivery_Frame(db, cl, command);
+				frame17.setVisible(true);
 				break;
 			case "상호대차관리":
-				System.out.println("상호대차");
+				System.out.println("상호대차관리");
+				LbDB_delivery_Frame frame18 = new LbDB_delivery_Frame(db, cl, command);
+				frame18.setVisible(true);
 				break;
 			case "종류관리":
 				System.out.println("종류관리");

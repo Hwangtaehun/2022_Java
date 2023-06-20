@@ -14,6 +14,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 	private JRadioButton rb_lent, rb_return, rb_etc, rb_normal, rb_extend;
 	private ButtonGroup gr_return, gr_extend;
 	private String columnName[];
+	private boolean booksea_use = false;
 	
 	public LbDB_lent_Frame() {}
 	public LbDB_lent_Frame(LbDB_DAO db, Client cl, String title) {
@@ -600,7 +601,15 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
+					if(booksea_use) {
+						String booksea_sql;
+						booksea_sql = "UPDATE delivery SET len_no = " + code + "WHERE del_no = " + fk.call_del_no();
+						System.out.println(booksea_sql);
+						db.Excute(booksea_sql);
+					}
 					next_sql = "INSERT INTO `place` (`len_no`, `lib_no_len`) VALUES(" + code +", " + lib_select.foreignkey() + ")";
+					System.out.println(next_sql);
+					db.Excute(next_sql);
 				}
 				else {
 					if(selectedCol == -1) {
@@ -656,8 +665,12 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			
 			try {
 				code = result.getInt("lent.len_no");
-				fk.insert_mem_no(result.getInt("lent.mem_no"));
-				fk.insert_mat_no(result.getInt("lent.mat_no"));
+				if(fk.call_mem_no() == 0) {
+					fk.insert_mem_no(result.getInt("lent.mem_no"));
+				}
+				if(fk.call_mat_no() == 0) {
+					fk.insert_mat_no(result.getInt("lent.mat_no"));
+				}
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -740,7 +753,10 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
-			
+			SwingItem si = new SwingItem(lib_select.combox, tf_book_name, tf_mem_id);
+			LbDB_delivery_Frame booksea = new LbDB_delivery_Frame(cl, "상호대차", si);
+			booksea_use = true;
+			booksea.setVisible(true);
 		}		
 	}
 	

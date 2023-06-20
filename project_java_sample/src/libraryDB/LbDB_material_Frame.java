@@ -6,7 +6,7 @@ import javax.swing.event.*;
 import java.sql.*;
 import java.time.*;
 
-public class LbDB_material_Frame extends LbDB_main_Frame {
+public class LbDB_material_Frame extends LbDB_main_Frame { //상호대차 검색부분 수정
 	private JTextField tf_bookname, tf_author, tf_publish, tf_kind, tf_many, tf_dialog;
 	private JButton bookBt, kindBt;
 	private JComboBox <String> lib_Box;
@@ -108,9 +108,16 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		cpane.add("Center", centerPanel);
 		pack();
 		
-		sql = "SELECT * " + "FROM library, book, kind, material " + 
-			  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no AND kind.kind_no = material.kind_no " +
-			  "AND material.mat_no NOT IN (SELECT mat_no FROM lent WHERE len_re_st = 0 OR len_re_st = 2 UNION SELECT mat_no FROM reservation)";
+		if(menu_title.equals("자료찾기")) {
+			sql = "SELECT * " + "FROM library, book, kind, material " + 
+				  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no AND kind.kind_no = material.kind_no " +
+				  "AND material.mat_no NOT IN (SELECT mat_no FROM lent WHERE len_re_st = 0 OR len_re_st = 2 UNION SELECT mat_no FROM reservation)";
+		}
+		else {
+			sql = "SELECT * " + "FROM library, book, kind, material " + 
+				  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no AND kind.kind_no = material.kind_no";
+		}
+		
 		System.out.println(sql);
 		LoadList(sql);
 		
@@ -800,6 +807,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 							if(res_exist) {
 								tf_dialog.setText(result.getString("book.book_name"));
 								fk.insert_mat_no(result.getInt("material.mat_no"));
+								fk.insert_lib_no(result.getInt("material.lib_no")); //lib_no는 상호대차부분 자료검색에 사용
 								closeFrame();
 							}
 						}
