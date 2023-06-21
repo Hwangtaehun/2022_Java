@@ -30,7 +30,7 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 		menuform();
 		Initform();
 		if(menu_title.equals("상호대차완료내역")) {
-			
+			completeform();
 		}
 		else {
 			makesql();
@@ -139,8 +139,6 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 	
 	private void completeform() {
 		JPanel titlePanel, researchPanel, northPanel;
-		int lib_no, lib_no_arr;
-		String now_sql;
 		JLabel label;
 		JButton bt;
 		
@@ -690,6 +688,16 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 						result.absolute(selectedCol + 1);
 						if(menu_title.equals("상호대차")) {
 							OutData();
+						}
+						else if(menu_title.equals("상호대차완료내역")) {
+							if(result.getString("delivery.len_no") == null) {
+								System.out.println("대출내역이 없습니다.");
+							}
+							else {
+								LbDB_lent_Frame len = new LbDB_lent_Frame(db, cl, result.getInt("delivery.len_no"));
+								len.setVisible(true);
+								closeFrame();
+							}
 						}
 						else {
 							MoveData();

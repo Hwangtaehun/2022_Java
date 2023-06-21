@@ -29,7 +29,6 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		baseform();
 		
 		if(menu_title.equals("대출중도서")) {
-			baseform();
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
 				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no " + 
 				  "AND lent.mem_no = " + pk + " AND lent.len_re_st = 0";
@@ -38,7 +37,6 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			tableform(columnName);
 		}
 		else if(menu_title.equals("모든대출내역")) {
-			baseform();
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
 				  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no " + 
 				  "AND lent.mem_no = " + pk;
@@ -47,7 +45,6 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			tableform(columnName);
 		}
 		else if(menu_title.equals("대출관리")) {
-			baseform();
 			managerform();
 			lentform();
 			editform();
@@ -64,7 +61,6 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			lentaddform();
 		}
 		else {
-			baseform();
 			managerform();
 			returnaddform();
 			sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " 
@@ -86,6 +82,34 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			}
 		}
 		
+		setTitle(menu_title);
+		addWindowListener(this);
+	}
+	
+	public LbDB_lent_Frame(LbDB_DAO db, Client cl, int len_no) {
+		this.db = db;
+		this.cl = cl;
+		menu_title = "대출관리";
+		pk = cl.primarykey();
+		state = cl.state();
+		fk = new foreignkey();
+		menuform();
+		Initform();
+		baseform();
+		managerform();
+		lentform();
+		editform();
+		sql = "SELECT * FROM `library`, `book`, `material`, `member`, `lent` WHERE material.lib_no = library.lib_no " +
+			  "AND material.book_no = book.book_no AND lent.mat_no = material.mat_no AND lent.mem_no = member.mem_no ";
+		String str = "회원아이디,책 이름,소장도서관,대출일,연장여부,반납일,반납상태,메모";
+		columnName = str.split(",");
+		tableform(columnName);
+		baseform_fianl();
+		
+		sortsql = " ORDER BY `mem_name`";
+		String now_sql = sql + "AND lent.len_no = " + len_no + sortsql;
+		LoadList(now_sql);
+		tablefocus();
 		setTitle(menu_title);
 		addWindowListener(this);
 	}
@@ -520,6 +544,14 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			String  now_sql, sub_sql;
 			int mat_no, mem_no;
 			
+			if(tf_research.getText().isEmpty()) {
+				now_sql = sql + sortsql;
+				System.out.println(now_sql);
+				LoadList(now_sql);
+				tablefocus();
+				return;
+			}
+			
 			if(state == 1) {
 				mat_no = 0;
 				mem_no = 0;
@@ -654,9 +686,11 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 				return;
 			}
 			
-			if(dateformat_check(tf_date.getText())) {
-				JOptionPane.showMessageDialog(null, "날짜형식이 잘못되었습니다.", "수정 오류", JOptionPane.WARNING_MESSAGE);
-				return;
+			if(st == 1) {
+				if(dateformat_check(tf_date.getText())) {
+					JOptionPane.showMessageDialog(null, "날짜형식이 잘못되었습니다.", "수정 오류", JOptionPane.WARNING_MESSAGE);
+					return;
+				}
 			}
 			
 			try {

@@ -378,7 +378,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
         JMenu lentMenu = new JMenu("대출 및 반납");
         JMenu deliveryMenu = new JMenu("예약 및 배송");
         
-        JMenuItem[] menuItems = new JMenuItem[15];
+        JMenuItem[] menuItems = new JMenuItem[16];
         String[] items = {"책관리", "책추가", "종류관리", "종류추가", "도서관관리", "도서관추가", "회원관리", "자료관리", "자료추가", "대출관리", "대출추가", 
         				  "반납추가", "예약관리", "상호대차관리", "상호대차완료내역", "대출장소관리"};
         
@@ -596,6 +596,8 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				break;
 			case "상호대차완료내역":
 				System.out.println("상호대차완료내역");
+				LbDB_delivery_Frame frame19 = new LbDB_delivery_Frame(db, cl, command);
+				frame19.setVisible(true);
 				break;
 			case "종류관리":
 				System.out.println("종류관리");
