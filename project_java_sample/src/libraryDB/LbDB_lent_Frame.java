@@ -72,14 +72,19 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		}
 		baseform_fianl();
 		
-		sortsql = " ORDER BY `mem_name`";
-		String now_sql = sql + sortsql;
-		LoadList(now_sql);
-		
+		String now_sql;
 		if(state == 1) {
 			if(menu_title.equals("대출관리") || menu_title.equals("반납추가")) {
+				sortsql = " ORDER BY `mem_name`";
+				now_sql = sql + sortsql;
+				LoadList(now_sql);
 				tablefocus();
 			}
+		}
+		else {
+			sortsql = " ORDER BY `mem_name`";
+			now_sql = sql + sortsql;
+			LoadList(now_sql);
 		}
 		
 		setTitle(menu_title);
@@ -151,7 +156,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		JComboBox <String> lib_Box = null;
 		
 		setGrid(gbc,1,1,1,1);
-		label = new JLabel("    "+ menu_title + "   ");
+		label = new JLabel("                      "+ menu_title + "   ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		if(menu_title.equals("대출추가")) {
@@ -164,7 +169,12 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			lib_Box = lib_select.combox;
 			gbl.setConstraints(lib_Box, gbc);
 			leftPanel.add(lib_Box);
-			setGrid(gbc,3,2,1,1);
+			setGrid(gbc,2,1,1,1);
+			bt = new JButton("예약");
+			//bt.addActionListener(new bookseaButtonListener());
+			gbl.setConstraints(bt, gbc);
+			leftPanel.add(bt);
+			setGrid(gbc,3,1,1,1);
 			bt = new JButton("상호대차");
 			bt.addActionListener(new bookseaButtonListener());
 			gbl.setConstraints(bt, gbc);
