@@ -76,19 +76,14 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		}
 		baseform_fianl();
 		
-		String now_sql;
+		sortsql = " ORDER BY `mem_name`";
+		String now_sql = sql + sortsql;
+		LoadList(now_sql);
+		
 		if(state == 1) {
 			if(menu_title.equals("대출관리") || menu_title.equals("반납추가")) {
-				sortsql = " ORDER BY `mem_name`";
-				now_sql = sql + sortsql;
-				LoadList(now_sql);
 				tablefocus();
 			}
-		}
-		else {
-			sortsql = " ORDER BY `mem_name`";
-			now_sql = sql + sortsql;
-			LoadList(now_sql);
 		}
 		
 		setTitle(menu_title);
@@ -193,13 +188,13 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		setGrid(gbc,1,5,1,1);
 		extendPanel = new JPanel();
 		gr_extend = new ButtonGroup();
-		rb_normal = new JRadioButton("예", true);
+		rb_normal = new JRadioButton("예", false);
 		rb_normal.addActionListener(new radiobuttonListener());
 		rb_normal.addItemListener(new radiobuttonListener());
 		rb_normal.setActionCommand("ex-7");
 		gr_extend.add(rb_normal);
 		extendPanel.add(rb_normal);
-		rb_extend = new JRadioButton("아니오", false);
+		rb_extend = new JRadioButton("아니오", true);
 		rb_extend.addActionListener(new radiobuttonListener());
 		rb_extend.addItemListener(new radiobuttonListener());
 		rb_extend.setActionCommand("ex-0");
@@ -603,13 +598,11 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 					}
 					if(booksea_use) {
 						String booksea_sql;
-						booksea_sql = "UPDATE delivery SET len_no = " + code + "WHERE del_no = " + fk.call_del_no();
+						booksea_sql = "UPDATE delivery SET len_no = " + code + " WHERE del_no = " + fk.call_del_no();
 						System.out.println(booksea_sql);
 						db.Excute(booksea_sql);
 					}
 					next_sql = "INSERT INTO `place` (`len_no`, `lib_no_len`) VALUES(" + code +", " + lib_select.foreignkey() + ")";
-					System.out.println(next_sql);
-					db.Excute(next_sql);
 				}
 				else {
 					if(selectedCol == -1) {
@@ -640,8 +633,10 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 				}
 				System.out.println(next_sql);
 				db.Excute(next_sql);
-				now_sql = sql + sortsql;
-				LoadList(now_sql);
+				if(menu_title.equals("대출관리")) {
+					now_sql = sql + sortsql;
+					LoadList(now_sql);
+				}
 			}
 		}
 	}
@@ -651,6 +646,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			int code = 0;
+			int len_re_st = 0;
 			String now_sql;
 			
 			if(selectedCol == -1) {
@@ -665,6 +661,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			
 			try {
 				code = result.getInt("lent.len_no");
+				len_re_st = result.getInt("lent.len_re_st");
 				if(fk.call_mem_no() == 0) {
 					fk.insert_mem_no(result.getInt("lent.mem_no"));
 				}
@@ -688,9 +685,17 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 						+ ex + ", len_re_date = '" + tf_date.getText() + "', len_re_st = " + st + ", len_memo = '" 
 						+ tf_memo.getText() + "' WHERE len_no = " + code;
 			}
-			
 			System.out.println(now_sql);
 			db.Excute(now_sql);
+			
+			if(len_re_st == 1) {
+				if(st != 1) {
+					now_sql = "UPDATE `place` SET `lib_no_re` = NULL WHERE `len_no` = " + code;
+					System.out.println(now_sql);
+					db.Excute(now_sql);
+				}
+			}
+			
 			LoadList(sql + sortsql);
 		}
 	}
@@ -714,6 +719,8 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 				e1.printStackTrace();
 			}
 			
+			now_sql = "DELETE FROM `place` WHERE len_no = " + code;
+			db.Excute(now_sql);
 			now_sql = "DELETE FROM `lent` WHERE len_no = " + code;
 			db.Excute(now_sql);
 			LoadList(sql + sortsql);
@@ -754,7 +761,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
 			SwingItem si = new SwingItem(lib_select.combox, tf_book_name, tf_mem_id);
-			LbDB_delivery_Frame booksea = new LbDB_delivery_Frame(cl, "상호대차", si);
+			LbDB_delivery_Frame booksea = new LbDB_delivery_Frame(cl, "상호대차", si, fk);
 			booksea_use = true;
 			booksea.setVisible(true);
 		}		

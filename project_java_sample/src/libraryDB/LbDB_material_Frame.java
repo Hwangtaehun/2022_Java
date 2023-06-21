@@ -6,7 +6,7 @@ import javax.swing.event.*;
 import java.sql.*;
 import java.time.*;
 
-public class LbDB_material_Frame extends LbDB_main_Frame { //상호대차 검색부분 수정
+public class LbDB_material_Frame extends LbDB_main_Frame {
 	private JTextField tf_bookname, tf_author, tf_publish, tf_kind, tf_many, tf_dialog;
 	private JButton bookBt, kindBt;
 	private JComboBox <String> lib_Box;

@@ -5,7 +5,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
-public class LbDB_delivery_Frame extends LbDB_main_Frame{
+public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을 fk.insert_lib_no에 값 입력(OutData()함수 참고)
 	private int mat_no;
 	private String lib_name_array[];
 	private JTextField tf_bookname, tf_memberid;
@@ -26,16 +26,21 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 		fk = new foreignkey();
 		make_lib_array();
 		
-		makesql();
 		setTitle(menu_title);
 		menuform();
 		Initform();
-		baseform();
-		if(menu_title.equals("상호대차관리")) {
-			editform();
+		if(menu_title.equals("상호대차완료내역")) {
+			
 		}
 		else {
-			booksea();
+			makesql();
+			baseform();
+			if(menu_title.equals("상호대차관리")) {
+				editform();
+			}
+			else {
+				booksea();
+			}
 		}
 		addWindowListener(this);
 	}
@@ -54,14 +59,14 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 		booksea_member_dialog();
 	}
 	
-	LbDB_delivery_Frame(Client cl, String str, SwingItem si){ //관리자 상호대차
+	LbDB_delivery_Frame(Client cl, String str, SwingItem si, foreignkey fk){ //관리자 상호대차
 		db = new LbDB_DAO();
 		this.cl = cl;
 		menu_title = str;
 		this.si = si;
 		pk = cl.primarykey();
 		state = cl.state();
-		fk = new foreignkey();
+		this.fk = fk;
 		make_lib_array();
 		
 		sql = "SELECT * FROM delivery, material, member, book WHERE delivery.mat_no = material.mat_no AND " 
@@ -80,7 +85,7 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 		manager = new Combobox_Manager(lib_Box, "library", "lib_no");
 		
 		setGrid(gbc,1,1,1,1);
-		label = new JLabel("    상호 대차   ");
+		label = new JLabel("                                                  상호 대차   ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
 		setGrid(gbc,0,2,1,1);
@@ -130,6 +135,53 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 		lib_Box = manager.combox;
 		gbl.setConstraints(lib_Box, gbc);
 		leftPanel.add(lib_Box);
+	}
+	
+	private void completeform() {
+		JPanel titlePanel, researchPanel, northPanel;
+		int lib_no, lib_no_arr;
+		String now_sql;
+		JLabel label;
+		JButton bt;
+		
+		titlePanel = new JPanel();
+		label = new JLabel(menu_title);
+		titlePanel.add(label);
+		
+		researchPanel = new JPanel();
+		label = new JLabel("검색");
+		researchPanel.add(label);
+		tf_research = new JTextField();
+		tf_research.setEnabled(false);
+		researchPanel.add(tf_research);
+		bt = new JButton("자료찾기");
+		bt.addActionListener(new materialButtonListener());
+		researchPanel.add(bt);
+		bt = new JButton("검색");
+		bt.addActionListener(new researchButtonListener());
+		researchPanel.add(bt);
+		
+		northPanel = new JPanel();
+		northPanel.add("North", titlePanel);
+		northPanel.add("South", researchPanel);
+		
+		String columnName[] = {"회원아이디", "책이름", "소장도서관", "수신도서관", "도착일", "상태"};
+		tablemodel = new LbDB_TableMode(columnName.length, columnName);
+		table = new JTable(tablemodel);
+		table.setPreferredScrollableViewportSize(new Dimension(700, 14*16));
+		table.getSelectionModel().addListSelectionListener(new tableListener());
+		JScrollPane scrollPane = new JScrollPane(table);
+		centerPanel.add(scrollPane);
+		
+		cpane.add("North", northPanel);
+		cpane.add("Center", centerPanel);
+		pack();
+		
+		sql = "SELECT * FROM delivery, material, member, book WHERE delivery.mat_no = material.mat_no AND " 
+			+ "delivery.mem_no = member.mem_no AND material.book_no = book.book_no ";
+		sortsql = "ORDER BY book.book_name";
+		
+		LoadList(sql + sortsql);
 	}
 	
 	private void editform() {
@@ -334,9 +386,17 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 	
 	private void MoveData() {
 		try {
-			String book_name = result.getString("book.book_name");
-			int lib_no_arr = result.getInt("delivery.lib_no_arr");
-			String lib_arr_name = lib_name_array[lib_no_arr - 1];
+			String book_name, lib_arr_name;
+			int lib_no_arr;
+			
+			if(result == null) {
+				System.out.println("값이 없습니다.");
+				return;
+			}
+			
+			lib_no_arr = result.getInt("delivery.lib_no_arr");
+			book_name = result.getString("book.book_name");
+			lib_arr_name = lib_name_array[lib_no_arr - 1];
 			
 			tf_bookname.setText(book_name);
 			lib_Box.setSelectedItem(lib_arr_name);
@@ -363,12 +423,18 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 	}
 	
 	private void OutData() {
+		int lib_no_arr;
+		
 		try {
+			lib_no_arr = result.getInt("delivery.lib_no_arr");
+			
 			fk.insert_del_no(result.getInt("delivery.del_no"));
 			si.set_memid(result.getString("member.mem_id"));
 			fk.insert_mem_no(result.getInt("member.mem_no"));
 			si.set_bookname(result.getString("book.book_name"));
 			fk.insert_mat_no(result.getInt("material.mat_no"));
+			si.set_lib_Box(lib_name_array[lib_no_arr-1]);
+			fk.insert_lib_no(lib_no_arr);
 			closeFrame();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -389,27 +455,57 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{
 				for(dataCount = 0; result.next(); dataCount++) {
 					lib_no = result.getInt("material.lib_no");
 					lib_no_arr = result.getInt("delivery.lib_no_arr");
-					table.setValueAt(result.getString("book.book_name"), dataCount, 0);
-					table.setValueAt(lib_name_array[lib_no - 1], dataCount, 1);
-					table.setValueAt(lib_name_array[lib_no_arr - 1], dataCount, 2);
-					if(menu_title.equals("상호대차관리") || menu_title.equals("상호대차내역")) {
-						int app;
+					
+					if(menu_title.equals("상호대차완료내역")) {
+						int app, len_no;
 						String app_str;
 						
-						table.setValueAt(result.getString("delivery.del_arr_date"), dataCount, 3);
+						table.setValueAt(result.getString("member.mem_id"), dataCount, 0);
+						table.setValueAt(result.getString("book.book_name"), dataCount, 1);
+						table.setValueAt(lib_name_array[lib_no - 1], dataCount, 2);
+						table.setValueAt(lib_name_array[lib_no_arr - 1], dataCount, 3);
+						table.setValueAt(result.getString("delivery.del_arr_date"), dataCount, 4);
 						app = result.getInt("delivery.del_app");
+						len_no = result.getInt("delivery.len_no");
 						
 						if(app == 0) {
 							app_str = "거절";
 						}
 						else if(app == 1) {
 							app_str = "승인";
+							if(len_no != 0) {
+								app_str = "대출";
+							}
 						}
 						else {
 							app_str = "반송";
 						}
 						
-						table.setValueAt(app_str, dataCount, 4);
+						table.setValueAt(app_str, dataCount, 5);
+					}
+					else {
+						table.setValueAt(result.getString("book.book_name"), dataCount, 0);
+						table.setValueAt(lib_name_array[lib_no - 1], dataCount, 1);
+						table.setValueAt(lib_name_array[lib_no_arr - 1], dataCount, 2);
+						if(menu_title.equals("상호대차관리") || menu_title.equals("상호대차내역")) {
+							int app;
+							String app_str;
+							
+							table.setValueAt(result.getString("delivery.del_arr_date"), dataCount, 3);
+							app = result.getInt("delivery.del_app");
+							
+							if(app == 0) {
+								app_str = "거절";
+							}
+							else if(app == 1) {
+								app_str = "승인";
+							}
+							else {
+								app_str = "반송";
+							}
+							
+							table.setValueAt(app_str, dataCount, 4);
+						}
 					}
 				}
 			}

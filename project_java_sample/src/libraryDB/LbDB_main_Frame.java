@@ -323,28 +323,6 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		addWindowListener(this);
 	}
 	
-	protected void Initform() {
-		cpane = getContentPane();
-		centerPanel = new JPanel();
-		leftPanel = new JPanel();
-		selectedCol = -1;
-		gbl = new GridBagLayout();
-		leftPanel.setLayout(gbl);
-		gbc = new GridBagConstraints();
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.weightx = 1;
-		gbc.weighty = 1;
-	}
-	
-	protected void menuform() {
-		if(state == 1) {
-			manager_Initform();
-		}
-		else {
-			member_Initform();
-		}
-	}
-	
 	private void baseform() {
 		JLabel context;
 		String text;
@@ -369,6 +347,28 @@ public class LbDB_main_Frame extends LbDB_Frame {
 		pack();
 	}
 	
+	protected void Initform() {
+		cpane = getContentPane();
+		centerPanel = new JPanel();
+		leftPanel = new JPanel();
+		selectedCol = -1;
+		gbl = new GridBagLayout();
+		leftPanel.setLayout(gbl);
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+	}
+	
+	protected void menuform() {
+		if(state == 1) {
+			manager_Initform();
+		}
+		else {
+			member_Initform();
+		}
+	}
+	
 	protected void manager_Initform(){
 		JMenuBar menuBar = new JMenuBar(); 
         JMenu bookMenu = new JMenu("책");
@@ -379,7 +379,8 @@ public class LbDB_main_Frame extends LbDB_Frame {
         JMenu deliveryMenu = new JMenu("예약 및 배송");
         
         JMenuItem[] menuItems = new JMenuItem[15];
-        String[] items = {"책관리", "책추가", "종류관리", "종류추가", "도서관관리", "도서관추가", "회원관리", "자료관리", "자료추가", "대출관리", "대출추가", "반납추가", "예약관리", "상호대차관리", "대출장소관리"};
+        String[] items = {"책관리", "책추가", "종류관리", "종류추가", "도서관관리", "도서관추가", "회원관리", "자료관리", "자료추가", "대출관리", "대출추가", 
+        				  "반납추가", "예약관리", "상호대차관리", "상호대차완료내역", "대출장소관리"};
         
         for(int i=0; i<menuItems.length; i++) {
         	 menuItems[i] = new JMenuItem(items[i]); // 메뉴 아이템 컴포넌트 생성
@@ -406,6 +407,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
         deliveryMenu.add(menuItems[12]);        
         deliveryMenu.add(menuItems[13]);
         deliveryMenu.add(menuItems[14]);
+        deliveryMenu.add(menuItems[15]);
         
         menuBar.add(bookMenu);
         menuBar.add(kindMenu);
@@ -591,6 +593,9 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				System.out.println("상호대차관리");
 				LbDB_delivery_Frame frame18 = new LbDB_delivery_Frame(db, cl, command);
 				frame18.setVisible(true);
+				break;
+			case "상호대차완료내역":
+				System.out.println("상호대차완료내역");
 				break;
 			case "종류관리":
 				System.out.println("종류관리");
