@@ -1,5 +1,7 @@
+//java프로그램 실행
 package libraryDB;
 
+//회원 정보와 회원 상태 담은 클래스
 class Client{
 	private int pk;
 	private int state;
@@ -23,6 +25,7 @@ class Client{
 	}
 }
 
+//외래키와 외래키를 통해서 알 수 있는 정보를 담는 클래스
 class foreignkey{
 	private int add_no, kind_no, book_no, mem_no, mat_no, del_no, lib_no; //lib_no는 상호대차부분 자료검색에 사용
 	public String kind_num, book_name;

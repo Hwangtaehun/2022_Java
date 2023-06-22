@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
+//member테이블과 관련있는 event처리 클래스
 public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 	private JPanel northPanel, southPanel;
 	private JTextField tf_name, tf_Id, tf_zipcode, tf_address, tf_detail, tf_research, tf_dialog;
@@ -587,32 +588,6 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 			tf_Pw2.setEnabled(true);
 		}
 	}
-	
-	/*class DeleteButtonListener implements ActionListener{
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			// TODO Auto-generated method stub
-			String now_sql;
-			int code = 0;
-			
-			try {
-				code = result.getInt("mem_no");
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			if(selectedCol == -1) {
-				System.out.println("변경할 셀이 선택되지 않았습니다.");
-				return;
-			}
-			
-			now_sql = "DELETE FROM `member` WHERE `mem_no` = " + code;
-			db.Excute(now_sql);
-			now_sql = sql + sortsql;
-			LoadList(now_sql);
-		}
-	}*/
 	
 	public class ResearchButtonListener implements ActionListener{
 		@Override

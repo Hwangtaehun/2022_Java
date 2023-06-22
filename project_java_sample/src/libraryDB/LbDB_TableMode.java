@@ -1,6 +1,7 @@
 package libraryDB;
 import javax.swing.table.*;
 
+//테이블 생성 클래스
 public class LbDB_TableMode extends AbstractTableModel{
 	private Object data[][];
 	private String columnName[];

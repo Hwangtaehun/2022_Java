@@ -6,6 +6,7 @@ import javax.swing.event.*;
 import java.sql.*;
 import java.time.*;
 
+//material테이블과 관련있는 event처리 클래스
 public class LbDB_material_Frame extends LbDB_main_Frame {
 	private JTextField tf_bookname, tf_author, tf_publish, tf_kind, tf_many, tf_dialog;
 	private JButton bookBt, kindBt;
@@ -171,7 +172,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		gbl.setConstraints(reservationBt, gbc);
 		leftPanel.add(reservationBt);
 		
-		String columnName[] = {"도서관", "책 이름", "저자", "출판사", "대출가능"};
+		String columnName[] = {"도서관", "책 이름", "저자", "출판사", "대출가능", "예약여부"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
 		table.setPreferredScrollableViewportSize(new Dimension(700, 14*16));
@@ -183,8 +184,10 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		cpane.add("Center", centerPanel);
 		pack();
 		
-		sql = "SELECT * " + "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
-			  "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no";
+		sql = "SELECT * " + "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no "
+			+ "LEFT JOIN reservation ON material.mat_no = reservation.mat_no "
+			+ "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no";
+		System.out.println(sql);
 		LoadList(sql);
 		
 		try {
@@ -356,14 +359,13 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 	}
 	
 	private void removeTableRow(int row) {
-		if(menu_title.equals("자료관리") || menu_title.equals("상세검색") || menu_title.equals("자료찾기")) {
+		if(menu_title.equals("자료검색")) {
 			table.setValueAt(null, row, 0);
 			table.setValueAt(null, row, 1);
 			table.setValueAt(null, row, 2);
 			table.setValueAt(null, row, 3);
 			table.setValueAt(null, row, 4);
 			table.setValueAt(null, row, 5);
-			table.setValueAt(null, row, 6);
 		}
 		else {
 			table.setValueAt(null, row, 0);
@@ -371,6 +373,8 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 			table.setValueAt(null, row, 2);
 			table.setValueAt(null, row, 3);
 			table.setValueAt(null, row, 4);
+			table.setValueAt(null, row, 5);
+			table.setValueAt(null, row, 6);
 		}
 	}
 	
@@ -384,8 +388,24 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 			if(menu_title.equals("자료검색")) {
 				String author = result.getString("book.book_author");
 				String publish = result.getString("book.book_publish");
+				String len_re_st = result.getString("lent.len_re_st");
+				String res_no = result.getString("reservation.res_no");
 				tf_author.setText(author);
 				tf_publish.setText(publish);
+				if(len_re_st == null || len_re_st.equals("1")) {
+					deliveryBt.setEnabled(true);
+				}
+				else {
+					deliveryBt.setEnabled(false);
+					if(len_re_st.equals("0")) {
+						if(res_no == null) {
+							reservationBt.setEnabled(true);
+						}
+					}
+					else {
+						reservationBt.setEnabled(false);
+					}
+				}
 			}
 			else if(menu_title.equals("자료관리")) {
 				String kind_num = result.getString("kind.kind_num");
@@ -407,7 +427,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		}
 		
 		if(menu_title.equals("자료검색")) {
-			String lent_re_state = "대출불가";
+			String lent_re_state, res_state;
 			try {
 				for(dataCount = 0; result.next(); dataCount++) {
 					table.setValueAt(result.getString("library.lib_name"), dataCount, 0);
@@ -415,6 +435,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 					table.setValueAt(result.getString("book.book_author"), dataCount, 2);
 					table.setValueAt(result.getString("book.book_publish"), dataCount, 3);
 					String state = result.getString("lent.len_re_st");
+					String ifelse = result.getString("reservation.res_no");
 					
 					if(state == null || state.equals("1")) {
 						lent_re_state = "대출가능";
@@ -425,7 +446,21 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 					else {
 						lent_re_state = "대출중";
 					}
+					
+					res_state = "예약불가";
+					if(state != null) {
+						if(state.equals("0")) {
+							if(ifelse == null) {
+								res_state = "예약가능";
+							}
+							else {
+								res_state = "예약있음";
+							}
+						}
+					}
+					
 					table.setValueAt(lent_re_state, dataCount, 4);
+					table.setValueAt(res_state, dataCount, 5);
 				}
 				repaint();
 			} catch (SQLException e) {
@@ -758,17 +793,19 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 						tf_author.setText(table.getValueAt(selectedCol, 2).toString());
 						tf_publish.setText(table.getValueAt(selectedCol, 3).toString());
 						state = table.getValueAt(selectedCol, 4).toString();
-						if(state.equals("대출중")) {
-							reservationBt.setEnabled(true);
-							deliveryBt.setEnabled(false);
-						}
-						else if(state.equals("대출가능")) {
-							reservationBt.setEnabled(false);
+						if(state.equals("대출가능")) {
 							deliveryBt.setEnabled(true);
 						}
 						else {
-							reservationBt.setEnabled(false);
 							deliveryBt.setEnabled(false);
+						}
+						
+						state = table.getValueAt(selectedCol, 5).toString();
+						if(state.equals("예약가능")) {
+							reservationBt.setEnabled(true);
+						}
+						else {
+							reservationBt.setEnabled(false);
 						}
 					}
 					else if(menu_title.equals("자료관리")){

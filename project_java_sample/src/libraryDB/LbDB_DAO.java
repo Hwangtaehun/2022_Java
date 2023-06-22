@@ -1,6 +1,7 @@
 package libraryDB;
 import java.sql.*;
 
+//데이터베이스 클래스
 public class LbDB_DAO {
 	private Connection con;
 	private Statement smt;

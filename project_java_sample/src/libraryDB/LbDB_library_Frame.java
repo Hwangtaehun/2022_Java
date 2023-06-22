@@ -6,6 +6,7 @@ import javax.swing.event.*;
 import java.sql.*;
 import java.time.*;
 
+//library테이블과 관련있는 event처리 클래스
 public class LbDB_library_Frame extends LbDB_main_Frame {
 	private boolean push_addbt;
 	private JTextField tf_lib_name, tf_lib_date, tf_zipcode, tf_address, tf_lib_detail;

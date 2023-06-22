@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
+//book테이블과 관련있는 event처리 클래스
 public class LbDB_book_Frame extends LbDB_main_Frame{
 	private JTextField tf_bookname, tf_author, tf_publish, tf_price, tf_year;
 	private JButton sortBt;

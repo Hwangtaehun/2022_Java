@@ -2,6 +2,7 @@ package libraryDB;
 import java.awt.event.*;
 import javax.swing.*;
 
+//닫기 버튼을 누르면 프로그램이 종료되거나 대화상자를 종료하는 것을 제어하는 클래스
 public class LbDB_Frame extends JFrame implements WindowListener {
 	private String title = "";
 	

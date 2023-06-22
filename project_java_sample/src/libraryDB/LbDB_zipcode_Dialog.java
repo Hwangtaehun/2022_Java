@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
+//주소를 검색을 쉽게하기 위해서 생성된 클래스
 class Addresstool{
 	private String sidobasic[] = {"서울특별시", "부산광역시", "대전광역시", "대구광역시", "인천광역시", "광주광역시", "울산광역시",
 							 "충청북도", "충청남도", "전라북도", "전라남도", "경상북도", "경상남도", "제주특별자치도",
@@ -179,7 +180,6 @@ class Addresstool{
 		}
 	}
 	
-	
 	private void doro_method(String str) {
 		String sql = "SELECT DISTINCT `doro` FROM `address` WHERE `doro` LIKE '" + str + "'";
 		rs = db.getResultSet(sql);
@@ -221,6 +221,7 @@ class Addresstool{
 	}
 }
 
+//주소 검색 대화상자
 public class LbDB_zipcode_Dialog extends LbDB_Frame{
 	private int dataCount, selectedCol;
 	private String address; 

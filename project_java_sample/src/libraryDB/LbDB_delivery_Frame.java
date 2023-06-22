@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
+//delivery테이블과 관련있는 event처리 클래스
 public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을 fk.insert_lib_no에 값 입력(OutData()함수 참고)
 	private int mat_no;
 	private String lib_name_array[];

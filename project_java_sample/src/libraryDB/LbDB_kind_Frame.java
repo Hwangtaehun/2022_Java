@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
+//kind테이블과 관련있는 event처리 클래스
 public class LbDB_kind_Frame extends LbDB_main_Frame {
 	private JComboBox <String> one_Box, two_Box, three_Box;
 	private Combobox_Inheritance one_to_two, two_to_three;

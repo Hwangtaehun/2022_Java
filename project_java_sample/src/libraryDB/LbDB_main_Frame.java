@@ -6,6 +6,7 @@ import javax.swing.event.*;
 import java.sql.*;
 import java.time.LocalDate;
 
+//콤보박스가 다른 콤보박스를 영향을 줄때 사용하는 클래스
 class Combobox_Inheritance{
 	private String parent_name;
 	private boolean nothing = false;
@@ -32,6 +33,7 @@ class Combobox_Inheritance{
 	}
 }
 
+//콤보박스를 생성을 쉽게 만들어주는 클래스
 class Combobox_Manager {
 	private LbDB_DAO db;
 	private int fk = 1;
@@ -252,6 +254,7 @@ class Combobox_Manager {
 	}
 }
 
+//textfield를 전달하는 정보가 많아서 클래스 따로 생성
 class SwingItem{
 	private JTextField tf_bookname, tf_kind, tf_many, tf_mem_id;
 	private JComboBox <String> lib_Box;
@@ -291,6 +294,7 @@ class SwingItem{
 	}
 }
 
+//공통적으로 사용하는 변수와 함수를 재사용하기 위해서 생성한 클래스 그리고 로그인 후 생성되는 화면 생성
 public class LbDB_main_Frame extends LbDB_Frame {
 	protected Client cl;
 	protected LbDB_DAO db;

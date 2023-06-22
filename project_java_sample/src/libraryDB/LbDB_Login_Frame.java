@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.sql.*;
 
+//로그인 화면
 public class LbDB_Login_Frame extends LbDB_Frame{
 	private LbDB_DAO logDB;
 	private Client logCL;
