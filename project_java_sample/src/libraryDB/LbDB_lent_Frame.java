@@ -124,6 +124,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		JLabel label;
 		
 		titlePanel = new JPanel();
+		titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.X_AXIS));
 		label = new JLabel(menu_title);
 		titlePanel.add(label);
 		
@@ -146,8 +147,9 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		researchPanel.add(researchBt);
 		
 		northPanel = new JPanel();
-		northPanel.add("North", titlePanel);
-		northPanel.add("South", researchPanel);
+		northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
+		northPanel.add(titlePanel);
+		northPanel.add(researchPanel);
 	}
 	
 	private void managerform() {

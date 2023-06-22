@@ -376,11 +376,12 @@ public class LbDB_main_Frame extends LbDB_Frame {
         JMenu libraryMenu = new JMenu("도서관");
         JMenu memberMenu = new JMenu("자료 및 회원");
         JMenu lentMenu = new JMenu("대출 및 반납");
-        JMenu deliveryMenu = new JMenu("예약 및 배송");
+        JMenu deliveryMenu = new JMenu("상호대차");
+        JMenu etcMenu = new JMenu("예약과 대출장소관리");
         
-        JMenuItem[] menuItems = new JMenuItem[16];
+        JMenuItem[] menuItems = new JMenuItem[17];
         String[] items = {"책관리", "책추가", "종류관리", "종류추가", "도서관관리", "도서관추가", "회원관리", "자료관리", "자료추가", "대출관리", "대출추가", 
-        				  "반납추가", "예약관리", "상호대차관리", "상호대차완료내역", "대출장소관리"};
+        				  "반납추가", "상호대차관리", "상호대차도착일추가","상호대차완료내역", "예약관리", "대출장소관리"};
         
         for(int i=0; i<menuItems.length; i++) {
         	 menuItems[i] = new JMenuItem(items[i]); // 메뉴 아이템 컴포넌트 생성
@@ -407,7 +408,9 @@ public class LbDB_main_Frame extends LbDB_Frame {
         deliveryMenu.add(menuItems[12]);        
         deliveryMenu.add(menuItems[13]);
         deliveryMenu.add(menuItems[14]);
-        deliveryMenu.add(menuItems[15]);
+        
+        etcMenu.add(menuItems[15]);
+        etcMenu.add(menuItems[16]);
         
         menuBar.add(bookMenu);
         menuBar.add(kindMenu);

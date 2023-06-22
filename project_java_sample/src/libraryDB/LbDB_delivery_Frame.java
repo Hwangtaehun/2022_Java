@@ -138,18 +138,18 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 	}
 	
 	private void completeform() {
-		JPanel titlePanel, researchPanel, northPanel;
+		JPanel researchPanel, northPanel;
 		JLabel label;
 		JButton bt;
 		
-		titlePanel = new JPanel();
+		northPanel = new JPanel();
 		label = new JLabel(menu_title);
-		titlePanel.add(label);
+		northPanel.add(label);
 		
 		researchPanel = new JPanel();
 		label = new JLabel("검색");
 		researchPanel.add(label);
-		tf_research = new JTextField();
+		tf_research = new JTextField(50);
 		tf_research.setEnabled(false);
 		researchPanel.add(tf_research);
 		bt = new JButton("자료찾기");
@@ -158,10 +158,6 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 		bt = new JButton("검색");
 		bt.addActionListener(new researchButtonListener());
 		researchPanel.add(bt);
-		
-		northPanel = new JPanel();
-		northPanel.add("North", titlePanel);
-		northPanel.add("South", researchPanel);
 		
 		String columnName[] = {"회원아이디", "책이름", "소장도서관", "수신도서관", "도착일", "상태"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
@@ -172,7 +168,8 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 		centerPanel.add(scrollPane);
 		
 		cpane.add("North", northPanel);
-		cpane.add("Center", centerPanel);
+		cpane.add("Center", researchPanel);
+		cpane.add("South", centerPanel);
 		pack();
 		
 		sql = "SELECT * FROM delivery, material, member, book WHERE delivery.mat_no = material.mat_no AND " 
@@ -243,7 +240,7 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 		gbl.setConstraints(bt, gbc);
 		leftPanel.add(bt);
 		
-		String columnName[] = {"책이름", "소장도서관", "수신도서관", "도착일", "상태"};
+		String columnName[] = {"책이름", "권차", "복권", "소장도서관", "수신도서관", "도착일", "상태"};
 		tablemodel = new LbDB_TableMode(columnName.length, columnName);
 		table = new JTable(tablemodel);
 		table.setPreferredScrollableViewportSize(new Dimension(700, 14*16));
@@ -293,6 +290,28 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 	private void booksea_member_dialog() {
 		tf_bookname.setEnabled(false);
 		tf_memberid.setEnabled(false);
+		
+		sql = "SELECT * FROM material, book WHERE material.book_no = book.book_no AND material.mat_no = " +  mat_no;
+		result = db.getResultSet(sql);
+		try {
+			while(result.next()) {
+				tf_bookname.setText(result.getString("book.book_name"));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		sql = "SELECT * FROM member WHERE mem_no = " + pk;
+		result = db.getResultSet(sql);
+		try {
+			while(result.next()) {
+				tf_memberid.setText(result.getString("member.mem_id"));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		setGrid(gbc,1,8,1,1);
 		completeBt = new JButton("완료");
@@ -489,9 +508,14 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 							int app;
 							String app_str;
 							
-							table.setValueAt(result.getString("delivery.del_arr_date"), dataCount, 3);
-							app = result.getInt("delivery.del_app");
+							if(result.getString("delivery.del_arr_date") == null) {
+								table.setValueAt("", dataCount, 3);
+							}
+							else {
+								table.setValueAt(result.getString("delivery.del_arr_date"), dataCount, 3);
+							}
 							
+							app = result.getInt("delivery.del_app");
 							if(app == 0) {
 								app_str = "거절";
 							}
@@ -535,8 +559,9 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 				JOptionPane.showMessageDialog(null, "자료가 있는 도서관과 배송되는 도서관이 같습니다.",  "상호대차 오류", JOptionPane.PLAIN_MESSAGE);
 			}
 			else {
-				sql = "INSERT INTO `delivery` (`men_no`, `mat_no`, `lib_no_arr`) VALUES (" +
+				sql = "INSERT INTO `delivery` (`mem_no`, `mat_no`, `lib_no_arr`) VALUES (" +
 					  pk + ", " + mat_no + ", " + lib_no_arr + ")";
+				System.out.println(sql);
 				db.Excute(sql);
 				closeFrame();
 			}
