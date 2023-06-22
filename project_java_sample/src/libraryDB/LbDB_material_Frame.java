@@ -8,7 +8,7 @@ import java.time.*;
 
 //material테이블과 관련있는 event처리 클래스
 public class LbDB_material_Frame extends LbDB_main_Frame {
-	private JTextField tf_bookname, tf_author, tf_publish, tf_kind, tf_many, tf_dialog;
+	private JTextField tf_bookname, tf_author, tf_publish, tf_kind, tf_many, tf_dialog, tf_dialog2;
 	private JButton bookBt, kindBt;
 	private JComboBox <String> lib_Box;
 	private SwingItem si;
@@ -20,16 +20,6 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		db = new LbDB_DAO();
 		menu_title = title;
 		this.si = si;
-		Initform();
-		baseform();
-		dialogform();
-		dialog(title);
-	}
-	public LbDB_material_Frame (String title, JTextField tf, foreignkey fk) {
-		db = new LbDB_DAO();
-		menu_title = title;
-		tf_dialog = tf;
-		this.fk = fk;
 		Initform();
 		baseform();
 		dialogform();
@@ -62,6 +52,27 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		
 		setTitle(menu_title);
 		addWindowListener(this);
+	}
+	public LbDB_material_Frame (String title, JTextField tf, foreignkey fk) {
+		db = new LbDB_DAO();
+		menu_title = title;
+		tf_dialog = tf;
+		this.fk = fk;
+		Initform();
+		baseform();
+		dialogform();
+		dialog(title);
+	}
+	public LbDB_material_Frame (String title, JTextField tf, JTextField tf2, foreignkey fk) {
+		db = new LbDB_DAO();
+		menu_title = title;
+		tf_dialog = tf;
+		tf_dialog2 = tf2;
+		this.fk = fk;
+		Initform();
+		baseform();
+		dialogform();
+		dialog(title);
 	}
 	
 	private void baseform() {
@@ -473,9 +484,9 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 				for(dataCount = 0; result.next(); dataCount++) {
 					table.setValueAt(result.getString("library.lib_name"), dataCount, 0);
 					table.setValueAt(result.getString("kind.kind_num"), dataCount, 1);
-					table.setValueAt(result.getString("material.mat_many"), dataCount, 2);
-					table.setValueAt(result.getString("material.mat_overlap"), dataCount, 3);
-					table.setValueAt(result.getString("book.book_publish"), dataCount, 4);
+					table.setValueAt(result.getString("book.book_name"), dataCount, 2);
+					table.setValueAt(result.getString("material.mat_many"), dataCount, 3);
+					table.setValueAt(result.getString("material.mat_overlap"), dataCount, 4);
 					table.setValueAt(result.getString("book.book_author"), dataCount, 5);
 					table.setValueAt(result.getString("book.book_publish"), dataCount, 6);
 				}
@@ -824,10 +835,17 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 					try {
 						result.absolute(selectedCol + 1);
 						if(menu_title.equals("상세검색")) {
-							si.set_lib_Box(result.getString("library.lib_name"));
-							si.set_bookname(result.getString("book.book_name"));
-							si.set_kind(result.getString("kind.kind_num"));
-							si.set_many(result.getString("material.mat_many"));
+							if(tf_dialog2 != null) {
+								tf_dialog.setText(result.getString("book.book_name"));
+								tf_dialog2.setText(result.getString("library.lib_name"));
+								fk.insert_mat_no(result.getInt("material.mat_no"));
+							}
+							else {
+								si.set_lib_Box(result.getString("library.lib_name"));
+								si.set_bookname(result.getString("book.book_name"));
+								si.set_kind(result.getString("kind.kind_num"));
+								si.set_many(result.getString("material.mat_many"));
+							}
 							closeFrame();
 						}
 						else if(menu_title.equals("자료찾기")) {

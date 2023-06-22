@@ -606,6 +606,11 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				LbDB_delivery_Frame frame19 = new LbDB_delivery_Frame(db, cl, command);
 				frame19.setVisible(true);
 				break;
+			case "상호대차도착일추가":
+				System.out.println("상호대차도착일추가");
+				LbDB_delivery_Frame frame20 = new LbDB_delivery_Frame(db, cl, command);
+				frame20.setVisible(true);
+				break;
 			case "종류관리":
 				System.out.println("종류관리");
 				LbDB_kind_Frame frame6 = new LbDB_kind_Frame(db, cl, command);

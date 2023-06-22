@@ -9,7 +9,7 @@ import java.sql.*;
 public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을 fk.insert_lib_no에 값 입력(OutData()함수 참고)
 	private int mat_no;
 	private String lib_name_array[];
-	private JTextField tf_bookname, tf_memberid;
+	private JTextField tf_bookname, tf_memberid, tf_lib_name;
 	private Combobox_Manager manager;
 	private JComboBox <String> lib_Box;
 	private JButton completeBt;
@@ -33,6 +33,9 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 		if(menu_title.equals("상호대차완료내역")) {
 			completeform();
 		}
+		else if(menu_title.equals("상호대차도착일추가")) {
+			arriveform();
+		}
 		else {
 			makesql();
 			baseform();
@@ -40,7 +43,7 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 				editform();
 			}
 			else {
-				booksea();
+				bookseaform();
 			}
 		}
 		addWindowListener(this);
@@ -254,13 +257,7 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 		pack();
 	}
 	
-	private void makesql() {
-		sql = "SELECT * FROM delivery, material, member, book WHERE delivery.mat_no = material.mat_no AND " 
-			+ "delivery.mem_no = member.mem_no AND material.book_no = book.book_no AND len_no IS NULL";
-		sortsql = " ORDER BY book.book_name";
-	}
-	
-	private void booksea() {
+	private void bookseaform() {
 		JPanel southPanel;
 		String now_sql;
 		JButton bt;
@@ -355,6 +352,68 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 		cpane.add("West", leftPanel);
 		cpane.add("Center", centerPanel);
 		pack();
+	}
+	
+	private void arriveform() {
+		JLabel label;
+		JButton bt;
+		
+		manager = new Combobox_Manager(lib_Box, "library", "lib_no");
+		
+		setGrid(gbc,1,1,1,1);
+		label = new JLabel("                                                  " + menu_title + "   ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,0,2,1,1);
+		label = new JLabel("    도서관    ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,2,1,1);
+		tf_lib_name = new JTextField(50);
+		tf_lib_name.setEnabled(false);
+		gbl.setConstraints(tf_lib_name, gbc);
+		leftPanel.add(tf_lib_name);
+		setGrid(gbc,0,3,1,1);
+		label = new JLabel("    책이름    ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,3,1,1);
+		tf_bookname = new JTextField(50);
+		tf_bookname.setEnabled(false);
+		gbl.setConstraints(tf_bookname, gbc);
+		leftPanel.add(tf_bookname);
+		setGrid(gbc,2,3,1,1);
+		bt = new JButton("자료찾기");
+		bt.addActionListener(new materialButtonListener());
+		gbl.setConstraints(bt, gbc);
+		leftPanel.add(bt);
+		setGrid(gbc,0,4,1,1);
+		label = new JLabel("    도착일    ");
+		gbl.setConstraints(label, gbc);
+		leftPanel.add(label);
+		setGrid(gbc,1,4,1,1);
+		tf_date = new JTextField(10);
+		gbl.setConstraints(tf_date, gbc);
+		leftPanel.add(tf_date);
+		setGrid(gbc,2,4,1,1);
+		bt = new JButton("오늘");
+		bt.addActionListener(new todayButtonListener());
+		gbl.setConstraints(bt, gbc);
+		leftPanel.add(bt);
+		setGrid(gbc,1,5,1,1);
+		addBt = new JButton("추가");
+		addBt.addActionListener(new addButtonListener());
+		gbl.setConstraints(addBt, gbc);
+		leftPanel.add(addBt);
+		
+		cpane.add("Center", leftPanel);
+		pack();
+	}
+	
+	private void makesql() {
+		sql = "SELECT * FROM delivery, material, member, book WHERE delivery.mat_no = material.mat_no AND " 
+			+ "delivery.mem_no = member.mem_no AND material.book_no = book.book_no AND len_no IS NULL";
+		sortsql = " ORDER BY book.book_name";
 	}
 	
 	private void tablefocus() {
@@ -578,6 +637,41 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 		}
 	}
 	
+	public class addButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			int del_no = 0;
+			
+			sql = "SELECT * FROM delivery WHERE mat_no = " + fk.call_mat_no() +" AND len_no IS NULL";
+			System.out.println(sql);
+			result = db.getResultSet(sql);
+			
+			try {
+				while(result.next()) {
+					del_no = result.getInt("del_no");
+				}
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			if(dateformat_check(tf_date.getText())) {
+				JOptionPane.showMessageDialog(null, "날짜형식이 잘못되었습니다.", "수정 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			else if(del_no == 0) {
+				JOptionPane.showMessageDialog(null, "상호대차에 등록된 자료가 없습니다.", "테이블 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			else {
+				sql = "UPDATE delivery SET del_arr_date = '" + tf_date.getText() + "' WHERE del_no = " + del_no;
+				System.out.println(sql);
+				db.Excute(sql);
+			}
+		}
+	}
+	
 	public class updateButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -676,7 +770,13 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			LbDB_material_Frame mat_frame = new LbDB_material_Frame("자료찾기", tf_bookname, fk);
+			LbDB_material_Frame	mat_frame;
+			if(menu_title.equals("상호대차도착일추가")) {
+				mat_frame = new LbDB_material_Frame("상세검색", tf_bookname, tf_lib_name, fk);
+			}
+			else {
+				mat_frame = new LbDB_material_Frame("자료찾기", tf_bookname, fk);
+			}
 			mat_frame.setVisible(true);
 		}
 	}
