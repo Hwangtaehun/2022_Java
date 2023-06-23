@@ -537,7 +537,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				break;
 			case "회원정보수정": 
 				System.out.println("회원정보수정");
-				LbDB_mem_info_Frame frame10 = new LbDB_mem_info_Frame(db, cl, command);
+				LbDB_member_Frame frame10 = new LbDB_member_Frame(db, cl, command);
 				frame10.setVisible(true);
 				break;
 			case "회원탈퇴":
@@ -557,7 +557,7 @@ public class LbDB_main_Frame extends LbDB_Frame {
 				break;
 			case "회원관리":
 				System.out.println("회원관리");
-				LbDB_mem_info_Frame frame11 =  new LbDB_mem_info_Frame(db, cl, command);
+				LbDB_member_Frame frame11 =  new LbDB_member_Frame(db, cl, command);
 				frame11.setVisible(true);
 				break;
 			case "대출관리": 

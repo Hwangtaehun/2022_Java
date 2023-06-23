@@ -761,7 +761,7 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			 LbDB_mem_info_Frame mem_frame = new LbDB_mem_info_Frame ("회원찾기", tf_memberid, fk, false);
+			 LbDB_member_Frame mem_frame = new LbDB_member_Frame ("회원찾기", tf_memberid, fk, false);
 			 mem_frame.setVisible(true);
 		}
 	}

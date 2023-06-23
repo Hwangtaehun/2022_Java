@@ -6,7 +6,7 @@ import javax.swing.event.*;
 import java.sql.*;
 
 //member테이블과 관련있는 event처리 클래스
-public class LbDB_mem_info_Frame extends LbDB_main_Frame {
+public class LbDB_member_Frame extends LbDB_main_Frame {
 	private JPanel northPanel, southPanel;
 	private JTextField tf_name, tf_Id, tf_zipcode, tf_address, tf_detail, tf_research, tf_dialog;
 	private JRadioButton rb_active, rb_stop, rb_normal, rb_special;
@@ -16,8 +16,8 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 	private int mem_state, mem_lent;
 	private boolean state_bool = false;
 	
-	public LbDB_mem_info_Frame() {}
-	public LbDB_mem_info_Frame(LbDB_DAO db, String title) {
+	public LbDB_member_Frame() {}
+	public LbDB_member_Frame(LbDB_DAO db, String title) {
 		this.db = db;
 		menu_title = title;
 		fk = new foreignkey();
@@ -26,7 +26,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		baseform_final();
 		dialog("회원 가입");
 	}
-	public LbDB_mem_info_Frame(String title, JTextField tf, foreignkey fk, boolean bool) {
+	public LbDB_member_Frame(String title, JTextField tf, foreignkey fk, boolean bool) {
 		db = new LbDB_DAO();
 		menu_title = title;
 		this.fk = fk;
@@ -40,8 +40,9 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		dialogform_final();
 		dialog(title);
 	}
-	public LbDB_mem_info_Frame(LbDB_DAO db, Client cl,  String title) {
+	public LbDB_member_Frame(LbDB_DAO db, Client cl,  String title) {
 		this.db = db;
+		this.cl = cl;
 		menu_title = title;
 		fk = new foreignkey();
 		pk = cl.primarykey();
@@ -282,7 +283,7 @@ public class LbDB_mem_info_Frame extends LbDB_main_Frame {
 		String now_sql, address;
 		int add_no = 0;
 		
-		now_sql = "SELECT * FROM `member`, `adress` WHERE `member`.`add_no` = `address`.`add_no` AND `mem_no` = " + pk;
+		now_sql = "SELECT * FROM `member`, `address` WHERE `member`.`add_no` = `address`.`add_no` AND `mem_no` = " + pk;
 		result = db.getResultSet(now_sql);
 		
 		try {

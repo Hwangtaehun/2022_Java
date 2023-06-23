@@ -798,7 +798,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			LbDB_mem_info_Frame men = new LbDB_mem_info_Frame("회원찾기", tf_mem_id, fk, true);
+			LbDB_member_Frame men = new LbDB_member_Frame("회원찾기", tf_mem_id, fk, true);
 			men.setVisible(true);
 		}
 	}

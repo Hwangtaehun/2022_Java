@@ -122,7 +122,7 @@ public class LbDB_Login_Frame extends LbDB_Frame{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			LbDB_mem_info_Frame info = new LbDB_mem_info_Frame(logDB, title);
+			LbDB_member_Frame info = new LbDB_member_Frame(logDB, title);
 			info.setVisible(true);
 		}
 	}
