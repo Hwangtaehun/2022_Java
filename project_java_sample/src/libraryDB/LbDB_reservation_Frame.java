@@ -21,4 +21,9 @@ public class LbDB_reservation_Frame extends LbDB_main_Frame {
 		Initform();
 	}
 	
+	
+	private void baseform() {
+		
+	}
+	
 }

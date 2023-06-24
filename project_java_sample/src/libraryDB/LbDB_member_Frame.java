@@ -380,6 +380,10 @@ public class LbDB_member_Frame extends LbDB_main_Frame {
 		System.out.println(now_sql);
 		result = db.getResultSet(now_sql);
 		
+		if(resultempty_check(result)) {
+			return;
+		}
+		
 		for(int i = 0; i < dataCount; i++) {
 			removeTableRow(i);
 		}

@@ -270,6 +270,10 @@ public class LbDB_book_Frame extends LbDB_main_Frame{
 	private void LoadList(String now_sql) {
 		result = db.getResultSet(now_sql);
 		
+		if(resultempty_check(result)) {
+			return;
+		}
+		
 		for(int i = 0; i < dataCount; i++) {
 			removeTableRow(i);
 		}

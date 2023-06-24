@@ -222,7 +222,7 @@ class Addresstool{
 }
 
 //주소 검색 대화상자
-public class LbDB_zipcode_Dialog extends LbDB_Frame{
+public class LbDB_zipcode_Dialog extends LbDB_main_Frame{
 	private int dataCount, selectedCol;
 	private String address; 
 	private LbDB_DAO db;
@@ -289,13 +289,6 @@ public class LbDB_zipcode_Dialog extends LbDB_Frame{
 		pack();
 	}
 	
-	private void setGrid(GridBagConstraints gbc, int dx, int dy, int width, int height) {
-		// TODO Auto-generated method stub
-		gbc.gridx = dx;
-		gbc.gridy = dy;
-		gbc.gridwidth = width;
-		gbc.gridheight = height;
-	}
 	private void inputTable(int cnt, String zipcode, String address) {
 		table.setValueAt(zipcode, cnt, 0);
 		table.setValueAt(address, cnt, 1);
@@ -365,6 +358,10 @@ public class LbDB_zipcode_Dialog extends LbDB_Frame{
 						  add.buildno2 + "' AND `jibun1` LIKE '" + add.jibun1 + "' AND `jibun2` LIKE '" + add.jibun2 + "'";
 				System.out.println("sql문: " + sql);
 				result = db.getResultSet(sql);
+				
+				if(resultempty_check(result)) {
+					return;
+				}
 				
 				for(int i = 0; i < dataCount; i++) {
 					removeTableRow(i);

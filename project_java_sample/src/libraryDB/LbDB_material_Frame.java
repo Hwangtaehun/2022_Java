@@ -433,6 +433,10 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 	private void LoadList(String now_sql) {
 		result = db.getResultSet(now_sql);
 		
+		if(resultempty_check(result)) {
+			return;
+		}
+		
 		for(int i = 0; i < dataCount; i++) {
 			removeTableRow(i);
 		}
@@ -699,7 +703,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 			String now_sql;
 			LocalDate now;
 			
-			field_count = 0;
+			//field_count = 0;
 			mat_no = 0;
 			
 			if(state == 2) {
@@ -714,15 +718,17 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 					mat_no = result.getInt("material.mat_no");
 					now_sql = "SELECT * FROM `reservation` WHERE `mat_no` = " + mat_no;
 					result = db.getResultSet(now_sql);
+					/*
 					while(result.next()) {
 						field_count++;
 					}
+					*/
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
-				if(field_count == 0) {
+				if(resultempty_check(result)) {
 					mem_no = cl.primarykey();
 					now = LocalDate.now();
 					now_sql = "INSERT INTO `reservation` SET `res_date` = '" + now + "', `mem_no` = " + mem_no 

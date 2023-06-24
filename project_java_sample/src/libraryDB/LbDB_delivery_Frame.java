@@ -8,7 +8,7 @@ import java.sql.*;
 //delivery테이블과 관련있는 event처리 클래스
 public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을 fk.insert_lib_no에 값 입력(OutData()함수 참고)
 	private int mat_no;
-	private String lib_name_array[];
+	private String lib_name_array[], menu_subtitle[];
 	private JTextField tf_bookname, tf_memberid, tf_lib_name;
 	private Combobox_Manager manager;
 	private JComboBox <String> lib_Box;
@@ -21,13 +21,15 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 	LbDB_delivery_Frame(LbDB_DAO db, Client cl, String str){ //상호대차관리와 상호대차
 		this.db = db;
 		this.cl = cl;
-		menu_title = str;
 		pk = cl.primarykey();
 		state = cl.state();
 		fk = new foreignkey();
 		make_lib_array();
 		
-		setTitle(menu_title);
+		menu_subtitle = str.split("-");
+		menu_title = menu_subtitle[0];
+		
+		setTitle(str);
 		menuform();
 		Initform();
 		if(menu_title.equals("상호대차완료내역")) {
@@ -92,30 +94,73 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 		label = new JLabel("                                                  상호 대차   ");
 		gbl.setConstraints(label, gbc);
 		leftPanel.add(label);
-		setGrid(gbc,0,2,1,1);
-		label = new JLabel("    회원아이디   ");
-		gbl.setConstraints(label, gbc);
-		leftPanel.add(label);
-		setGrid(gbc,1,2,1,1);
-		tf_memberid = new JTextField(10);
-		tf_memberid.setEnabled(false);
-		gbl.setConstraints(tf_memberid, gbc);
-		leftPanel.add(tf_memberid);
-		setGrid(gbc,0,5,1,1);
-		label = new JLabel("    책이름    ");
-		gbl.setConstraints(label, gbc);
-		leftPanel.add(label);
-		setGrid(gbc,1,5,1,1);
-		tf_bookname = new JTextField(50);
-		tf_bookname.setEnabled(false);
-		gbl.setConstraints(tf_bookname, gbc);
-		leftPanel.add(tf_bookname);
+		if(menu_subtitle[1].equals("자료")) {
+			setGrid(gbc,0,2,1,1);
+			label = new JLabel("    책이름    ");
+			gbl.setConstraints(label, gbc);
+			leftPanel.add(label);
+			setGrid(gbc,1,2,1,1);
+			tf_bookname = new JTextField(50);
+			tf_bookname.setEnabled(false);
+			gbl.setConstraints(tf_bookname, gbc);
+			leftPanel.add(tf_bookname);
+			/*
+			setGrid(gbc,0,5,1,1);
+			label = new JLabel("    회원아이디   ");
+			gbl.setConstraints(label, gbc);
+			leftPanel.add(label);
+			setGrid(gbc,1,5,1,1);
+			tf_memberid = new JTextField(10);
+			tf_memberid.setEnabled(false);
+			gbl.setConstraints(tf_memberid, gbc);
+			leftPanel.add(tf_memberid);
+			*/
+		}
+		else {
+			setGrid(gbc,0,2,1,1);
+			label = new JLabel("    회원아이디   ");
+			gbl.setConstraints(label, gbc);
+			leftPanel.add(label);
+			setGrid(gbc,1,2,1,1);
+			tf_memberid = new JTextField(10);
+			tf_memberid.setEnabled(false);
+			gbl.setConstraints(tf_memberid, gbc);
+			leftPanel.add(tf_memberid);
+			setGrid(gbc,0,5,1,1);
+			label = new JLabel("    책이름    ");
+			gbl.setConstraints(label, gbc);
+			leftPanel.add(label);
+			setGrid(gbc,1,5,1,1);
+			tf_bookname = new JTextField(50);
+			tf_bookname.setEnabled(false);
+			gbl.setConstraints(tf_bookname, gbc);
+			leftPanel.add(tf_bookname);
+		}
 		if(menu_title.equals("상호대차관리")) {
-			setGrid(gbc,2,2,1,1);
-			bt = new JButton("회원찾기");
-			bt.addActionListener(new memberButtonListener());
-			gbl.setConstraints(bt, gbc);
-			leftPanel.add(bt);
+			if(menu_subtitle[1].equals("자료")) {
+				setGrid(gbc,2,2,1,1);
+				bt = new JButton("자료찾기");
+				bt.addActionListener(new materialButtonListener());
+				gbl.setConstraints(bt, gbc);
+				leftPanel.add(bt);
+//				setGrid(gbc,2,5,1,1);
+//				bt = new JButton("회원찾기");
+//				bt.addActionListener(new memberButtonListener());
+//				gbl.setConstraints(bt, gbc);
+//				leftPanel.add(bt);
+			}
+			else {
+				setGrid(gbc,2,2,1,1);
+				bt = new JButton("회원찾기");
+				bt.addActionListener(new memberButtonListener());
+				gbl.setConstraints(bt, gbc);
+				leftPanel.add(bt);
+				setGrid(gbc,2,5,1,1);
+				bt = new JButton("자료찾기");
+				bt.addActionListener(new materialButtonListener());
+				gbl.setConstraints(bt, gbc);
+				leftPanel.add(bt);
+			}
 			setGrid(gbc,1,3,1,1);
 			bt = new JButton("검색");
 			bt.addActionListener(new researchButtonListener());
@@ -125,11 +170,6 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 			label = new JLabel("        ");
 			gbl.setConstraints(label, gbc);
 			leftPanel.add(label);
-			setGrid(gbc,2,5,1,1);
-			bt = new JButton("자료찾기");
-			bt.addActionListener(new materialButtonListener());
-			gbl.setConstraints(bt, gbc);
-			leftPanel.add(bt);
 		}
 		setGrid(gbc,0,6,1,1);
 		label = new JLabel("    배송되는 도서관    ");
@@ -524,12 +564,16 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 		System.out.println(now_sql);
 		result = db.getResultSet(now_sql);
 		
+		if(resultempty_check(result)) {
+			return;
+		}
+		
 		for(int i = 0; i < dataCount; i++) {
 			removeTableRow(i);
 		}
 		try {
 			if(!now_sql.equals("")) {
-				for(dataCount = 0; result.next(); dataCount++) {
+				for(dataCount = 0; result.next(); dataCount++) {				
 					lib_no = result.getInt("material.lib_no");
 					lib_no_arr = result.getInt("delivery.lib_no_arr");
 					
@@ -746,12 +790,22 @@ public class LbDB_delivery_Frame extends LbDB_main_Frame{ //lib_no_arr의 값을
 			// TODO Auto-generated method stub
 			String now_sql;
 			
-			if(tf_memberid.getText().isEmpty()) {
-				System.out.println("회원아이디를 찾아주세요.");
-				return;
+			if(menu_subtitle[1].equals("회원")) {
+				if(tf_memberid.getText().isEmpty()) {
+					System.out.println("회원아이디를 찾아주세요.");
+					return;
+				}
+				
+				now_sql = sql +  " AND member.mem_no = " + fk.call_mem_no() + sortsql;
+			}
+			else {
+				if(tf_bookname.getText().isEmpty()) {
+					System.out.println("자료를 찾아주세요.");
+					return;
+				}
+				now_sql = sql +  " AND material.mat_no = " + fk.call_mat_no() + sortsql;
 			}
 			
-			now_sql = sql +  " AND member.mem_no = " + fk.call_mem_no() + sortsql;
 			LoadList(now_sql);
 			tablefocus();
 		}
