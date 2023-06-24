@@ -389,7 +389,7 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		}
 	}
 	
-	private void MoveData() {
+	private void MoveData() { //예약버튼부분 확인
 		try {
 			String libraryname = result.getString("library.lib_name");
 			String bookname = result.getString("book.book_name");
@@ -702,6 +702,11 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 			field_count = 0;
 			mat_no = 0;
 			
+			if(state == 2) {
+				JOptionPane.showMessageDialog(null, "정지된 계정이어서 예약이 불가능합니다.", "예약불가", JOptionPane.PLAIN_MESSAGE);
+				return;
+			}
+			
 			answer = JOptionPane.showConfirmDialog(null, "예약하시겠습니까?", "예약", JOptionPane.YES_NO_OPTION );
 			if(answer == JOptionPane.YES_OPTION){
 				//사용자가 yes를 눌렀을 떄
@@ -741,6 +746,11 @@ public class LbDB_material_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
+			if(state == 2) {
+				JOptionPane.showMessageDialog(null, "정지된 계정이어서 상호대차가 불가능합니다.", "상호대차불가", JOptionPane.PLAIN_MESSAGE);
+				return;
+			}
+			
 			try {
 				LbDB_delivery_Frame booksea = new LbDB_delivery_Frame(cl, "상호대차", result.getInt("material.mat_no"));
 				booksea.setVisible(true);
