@@ -222,7 +222,7 @@ class Addresstool{
 }
 
 //주소 검색 대화상자
-public class LbDB_zipcode_Dialog extends LbDB_main_Frame{
+public class LbDB_address_Dialog extends LbDB_main_Frame{
 	private int dataCount, selectedCol;
 	private String address; 
 	private LbDB_DAO db;
@@ -233,8 +233,8 @@ public class LbDB_zipcode_Dialog extends LbDB_main_Frame{
 	private ResultSet result;
 	private foreignkey fk;
 	
-	public LbDB_zipcode_Dialog() {}
-	public LbDB_zipcode_Dialog(JTextField tf_zipcode, JTextField tf_address, foreignkey fk) {
+	public LbDB_address_Dialog() {}
+	public LbDB_address_Dialog(JTextField tf_zipcode, JTextField tf_address, foreignkey fk) {
 		db = new LbDB_DAO();
 		this.tf_zipcode = tf_zipcode;
 		this.tf_address = tf_address;

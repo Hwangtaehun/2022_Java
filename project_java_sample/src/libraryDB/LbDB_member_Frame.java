@@ -455,7 +455,7 @@ public class LbDB_member_Frame extends LbDB_main_Frame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			LbDB_zipcode_Dialog add_Dialog = new LbDB_zipcode_Dialog(tf_zipcode, tf_address, fk);
+			LbDB_address_Dialog add_Dialog = new LbDB_address_Dialog(tf_zipcode, tf_address, fk);
 			add_Dialog.setVisible(true);
 		}
 		

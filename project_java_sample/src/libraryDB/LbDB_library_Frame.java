@@ -391,7 +391,7 @@ public class LbDB_library_Frame extends LbDB_main_Frame {
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			push_addbt = true;
-			LbDB_zipcode_Dialog add_Dialog = new LbDB_zipcode_Dialog(tf_zipcode, tf_address, fk);
+			LbDB_address_Dialog add_Dialog = new LbDB_address_Dialog(tf_zipcode, tf_address, fk);
 			add_Dialog.setVisible(true);
 		}
 	}
