@@ -7,18 +7,22 @@ import java.time.LocalDate;
 import java.util.regex.*;
 
 class book_symbol{
-	String[] cho = {"ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"};
-	String[] joong = {"ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅘ", "ㅙ", "ㅚ", "ㅛ", "ㅜ", "ㅝ", "ㅞ", "ㅟ", "ㅠ", "ㅡ", "ㅢ", "ㅣ"};
-	String[] jong = {"", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"};
+	private String[] cho = {"ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"};
+	private String[] joong = {"ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅘ", "ㅙ", "ㅚ", "ㅛ", "ㅜ", "ㅝ", "ㅞ", "ㅟ", "ㅠ", "ㅡ", "ㅢ", "ㅣ"};
+	private String[] jong = {"", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"};
 	
-	String author_array[], author_symbol;
-	char author_char_array[];
-	boolean lastauthor_exist;
-	boolean failure = false;
+	private String author_array[], author_symbol;
+	private char author_char_array[];
+	private boolean lastauthor_exist;
+	//boolean failure = false;
 	
 	public book_symbol(String author, boolean bool) {
 		lastauthor_exist = bool;
 		author_array = author.split(" ");
+		
+		for(int i = 0; i < author_array.length; i++) {
+			System.out.println(author_array[i]);
+		}
 		
 		inital();
 	}
@@ -27,8 +31,13 @@ class book_symbol{
 		int num = 0;
 		
 		while(english_check(author_array[num])) {
+			if(author_array.length - 1 == num) {
+				break;
+			}
 			num++;
 		}
+		
+		System.out.println("num의 값: " +  num);
 		
 		if(num > 0) {
 			if(korean_check(author_array[num])) {
@@ -36,7 +45,7 @@ class book_symbol{
 			}
 			else {
 				author_array = sequence_change(author_array);
-				author_array = englishToKorean(author_array);
+				author_array = englishTokorean(author_array);
 				author_char_array = first_word(author_array);
 			}
 		}
@@ -46,6 +55,13 @@ class book_symbol{
 				author_char_array = stringTochar(author_array[0]);
 			}
 		}
+		else {
+			if(korean_check(author_array[0])) {
+				author_char_array = stringTochar(author_array[0]);
+			}
+		}
+		
+		finish_symbol();
 	}
 	
 	private boolean korean_check(String str) {
@@ -57,7 +73,12 @@ class book_symbol{
 		
 		character = str.split(".");
 		
-		return Pattern.matches("^[a-zA-Z]*$", character[0]);
+		if(character.length > 0) {
+			return Pattern.matches("^[a-zA-Z]*$", character[0]);
+		}
+		else {
+			return Pattern.matches("^[a-zA-Z]*$", str);
+		}
 	}
 	
 	private String[] sequence_change(String[] str) {
@@ -70,9 +91,13 @@ class book_symbol{
 		return str;
 	}
 	
-	private String[] englishToKorean(String[] str) {
+	private String[] englishTokorean(String[] str) { //여기서 잘못되었음 확인 바람
 		String result = "";
 		String[] result_array;
+		
+		for(int i = 0; i < str.length; i++) {
+			System.out.println("str[" + i + "]: " + str[i]);
+		}
 		
 		for(int i = 0; i < str.length; i++) {
 			switch(str[i]) {
@@ -406,6 +431,7 @@ class book_symbol{
 				break;
 			}
 		}
+		System.out.println("englishTokorean함수의 result: " + result);
 		result_array = result.split("");
 		
 		return result_array;
@@ -415,6 +441,10 @@ class book_symbol{
 		int num = 0, cho_num = 99, joong_num = 99, jong_num = 0;
 		String result;
 		char unicode, result_array[] = null;
+		
+		for(int i = 0; i < str.length; i++) {
+			System.out.println("str[" + i + "]: " + str[i]);
+		}
 		
 		for(int i = 0; i < cho.length; i++) {
 			if(str[num] == cho[i]) {
@@ -447,7 +477,7 @@ class book_symbol{
 		}
 		
 		if(joong_num == 99) {
-			failure = false;
+			//failure = false;
 			return result_array;
 		}
 		
@@ -467,25 +497,155 @@ class book_symbol{
 	}
 	
 	private char[] stringTochar(String str) {
-		String result_str;
-		char uniVal, result_array[] = null;
-		int num_cho, num_joong, num_jong;
+		String str_result;
+		char uniVal, result_array[];
 		
-		result_array[0] = str.charAt(0);
+		//System.out.println("stringTochar의 값: " + str);
+		//System.out.println("str.charAt(0)의 값: " + str.charAt(0));
+		str_result = String.valueOf(str.charAt(0));
 		uniVal = str.charAt(1);
 		
-		num_cho = (uniVal-0xAC00)/28/21;
-		num_joong = (uniVal - 0xAC00)/28%21;
-		num_jong = (uniVal - 0xAC00)%28;
+		str_result += separate_character(uniVal);
 		
-		result_array[1] = cho[num_cho].charAt(0);
-		result_array[2] = joong[num_joong].charAt(0);
-		result_array[3] = jong[num_jong].charAt(0);
+		result_array = new char[str_result.length()];
+		
+		for(int i = 0; i < str_result.length(); i++) {
+			result_array[i] = str_result.charAt(i);
+		}
 		
 		return result_array;
 	}
 	
-	public String separate_charater(char uniVal) {
+	private void finish_symbol() {
+		author_symbol = String.valueOf(author_char_array[0]);
+		
+		switch(author_char_array[1]) {
+		case 'ㄱ':
+		case 'ㄲ':
+			author_symbol += "1";
+			break;
+		case 'ㄴ':
+			author_symbol += "19";
+			break;
+		case 'ㄷ':
+		case 'ㄸ':
+			author_symbol += "2";
+			break;
+		case 'ㄹ':
+			author_symbol += "29";
+			break;
+		case 'ㅁ':
+			author_symbol += "3";
+			break;
+		case 'ㅂ':
+		case 'ㅃ':
+			author_symbol += "4";
+			break;
+		case 'ㅅ':
+		case 'ㅆ':
+			author_symbol += "5";
+			break;
+		case 'ㅇ':
+			author_symbol += "6";
+			break;
+		case 'ㅈ':
+		case 'ㅉ':
+			author_symbol += "7";
+			break;
+		case 'ㅊ':
+			author_symbol += "8";
+			break;
+		case 'ㅋ':
+			author_symbol += "87";
+			break;
+		case 'ㅌ':
+			author_symbol += "88";
+			break;
+		case 'ㅍ':
+			author_symbol += "89";
+			break;
+		case 'ㅎ':
+			author_symbol += "9";
+			break;
+		}
+		
+		if(author_char_array[1] == 'ㅊ') {
+			switch(author_char_array[2]) {
+			case 'ㅏ':
+			case 'ㅐ':
+			case 'ㅑ':
+			case 'ㅒ':
+				author_symbol += "2";
+				break;
+			case 'ㅓ':
+			case 'ㅔ':
+			case 'ㅕ':
+			case 'ㅖ':
+				author_symbol += "3";
+				break;
+			case 'ㅗ':
+			case 'ㅘ':
+			case 'ㅙ':
+			case 'ㅚ':
+			case 'ㅛ':
+				author_symbol += "4";
+				break;
+			case 'ㅜ':
+			case 'ㅝ':
+			case 'ㅞ':
+			case 'ㅟ':
+			case 'ㅠ':
+			case 'ㅡ':
+			case 'ㅢ':
+				author_symbol += "5";
+				break;
+			case 'ㅣ':
+				author_symbol += "6";
+				break;
+			}
+		}
+		else {
+			switch(author_char_array[2]) {
+			case 'ㅏ':
+				author_symbol += "2";
+				break;
+			case 'ㅐ':
+			case 'ㅑ':
+			case 'ㅒ':
+				author_symbol += "3";
+				break;
+			case 'ㅓ':
+			case 'ㅔ':
+			case 'ㅕ':
+			case 'ㅖ':
+				author_symbol += "4";
+				break;
+			case 'ㅗ':
+			case 'ㅘ':
+			case 'ㅙ':
+			case 'ㅚ':
+			case 'ㅛ':
+				author_symbol += "5";
+				break;
+			case 'ㅜ':
+			case 'ㅝ':
+			case 'ㅞ':
+			case 'ㅟ':
+			case 'ㅠ':
+				author_symbol += "6";
+				break;
+			case 'ㅡ':
+			case 'ㅢ':
+				author_symbol += "7";
+				break;	
+			case 'ㅣ':
+				author_symbol += "8";
+				break;
+			}
+		}
+	}
+	
+	public String separate_character(char uniVal) {
 		String result = "";
 		int num_cho, num_joong, num_jong;
 		
@@ -496,16 +656,20 @@ class book_symbol{
 		result += cho[num_cho];
 		result += joong[num_joong];
 		result += jong[num_jong];
-		
 		result.trim();
 		
 		return result;
+	}
+	
+	public String call_symbol() {
+		return author_symbol;
 	}
 }
 
 public class main {	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		/*
 		LbDB_DAO db = new LbDB_DAO();
 		String sql = "SELECT * " + "FROM library, book, material LEFT JOIN lent ON material.mat_no = lent.mat_no " + 
 				     "WHERE library.lib_no = material.lib_no AND book.book_no = material.book_no AND " +
@@ -526,5 +690,22 @@ public class main {
 		
 		LocalDate Now = LocalDate.now();
 		System.out.println(Now);
+		*/
+		String str_kor, str_engkor, str_eng, sym_kor, sym_engkor, sym_eng;
+		book_symbol kor, engkor, eng;
+		
+		str_kor = "김정준";
+		str_engkor = "J.K. 롤링";
+		str_eng = "howard phillips lovecraft";
+		
+		kor = new book_symbol(str_kor, false);
+		engkor = new book_symbol(str_engkor, true);
+		eng = new book_symbol(str_eng, true);
+		
+		sym_kor = kor.call_symbol();
+		sym_engkor = engkor.call_symbol();
+		sym_eng = eng.call_symbol();
+		
+		System.out.println("kor: " + sym_kor + ", engkor: " + sym_engkor + ", eng: " + sym_eng);
 	}
 }
