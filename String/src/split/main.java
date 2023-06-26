@@ -6,46 +6,45 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.regex.*;
 
-class separate_charater{
+class book_symbol{
 	String[] cho = {"ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"};
 	String[] joong = {"ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅘ", "ㅙ", "ㅚ", "ㅛ", "ㅜ", "ㅝ", "ㅞ", "ㅟ", "ㅠ", "ㅡ", "ㅢ", "ㅣ"};
 	String[] jong = {"", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"};
 	
-	
-	String word;
-	String word_array[];
-	char char_array[];
+	String name_array[];
+	char name_char_array[];
 	boolean lastname_exist;
+	boolean failure = false;
 	
-	public separate_charater(String str, boolean bool) {
+	public book_symbol(String name, boolean bool) {
 		lastname_exist = bool;
-		word = str;
-		word_array = str.split(" ");
+		name_array = name.split(" ");
 		
-		inital(word_array);
+		inital();
 	}
 	
 	//올영어, 동양 이름, 서양 이름
-	private void inital(String[] str) {
+	private void inital() {
 		int num = 0;
 		
-		while(english_check(str[num])) {
+		while(english_check(name_array[num])) {
 			num++;
 		}
 		
 		if(num > 0) {
-			if(korean_check(str[num])) {
-				for(int i = 0; i < str[num].length() ; i++) {
-					char_array[i] = str[num].charAt(i);
-				}
+			if(korean_check(name_array[num])) {
+				name_char_array = StringtoChar(name_array[num]);
 			}
 			else {
-				word_array = sequence_change(word_array);
+				name_array = sequence_change(name_array);
+				name_array = englishToKorean(name_array);
+				name_char_array = first_word(name_array);
 			}
 		}
-		else if(word_array.length > 1) {
+		else if(name_array.length > 1) {
 			if(lastname_exist) {
-				word_array = sequence_change(word_array);
+				name_array = sequence_change(name_array);
+				name_char_array = StringtoChar
 			}
 		}
 	}
@@ -72,22 +71,20 @@ class separate_charater{
 		return str;
 	}
 	
-	private String englishToKorean(String str) {
+	private String[] englishToKorean(String[] str) {
 		String result = "";
-		String[] array_str;
+		String[] result_array;
 		
-		array_str = str.split("");
-		
-		for(int i = 0; i < array_str.length; i++) {
-			switch(array_str[i]) {
+		for(int i = 0; i < str.length; i++) {
+			switch(str[i]) {
 			case "a":
 			case "A":
-				if(i == array_str.length - 1) {
+				if(i == str.length - 1) {
 					result += "ㅏ";
 				}
 				else {
 					i++;
-					if(array_str[i].equals("e")) {
+					if(str[i].equals("e")) {
 						result += "ㅐ";
 					}
 					else {
@@ -102,12 +99,12 @@ class separate_charater{
 				break;
 			case "c":
 			case "C":
-				if(i == array_str.length - 1) {
+				if(i == str.length - 1) {
 					result += "ㅋ";
 				}
 				else {
 					i++;
-					if(array_str[i].equals("h")) {
+					if(str[i].equals("h")) {
 						result += "ㅊ";
 					}
 					else {
@@ -122,18 +119,18 @@ class separate_charater{
 				break;
 			case "e":
 			case "E":
-				if(i == array_str.length - 1) {
+				if(i == str.length - 1) {
 					result += "ㅔ";
 				}
 				else {
 					i++;
-					if(array_str[i].equals("o")) {
+					if(str[i].equals("o")) {
 						result += "ㅓ";
 					}
-					else if(array_str[i].equals("u")) {
+					else if(str[i].equals("u")) {
 						result += "ㅡ";
 					}
-					else if(array_str[i].equals("e")) {
+					else if(str[i].equals("e")) {
 						result += "ㅣ";
 					}
 					else {
@@ -160,12 +157,12 @@ class separate_charater{
 				break;
 			case "J":
 			case "j":
-				if(i == array_str.length - 1) {
+				if(i == str.length - 1) {
 					result += "ㅈ";
 				}
 				else {
 					i++;
-					if(array_str[i].equals("j")) {
+					if(str[i].equals("j")) {
 						result += "ㅉ";
 					}
 					else {
@@ -176,12 +173,12 @@ class separate_charater{
 				break;
 			case "K":
 			case "k":
-				if(i == array_str.length - 1) {
+				if(i == str.length - 1) {
 					result += "ㅋ";
 				}
 				else {
 					i++;
-					if(array_str[i].equals("k")) {
+					if(str[i].equals("k")) {
 						result += "ㄲ";
 					}
 					else {
@@ -200,12 +197,12 @@ class separate_charater{
 				break;
 			case "N":
 			case "n":
-				if(i == array_str.length - 1) {
+				if(i == str.length - 1) {
 					result += "ㄴ";
 				}
 				else {
 					i++;
-					if(array_str[i].equals("g")) {
+					if(str[i].equals("g")) {
 						result += "ㅇ";
 					}
 					else {
@@ -216,13 +213,16 @@ class separate_charater{
 				break;
 			case "O":
 			case "o":
-				if(i == array_str.length - 1) {
+				if(i == str.length - 1) {
 					result += "ㅗ";
 				}
 				else {
 					i++;
-					if(array_str[i].equals("e")) {
+					if(str[i].equals("e")) {
 						result += "ㅚ";
+					}
+					else if(str[i].equals("o")) {
+						result += "ㅜ";
 					}
 					else {
 						i--;
@@ -232,12 +232,12 @@ class separate_charater{
 				break;
 			case "P":
 			case "p":
-				if(i == array_str.length - 1) {
+				if(i == str.length - 1) {
 					result += "ㅍ";
 				}
 				else {
 					i++;
-					if(array_str[i].equals("p")) {
+					if(str[i].equals("p")) {
 						result += "ㅃ";
 					}
 					else {
@@ -256,12 +256,12 @@ class separate_charater{
 				break;
 			case "S":
 			case "s":
-				if(i == array_str.length - 1) {
+				if(i == str.length - 1) {
 					result += "ㅅ";
 				}
 				else {
 					i++;
-					if(array_str[i].equals("s")) {
+					if(str[i].equals("s")) {
 						result += "ㅆ";
 					}
 					else {
@@ -272,12 +272,12 @@ class separate_charater{
 				break;
 			case "T":
 			case "t":
-				if(i == array_str.length - 1) {
+				if(i == str.length - 1) {
 					result += "ㅌ";
 				}
 				else {
 					i++;
-					if(array_str[i].equals("t")) {
+					if(str[i].equals("t")) {
 						result += "ㄸ";
 					}
 					else {
@@ -288,12 +288,12 @@ class separate_charater{
 				break;
 			case "U":
 			case "u":
-				if(i == array_str.length - 1) {
+				if(i == str.length - 1) {
 					result += "ㅜ";
 				}
 				else {
 					i++;
-					if(array_str[i].equals("i")) {
+					if(str[i].equals("i")) {
 						result += "ㅢ";
 					}
 					else {
@@ -308,18 +308,18 @@ class separate_charater{
 				break;
 			case "W":
 			case "w":
-				if(i == array_str.length - 1) {
+				if(i == str.length - 1) {
 					result += "ㅝ";
 				}
 				else {
 					i++;
-					if(array_str[i].equals("a")) {
-						if(i == array_str.length - 1) {
+					if(str[i].equals("a")) {
+						if(i == str.length - 1) {
 							result += "ㅘ";
 						}
 						else {
 							i++;
-							if(array_str[i].equals("e")) {
+							if(str[i].equals("e")) {
 								result += "ㅙ";
 							}
 							else {
@@ -328,13 +328,13 @@ class separate_charater{
 							}
 						}
 					}
-					else if(array_str[i].equals("e")) {
+					else if(str[i].equals("e")) {
 						result += "ㅞ";
 					}
-					else if(array_str[i].equals("i")) {
+					else if(str[i].equals("i")) {
 						result += "ㅟ";
 					}
-					else if(array_str[i].equals("o")) {
+					else if(str[i].equals("o")) {
 						result += "ㅝ";
 					}
 					else {
@@ -352,20 +352,20 @@ class separate_charater{
 				break;
 			case "Y":
 			case "y":
-				if(i == array_str.length - 1) {
+				if(i == str.length - 1) {
 					result += "ㅏ";
 					result += "ㅇ";
 					result += "ㅣ";
 				}
 				else {
 					i++;
-					if(array_str[i].equals("a")) {
-						if(i == array_str.length - 1) {
+					if(str[i].equals("a")) {
+						if(i == str.length - 1) {
 							result += "ㅒ";
 						}
 						else {
 							i++;
-							if(array_str[i].equals("e")) {
+							if(str[i].equals("e")) {
 								result += "ㅑ";
 							}
 							else {
@@ -374,13 +374,13 @@ class separate_charater{
 							}
 						}
 					}
-					else if(array_str[i].equals("e")) {
-						if(i == array_str.length - 1) {
+					else if(str[i].equals("e")) {
+						if(i == str.length - 1) {
 							result += "ㅖ";
 						}
 						else {
 							i++;
-							if(array_str[i].equals("o")) {
+							if(str[i].equals("o")) {
 								result += "ㅕ";
 							}
 							else {
@@ -389,10 +389,10 @@ class separate_charater{
 							}
 						}
 					}
-					else if(array_str[i].equals("o")) {
+					else if(str[i].equals("o")) {
 						result += "ㅛ";
 					}
-					else if(array_str[i].equals("u")) {
+					else if(str[i].equals("u")) {
 						result += "ㅠ";
 					}
 					else {
@@ -407,8 +407,83 @@ class separate_charater{
 				break;
 			}
 		}
+		result_array = result.split("");
 		
-		return result;
+		return result_array;
+	}
+	
+	private char[] first_word(String[] str) {
+		int num = 0, cho_num = 99, joong_num = 99, jong_num = 0;
+		String result;
+		char unicode, result_array[] = null;
+		
+		for(int i = 0; i < cho.length; i++) {
+			if(str[num] == cho[i]) {
+				cho_num = i;
+			}
+		}
+		
+		if(cho_num == 99) {
+			cho_num = 11;
+		}
+		
+		num++;
+		
+		for(int i = 0; i < joong.length; i++) {
+			if(str[num] == joong[i]) {
+				joong_num = i;
+			}
+		}
+		
+		num++;
+		
+		for(int i = 0; i < jong.length; i++) {
+			if(str[num] == jong[i]) {
+				jong_num = i;
+			}
+		}
+		
+		if(jong_num == 0) {
+			num--;
+		}
+		
+		if(joong_num == 99) {
+			failure = false;
+			return result_array;
+		}
+		
+		unicode = (char)((cho_num * 21 + joong_num) * 28 + jong_num + 0xAC00);
+		
+		result = String.valueOf(unicode);
+		
+		for(int i = num; i < str.length; i++) {
+			result += str[i];
+		}
+		
+		for(int i = 0; i < result.length(); i++) {
+			result_array[i] = result.charAt(i);
+		}
+		
+		return result_array;
+	}
+	
+	private char[] stringTochar(String str) {
+		int num_cho, num_joong, num_jong;
+		char uniVal;
+		char result_array[] = null;
+		
+		result_array[0] = str.charAt(0);
+		uniVal = str.charAt(1);
+		
+		num_cho = (uniVal-0xAC00)/28/21;
+		num_joong = (uniVal - 0xAC00)/28%21;
+		num_jong = (uniVal - 0xAC00)%28;
+		
+		result_array[1] = cho[num_cho].charAt(0);
+		result_array[2] = joong[num_joong].charAt(0);
+		result_array[3] = jong[num_jong].charAt(0);
+		
+		return result_array;
 	}
 }
 
