@@ -11,40 +11,39 @@ class book_symbol{
 	String[] joong = {"ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅘ", "ㅙ", "ㅚ", "ㅛ", "ㅜ", "ㅝ", "ㅞ", "ㅟ", "ㅠ", "ㅡ", "ㅢ", "ㅣ"};
 	String[] jong = {"", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"};
 	
-	String name_array[];
-	char name_char_array[];
-	boolean lastname_exist;
+	String author_array[], author_symbol;
+	char author_char_array[];
+	boolean lastauthor_exist;
 	boolean failure = false;
 	
-	public book_symbol(String name, boolean bool) {
-		lastname_exist = bool;
-		name_array = name.split(" ");
+	public book_symbol(String author, boolean bool) {
+		lastauthor_exist = bool;
+		author_array = author.split(" ");
 		
 		inital();
 	}
 	
-	//올영어, 동양 이름, 서양 이름
 	private void inital() {
 		int num = 0;
 		
-		while(english_check(name_array[num])) {
+		while(english_check(author_array[num])) {
 			num++;
 		}
 		
 		if(num > 0) {
-			if(korean_check(name_array[num])) {
-				name_char_array = StringtoChar(name_array[num]);
+			if(korean_check(author_array[num])) {
+				author_char_array = stringTochar(author_array[num]);
 			}
 			else {
-				name_array = sequence_change(name_array);
-				name_array = englishToKorean(name_array);
-				name_char_array = first_word(name_array);
+				author_array = sequence_change(author_array);
+				author_array = englishToKorean(author_array);
+				author_char_array = first_word(author_array);
 			}
 		}
-		else if(name_array.length > 1) {
-			if(lastname_exist) {
-				name_array = sequence_change(name_array);
-				name_char_array = StringtoChar
+		else if(author_array.length > 1) {
+			if(lastauthor_exist) {
+				author_array = sequence_change(author_array);
+				author_char_array = stringTochar(author_array[0]);
 			}
 		}
 	}
@@ -468,9 +467,9 @@ class book_symbol{
 	}
 	
 	private char[] stringTochar(String str) {
+		String result_str;
+		char uniVal, result_array[] = null;
 		int num_cho, num_joong, num_jong;
-		char uniVal;
-		char result_array[] = null;
 		
 		result_array[0] = str.charAt(0);
 		uniVal = str.charAt(1);
@@ -484,6 +483,23 @@ class book_symbol{
 		result_array[3] = jong[num_jong].charAt(0);
 		
 		return result_array;
+	}
+	
+	public String separate_charater(char uniVal) {
+		String result = "";
+		int num_cho, num_joong, num_jong;
+		
+		num_cho = (uniVal-0xAC00)/28/21;
+		num_joong = (uniVal - 0xAC00)/28%21;
+		num_jong = (uniVal - 0xAC00)%28;
+		
+		result += cho[num_cho];
+		result += joong[num_joong];
+		result += jong[num_jong];
+		
+		result.trim();
+		
+		return result;
 	}
 }
 
