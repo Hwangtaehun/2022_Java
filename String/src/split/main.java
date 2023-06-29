@@ -45,7 +45,7 @@ class book_symbol{
 			}
 			else {
 				author_array = sequence_change(author_array);
-				author_array = englishTokorean(author_array);
+				author_array = englishTokorean(author_array[0]);
 				author_char_array = first_word(author_array);
 			}
 		}
@@ -91,24 +91,24 @@ class book_symbol{
 		return str;
 	}
 	
-	private String[] englishTokorean(String[] str) { //여기서 잘못되었음 확인 바람
+	private String[] englishTokorean(String str) { //여기서 잘못되었음 확인 바람
 		String result = "";
 		String[] result_array;
 		
-		for(int i = 0; i < str.length; i++) {
-			System.out.println("str[" + i + "]: " + str[i]);
+		for(int i = 0; i < str.length(); i++) {
+			System.out.println("str[" + i + "]: " + str.charAt(i));
 		}
 		
-		for(int i = 0; i < str.length; i++) {
-			switch(str[i]) {
-			case "a":
-			case "A":
-				if(i == str.length - 1) {
+		for(int i = 0; i < str.length(); i++) {
+			switch(str.charAt(i)) {
+			case 'a':
+			case 'A':
+				if(i == str.length() - 1) {
 					result += "ㅏ";
 				}
 				else {
 					i++;
-					if(str[i].equals("e")) {
+					if(str.charAt(i) == 'e') {
 						result += "ㅐ";
 					}
 					else {
@@ -117,18 +117,18 @@ class book_symbol{
 					}
 				}
 				break;
-			case "b":
-			case "B":
+			case 'b':
+			case 'B':
 				result += "ㅂ";
 				break;
-			case "c":
-			case "C":
-				if(i == str.length - 1) {
+			case 'c':
+			case 'C':
+				if(i == str.length() - 1) {
 					result += "ㅋ";
 				}
 				else {
 					i++;
-					if(str[i].equals("h")) {
+					if(str.charAt(i) == 'h') {
 						result += "ㅊ";
 					}
 					else {
@@ -137,24 +137,24 @@ class book_symbol{
 					}
 				}
 				break;
-			case "d":
-			case "D":
+			case 'd':
+			case 'D':
 				result += "ㄷ";
 				break;
-			case "e":
-			case "E":
-				if(i == str.length - 1) {
+			case 'e':
+			case 'E':
+				if(i == str.length() - 1) {
 					result += "ㅔ";
 				}
 				else {
 					i++;
-					if(str[i].equals("o")) {
+					if(str.charAt(i) == 'o') {
 						result += "ㅓ";
 					}
-					else if(str[i].equals("u")) {
+					else if(str.charAt(i) == 'u') {
 						result += "ㅡ";
 					}
-					else if(str[i].equals("e")) {
+					else if(str.charAt(i) == 'e') {
 						result += "ㅣ";
 					}
 					else {
@@ -163,30 +163,30 @@ class book_symbol{
 					}
 				}
 				break;
-			case "f":
-			case "F":
+			case 'f':
+			case 'F':
 				result += "ㅍ";
 				break;
-			case "G":
-			case "g":
+			case 'G':
+			case 'g':
 				result += "ㄱ";
 				break;
-			case "H":
-			case "h":
+			case 'H':
+			case 'h':
 				result += "ㅎ";
 				break;
-			case "I":
-			case "i":
+			case 'I':
+			case 'i':
 				result += "ㅣ";
 				break;
-			case "J":
-			case "j":
-				if(i == str.length - 1) {
+			case 'J':
+			case 'j':
+				if(i == str.length() - 1) {
 					result += "ㅈ";
 				}
 				else {
 					i++;
-					if(str[i].equals("j")) {
+					if(str.charAt(i) == 'j') {
 						result += "ㅉ";
 					}
 					else {
@@ -195,14 +195,14 @@ class book_symbol{
 					}
 				}
 				break;
-			case "K":
-			case "k":
-				if(i == str.length - 1) {
+			case 'K':
+			case 'k':
+				if(i == str.length() - 1) {
 					result += "ㅋ";
 				}
 				else {
 					i++;
-					if(str[i].equals("k")) {
+					if(str.charAt(i) == 'k') {
 						result += "ㄲ";
 					}
 					else {
@@ -211,22 +211,22 @@ class book_symbol{
 					}
 				}
 				break;
-			case "L":
-			case "l":
+			case 'L':
+			case 'l':
 				result += "ㄹ";
 				break;
-			case "M":
-			case "m":
+			case 'M':
+			case 'm':
 				result += "ㅁ";
 				break;
-			case "N":
-			case "n":
-				if(i == str.length - 1) {
+			case 'N':
+			case 'n':
+				if(i == str.length() - 1) {
 					result += "ㄴ";
 				}
 				else {
 					i++;
-					if(str[i].equals("g")) {
+					if(str.charAt(i) == 'g') {
 						result += "ㅇ";
 					}
 					else {
@@ -235,17 +235,17 @@ class book_symbol{
 					}
 				}
 				break;
-			case "O":
-			case "o":
-				if(i == str.length - 1) {
+			case 'O':
+			case 'o':
+				if(i == str.length() - 1) {
 					result += "ㅗ";
 				}
 				else {
 					i++;
-					if(str[i].equals("e")) {
+					if(str.charAt(i) == 'e') {
 						result += "ㅚ";
 					}
-					else if(str[i].equals("o")) {
+					else if(str.charAt(i) == 'o') {
 						result += "ㅜ";
 					}
 					else {
@@ -254,14 +254,14 @@ class book_symbol{
 					}
 				}
 				break;
-			case "P":
-			case "p":
-				if(i == str.length - 1) {
+			case 'P':
+			case 'p':
+				if(i == str.length() - 1) {
 					result += "ㅍ";
 				}
 				else {
 					i++;
-					if(str[i].equals("p")) {
+					if(str.charAt(i) == 'p') {
 						result += "ㅃ";
 					}
 					else {
@@ -270,22 +270,22 @@ class book_symbol{
 					}
 				}
 				break;
-			case "Q":
-			case "q":
+			case 'Q':
+			case 'q':
 				result += "ㅋ";
 				break;
-			case "R":
-			case "r":
+			case 'R':
+			case 'r':
 				result += "ㄹ";
 				break;
-			case "S":
-			case "s":
-				if(i == str.length - 1) {
+			case 'S':
+			case 's':
+				if(i == str.length() - 1) {
 					result += "ㅅ";
 				}
 				else {
 					i++;
-					if(str[i].equals("s")) {
+					if(str.charAt(i) == 's') {
 						result += "ㅆ";
 					}
 					else {
@@ -294,14 +294,14 @@ class book_symbol{
 					}
 				}
 				break;
-			case "T":
-			case "t":
-				if(i == str.length - 1) {
+			case 'T':
+			case 't':
+				if(i == str.length() - 1) {
 					result += "ㅌ";
 				}
 				else {
 					i++;
-					if(str[i].equals("t")) {
+					if(str.charAt(i) == 't') {
 						result += "ㄸ";
 					}
 					else {
@@ -310,14 +310,14 @@ class book_symbol{
 					}
 				}
 				break;
-			case "U":
-			case "u":
-				if(i == str.length - 1) {
+			case 'U':
+			case 'u':
+				if(i == str.length() - 1) {
 					result += "ㅜ";
 				}
 				else {
 					i++;
-					if(str[i].equals("i")) {
+					if(str.charAt(i) == 'i') {
 						result += "ㅢ";
 					}
 					else {
@@ -326,24 +326,24 @@ class book_symbol{
 					}
 				}
 				break;
-			case "V":
-			case "v":
+			case 'V':
+			case 'v':
 				result += "ㅂ";
 				break;
-			case "W":
-			case "w":
-				if(i == str.length - 1) {
+			case 'W':
+			case 'w':
+				if(i == str.length() - 1) {
 					result += "ㅝ";
 				}
 				else {
 					i++;
-					if(str[i].equals("a")) {
-						if(i == str.length - 1) {
+					if(str.charAt(i) == 'a') {
+						if(i == str.length() - 1) {
 							result += "ㅘ";
 						}
 						else {
 							i++;
-							if(str[i].equals("e")) {
+							if(str.charAt(i) == 'e') {
 								result += "ㅙ";
 							}
 							else {
@@ -352,13 +352,13 @@ class book_symbol{
 							}
 						}
 					}
-					else if(str[i].equals("e")) {
+					else if(str.charAt(i) == 'e') {
 						result += "ㅞ";
 					}
-					else if(str[i].equals("i")) {
+					else if(str.charAt(i) == 'i') {
 						result += "ㅟ";
 					}
-					else if(str[i].equals("o")) {
+					else if(str.charAt(i) == 'o') {
 						result += "ㅝ";
 					}
 					else {
@@ -367,29 +367,29 @@ class book_symbol{
 					}
 				}
 				break;
-			case "X":
-			case "x":
+			case 'X':
+			case 'x':
 				result += "ㅋ";
 				result += "ㅡ";
 				result += "ㅅ";
 				result += "ㅡ";
 				break;
-			case "Y":
-			case "y":
-				if(i == str.length - 1) {
+			case 'Y':
+			case 'y':
+				if(i == str.length() - 1) {
 					result += "ㅏ";
 					result += "ㅇ";
 					result += "ㅣ";
 				}
 				else {
 					i++;
-					if(str[i].equals("a")) {
-						if(i == str.length - 1) {
+					if(str.charAt(i) == 'a') {
+						if(i == str.length() - 1) {
 							result += "ㅒ";
 						}
 						else {
 							i++;
-							if(str[i].equals("e")) {
+							if(str.charAt(i) == 'e') {
 								result += "ㅑ";
 							}
 							else {
@@ -398,13 +398,13 @@ class book_symbol{
 							}
 						}
 					}
-					else if(str[i].equals("e")) {
-						if(i == str.length - 1) {
+					else if(str.charAt(i) == 'e') {
+						if(i == str.length() - 1) {
 							result += "ㅖ";
 						}
 						else {
 							i++;
-							if(str[i].equals("o")) {
+							if(str.charAt(i) == 'o') {
 								result += "ㅕ";
 							}
 							else {
@@ -413,10 +413,10 @@ class book_symbol{
 							}
 						}
 					}
-					else if(str[i].equals("o")) {
+					else if(str.charAt(i) == 'o') {
 						result += "ㅛ";
 					}
-					else if(str[i].equals("u")) {
+					else if(str.charAt(i) == 'u') {
 						result += "ㅠ";
 					}
 					else {
@@ -425,8 +425,8 @@ class book_symbol{
 					}
 				}
 				break;
-			case "Z":
-			case "z":
+			case 'Z':
+			case 'z':
 				result += "ㅅ";
 				break;
 			}
@@ -442,12 +442,8 @@ class book_symbol{
 		String result;
 		char unicode, result_array[] = null;
 		
-		for(int i = 0; i < str.length; i++) {
-			System.out.println("str[" + i + "]: " + str[i]);
-		}
-		
 		for(int i = 0; i < cho.length; i++) {
-			if(str[num] == cho[i]) {
+			if(str[num].equals(cho[i])) {
 				cho_num = i;
 			}
 		}
@@ -456,21 +452,27 @@ class book_symbol{
 			cho_num = 11;
 		}
 		
+		System.out.println("cho_num: " + cho_num);
+		
 		num++;
 		
 		for(int i = 0; i < joong.length; i++) {
-			if(str[num] == joong[i]) {
+			if(str[num].equals(joong[i])) {
 				joong_num = i;
 			}
 		}
 		
+		System.out.println("joong_num: " + joong_num);
+		
 		num++;
 		
 		for(int i = 0; i < jong.length; i++) {
-			if(str[num] == jong[i]) {
+			if(str[num].equals(jong[i])) {
 				jong_num = i;
 			}
 		}
+		
+		System.out.println("jong_num: " + jong_num);
 		
 		if(jong_num == 0) {
 			num--;
@@ -482,12 +484,15 @@ class book_symbol{
 		}
 		
 		unicode = (char)((cho_num * 21 + joong_num) * 28 + jong_num + 0xAC00);
+		System.out.println("unicode = " + unicode);
 		
 		result = String.valueOf(unicode);
 		
 		for(int i = num; i < str.length; i++) {
 			result += str[i];
 		}
+		
+		result_array = new char[result.length()];
 		
 		for(int i = 0; i < result.length(); i++) {
 			result_array[i] = result.charAt(i);
