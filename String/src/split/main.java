@@ -37,14 +37,14 @@ class book_symbol{
 			num++;
 		}
 		
-		System.out.println("num의 값: " +  num);
-		
 		if(num > 0) {
 			if(korean_check(author_array[num])) {
 				author_char_array = stringTochar(author_array[num]);
 			}
 			else {
-				author_array = sequence_change(author_array);
+				if(lastauthor_exist) {
+					author_array = sequence_change(author_array);
+				}
 				author_array = englishTokorean(author_array[0]);
 				author_char_array = first_word(author_array);
 			}
@@ -52,8 +52,8 @@ class book_symbol{
 		else if(author_array.length > 1) {
 			if(lastauthor_exist) {
 				author_array = sequence_change(author_array);
-				author_char_array = stringTochar(author_array[0]);
 			}
+			author_char_array = stringTochar(author_array[0]);
 		}
 		else {
 			if(korean_check(author_array[0])) {
@@ -61,7 +61,9 @@ class book_symbol{
 			}
 		}
 		
-		finish_symbol();
+		if(author_char_array != null) {
+			finish_symbol();
+		}
 	}
 	
 	private boolean korean_check(String str) {
@@ -479,15 +481,15 @@ class book_symbol{
 		}
 		
 		if(joong_num == 99) {
-			//failure = false;
 			return result_array;
 		}
+		
+		num++;
 		
 		unicode = (char)((cho_num * 21 + joong_num) * 28 + jong_num + 0xAC00);
 		System.out.println("unicode = " + unicode);
 		
 		result = String.valueOf(unicode);
-		
 		for(int i = num; i < str.length; i++) {
 			result += str[i];
 		}
@@ -522,9 +524,13 @@ class book_symbol{
 	}
 	
 	private void finish_symbol() {
-		author_symbol = String.valueOf(author_char_array[0]);
+		int num = 0;
 		
-		switch(author_char_array[1]) {
+		author_symbol = String.valueOf(author_char_array[num]);
+		
+		num++;
+		
+		switch(author_char_array[num]) {
 		case 'ㄱ':
 		case 'ㄲ':
 			author_symbol += "1";
@@ -574,8 +580,15 @@ class book_symbol{
 			break;
 		}
 		
-		if(author_char_array[1] == 'ㅊ') {
-			switch(author_char_array[2]) {
+		if(author_symbol.equals(String.valueOf(author_char_array[0]))) {
+			author_symbol += "6";
+		}
+		else {
+			num++;
+		}
+		
+		if(author_char_array[num-1] == 'ㅊ') {
+			switch(author_char_array[num]) {
 			case 'ㅏ':
 			case 'ㅐ':
 			case 'ㅑ':
@@ -610,7 +623,7 @@ class book_symbol{
 			}
 		}
 		else {
-			switch(author_char_array[2]) {
+			switch(author_char_array[num]) {
 			case 'ㅏ':
 				author_symbol += "2";
 				break;
@@ -696,21 +709,24 @@ public class main {
 		LocalDate Now = LocalDate.now();
 		System.out.println(Now);
 		*/
-		String str_kor, str_engkor, str_eng, sym_kor, sym_engkor, sym_eng;
-		book_symbol kor, engkor, eng;
+		String str_kor, str_engkor, str_eng, sym_kor, sym_engkor, sym_eng, str_error, sym_error;
+		book_symbol kor, engkor, eng, error;
 		
 		str_kor = "김정준";
-		str_engkor = "J.K. 롤링";
+		str_engkor = "J.K. 롤칭";
 		str_eng = "howard phillips lovecraft";
+		str_error = "abcd efgh";
 		
 		kor = new book_symbol(str_kor, false);
 		engkor = new book_symbol(str_engkor, true);
 		eng = new book_symbol(str_eng, true);
+		error = new book_symbol(str_error , false);
 		
 		sym_kor = kor.call_symbol();
 		sym_engkor = engkor.call_symbol();
 		sym_eng = eng.call_symbol();
+		sym_error = error.call_symbol();
 		
-		System.out.println("kor: " + sym_kor + ", engkor: " + sym_engkor + ", eng: " + sym_eng);
+		System.out.println("kor: " + sym_kor + ", engkor: " + sym_engkor + ", eng: " + sym_eng + ", error: " + sym_error);
 	}
 }
