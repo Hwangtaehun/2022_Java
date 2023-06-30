@@ -9,7 +9,7 @@ import java.time.format.*;
 
 //reservation 테이블과 관련있는 event처리 클래스
 public class LbDB_reservation_Frame extends LbDB_main_Frame {
-	JTextField tf_mem_id, tf_mat_name;
+	JTextField tf_mem_id, tf_mat_name, tf_research;
 	
 	LbDB_reservation_Frame(){}
 	LbDB_reservation_Frame(LbDB_DAO db, Client cl, String title){
@@ -20,6 +20,19 @@ public class LbDB_reservation_Frame extends LbDB_main_Frame {
 		state = cl.state();
 		fk = new foreignkey();
 		menuform();
+		Initform();
+		
+		addWindowListener(this);
+	}
+	
+	LbDB_reservation_Frame(Client cl, String str, SwingItem si, foreignkey fk){
+		db = new LbDB_DAO();
+		this.cl = cl;
+		menu_title = str;
+		pk = cl.primarykey();
+		state = cl.state();
+		fk = new foreignkey();
+		dialog(menu_title);
 		Initform();
 	}
 	
@@ -34,7 +47,15 @@ public class LbDB_reservation_Frame extends LbDB_main_Frame {
 		label = new JLabel(menu_title);
 		titlePanel.add(label);
 		
+		researchPanel = new JPanel();
 		label = new JLabel("검색");
+		researchPanel.add(label);
+		tf_research = new JTextField(10);
+		tf_research.setEnabled(false);
+		researchPanel.add(tf_research);
+		bt = new JButton("회원검색");
+		bt.addActionListener(new memberButtonListener());
+		researchPanel.add(bt);
 	}
 	
 	class memberButtonListener implements ActionListener{
