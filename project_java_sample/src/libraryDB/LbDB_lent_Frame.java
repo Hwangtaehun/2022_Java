@@ -174,7 +174,7 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			leftPanel.add(lib_Box);
 			setGrid(gbc,2,1,1,1);
 			bt = new JButton("예약");
-			//bt.addActionListener(new bookseaButtonListener());
+			bt.addActionListener(new reservationButtonListener());
 			gbl.setConstraints(bt, gbc);
 			leftPanel.add(bt);
 			setGrid(gbc,3,1,1,1);
@@ -550,6 +550,38 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 		return len_state;
 	}
 	
+	private void reservation_check() {
+		int mem_no = 0, res_no = 0;
+		String now_sql;
+		boolean bool = false;
+		
+		now_sql = "SELECT * FROM `reservation` WHERE `mat_no` = " + fk.call_mat_no();
+		System.out.println(now_sql);
+		result = db.getResultSet(now_sql);
+		
+		try {
+			while(result.next()) {
+				bool = true;
+				mem_no = result.getInt("mem_no");
+				res_no = result.getInt("res_no");
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(mem_no == fk.call_mem_no()) {
+			bool = false;
+			now_sql = "DELECT FROM `reservation` WHERE `res_no` = " + res_no;
+			db.Excute(now_sql);
+		}
+		
+		if(bool) {
+			JOptionPane.showMessageDialog(null, "예약도서입니다.", "대출 오류", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+	}
+	
 	public class researchButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -625,10 +657,13 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			if(warning()) {
 				len_date = LocalDate.now(); 
 				if(menu_title.equals("대출추가")) {
+					reservation_check();
+					
 					now_sql = "INSERT INTO `lent` ( mat_no, mem_no, len_ex, len_date ) VALUES(" + fk.call_mat_no() + ", "
 							+ fk.call_mem_no() + ", " + ex + ", '" + len_date + "')";
 					System.out.println(now_sql);
 					db.Excute(now_sql);
+					
 					next_sql = "SELECT `len_no` FROM `lent` WHERE `mat_no` = " + fk.call_mat_no() + " AND `mem_no` = "
 							 + fk.call_mem_no() + " AND `len_date` = '" + len_date + "'";
 					result = db.getResultSet(next_sql);
@@ -705,6 +740,8 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 					return;
 				}
 			}
+			
+			reservation_check();
 			
 			try {
 				code = result.getInt("lent.len_no");
@@ -812,6 +849,14 @@ public class LbDB_lent_Frame extends LbDB_main_Frame {
 			booksea_use = true;
 			booksea.setVisible(true);
 		}		
+	}
+	
+	public class reservationButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			SwingItem si = new SwingItem(lib_select.combox, tf_book_name, tf_mem_id);
+		}
 	}
 	
 	public class tableListener implements ListSelectionListener{
