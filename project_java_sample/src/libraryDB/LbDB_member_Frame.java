@@ -14,7 +14,8 @@ public class LbDB_member_Frame extends LbDB_main_Frame {
 	private JPasswordField tf_Pw, tf_Pw2;
 	private JButton bt_complete;
 	private int mem_state, mem_lent;
-	private boolean state_bool = false;
+	private boolean state_bool = false; //계정정지
+	private LbDB_reservation_Frame res = null;
 	
 	public LbDB_member_Frame() {}
 	public LbDB_member_Frame(LbDB_DAO db, String title) {
@@ -25,20 +26,6 @@ public class LbDB_member_Frame extends LbDB_main_Frame {
 		baseform();
 		baseform_final();
 		dialog("회원 가입");
-	}
-	public LbDB_member_Frame(String title, JTextField tf, foreignkey fk, boolean bool) {
-		db = new LbDB_DAO();
-		menu_title = title;
-		this.fk = fk;
-		tf_dialog = tf;
-		state_bool = bool;
-		sql = "SELECT * FROM `member`, `address` WHERE `member`.`add_no` = `address`.`add_no` AND NOT `mem_state` = 1";
-		sortsql = " ORDER BY `mem_name`";
-		Initform();
-		dialogform();
-		tableform();
-		dialogform_final();
-		dialog(title);
 	}
 	public LbDB_member_Frame(LbDB_DAO db, Client cl,  String title) {
 		this.db = db;
@@ -62,6 +49,35 @@ public class LbDB_member_Frame extends LbDB_main_Frame {
 		}
 		setTitle(title);
 		addWindowListener(this);
+	}
+	public LbDB_member_Frame(String title, JTextField tf, foreignkey fk, boolean bool) {
+		db = new LbDB_DAO();
+		menu_title = title;
+		this.fk = fk;
+		tf_dialog = tf;
+		state_bool = bool;
+		sql = "SELECT * FROM `member`, `address` WHERE `member`.`add_no` = `address`.`add_no` AND NOT `mem_state` = 1";
+		sortsql = " ORDER BY `mem_name`";
+		Initform();
+		dialogform();
+		tableform();
+		dialogform_final();
+		dialog(title);
+	}
+	public LbDB_member_Frame(String title, JTextField tf, foreignkey fk, LbDB_reservation_Frame res) {
+		db = new LbDB_DAO();
+		menu_title = title;
+		this.fk = fk;
+		tf_dialog = tf;
+		this.res = res;
+		state_bool = true;
+		sql = "SELECT * FROM `member`, `address` WHERE `member`.`add_no` = `address`.`add_no` AND NOT `mem_state` = 1";
+		sortsql = " ORDER BY `mem_name`";
+		Initform();
+		dialogform();
+		tableform();
+		dialogform_final();
+		dialog(title);
 	}
 	
 	private void baseform() {
@@ -368,6 +384,11 @@ public class LbDB_member_Frame extends LbDB_main_Frame {
 			}
 			tf_dialog.setText(result.getString("member.mem_id"));
 			fk.insert_mem_no(result.getInt("member.mem_no"));
+			
+			if(res != null) {
+				res.research();
+			}
+			
 			closeFrame();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

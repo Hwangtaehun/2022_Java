@@ -533,6 +533,13 @@ public class LbDB_main_Frame extends LbDB_Frame {
 			JOptionPane.showMessageDialog(null, "검색된 자료가 없습니다.",  "테이블 오류", JOptionPane.PLAIN_MESSAGE);
 		}
 		
+		try {
+			rs.beforeFirst();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return bool;
 	}
 	
